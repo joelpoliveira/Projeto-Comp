@@ -1,6 +1,8 @@
 %{
-	int 😅 = 2;
+	int x = 0;
 %}
+
+%X COMMENT
 
 %%
 
