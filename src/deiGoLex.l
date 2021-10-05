@@ -53,6 +53,9 @@
 [0-9]			{fprintf(yyout, "INTLIT\n");}
 [0-9]+"."		{fprintf(yyout, "REALLIT\n");}
 
+.				{fprintf(yyout, "%s", yytext);}
+\n				{fprintf(yyout, "\n");}
+
 <BCOMMENT>"*/" 	{fprintf(yyout, "END BCOMMENT\n"); BEGIN 0;}
 <BCOMMENT>\n 	{fprintf(yyout, "\n");}
 <BCOMMENT>. 	{ECHO;}
