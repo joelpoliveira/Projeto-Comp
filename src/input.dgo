@@ -1,5 +1,12 @@
-dkjsandaisnduia
-853984fdnn
-sdfnsj
-sdas_dasdasADGSSABDYU
-ola_123
+// You can edit this code!
+package main
+
+import "fmt"
+
+
+func main() {
+	/*
+	Testing Block Comment
+	*/
+	fmt.Println("Hello, World!")
+}
