@@ -1,5 +1,5 @@
 main:
-	flex deiGoLex.l
+	flex gocompiler.l
 	clang -o gocompiler lex.yy.c
 
 .PHONY: clean
