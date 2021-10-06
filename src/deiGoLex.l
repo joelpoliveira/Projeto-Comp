@@ -2,7 +2,10 @@
 
 %}
 
-%X INT CODE BCOMMENT LCOMMENT
+letter  [a-zA-Z]
+number  [0-9]
+
+%X INT BCOMMENT LCOMMENT
 
 %%
 
@@ -47,14 +50,15 @@
 "++"|"--"		{fprintf(yyout, "RESERVED\n");}
 "/*"			{fprintf(yyout, "BCOMMENT\n"); BEGIN BCOMMENT;}
 "//"			{fprintf(yyout, "LCOMMENT\n"); BEGIN LCOMMENT;}
+" "             {fprintf(yyout, "");}
 
-[a-zA-Z]+		{fprintf(yyout, "ID\n");}
-[.^\r\n"]+		{fprintf(yyout, "STRLIT\n");}
-[0-9]			{fprintf(yyout, "INTLIT\n");}
-[0-9]+"."		{fprintf(yyout, "REALLIT\n");}
+{number}+			                {fprintf(yyout, "INTLIT(%s)\n", yytext);}
+{number}*"."{1}{number}+		    {fprintf(yyout, "REALLIT(%s)\n", yytext);}
+{letter}|({letter}|{number}|"_")* 	{fprintf(yyout, "ID(%s)\n", yytext);}
+\"[^\"]*\"                          {fprintf(yyout, "STRLIT(%s)\n", yytext);}
 
 .				{fprintf(yyout, "%s", yytext);}
-\n				{fprintf(yyout, "\n");}
+\n				{fprintf(yyout, "");}
 
 <BCOMMENT>"*/" 	{fprintf(yyout, "END BCOMMENT\n"); BEGIN 0;}
 <BCOMMENT>\n 	{fprintf(yyout, "\n");}
@@ -62,7 +66,6 @@
 
 <LCOMMENT>\n 	{fprintf(yyout, "\n"); BEGIN 0;}
 <LCOMMENT>. 	{ECHO;}
-
 
 %%
 
