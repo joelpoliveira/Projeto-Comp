@@ -1,10 +1,11 @@
 %{
-    // Tomás Mendes - 2019232272
-    // Joel Oliveira - 2019227468
+    /*  Tomás Mendes - 2019232272 */
+    /*  Joel Oliveira - 2019227468 */
 %}
 
 letter  [a-zA-Z]
 number  [0-9]
+
 
 %X INT BCOMMENT LCOMMENT
 
@@ -54,12 +55,12 @@ number  [0-9]
 " "             {fprintf(yyout, "");}
 
 {number}+			                {fprintf(yyout, "INTLIT(%s)\n", yytext);}
-{number}*"."{1}{number}+		    {fprintf(yyout, "REALLIT(%s)\n", yytext);}
-{letter}|({letter}|{number}|"_")* 	{fprintf(yyout, "ID(%s)\n", yytext);}
+{number}*"."{number}+		    	{fprintf(yyout, "REALLIT(%s)\n", yytext);}
+{letter}[a-zA-Z0-9_]* 				{fprintf(yyout, "ID(%s)\n", yytext);}
 \"[^\"]*\"                          {fprintf(yyout, "STRLIT(%s)\n", yytext);}
 
 .				{fprintf(yyout, "%s", yytext);}
-\n				{fprintf(yyout, "");}
+\r\n|\n				{fprintf(yyout, "");}
 
 <BCOMMENT>"*/" 	{fprintf(yyout, "END BCOMMENT\n"); BEGIN 0;}
 <BCOMMENT>\n 	{fprintf(yyout, "\n");}
