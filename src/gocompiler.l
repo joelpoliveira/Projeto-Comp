@@ -5,7 +5,7 @@
 
 letter  [a-zA-Z]
 number  [0-9]
-
+hexa	(0(x|X)[0-9a-fA-F]+)
 
 %X SEMICOLON BCOMMENT LCOMMENT
 
@@ -54,24 +54,24 @@ number  [0-9]
 "++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext);}
 " "             {fprintf(yyout, "");}
 
-{number}+|0[0-7]+|(0(x|X)[0-9a-fA-F]+)	{fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+{number}+|0[0-7]+|{hexa}				{fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 {number}*"."{number}+		    	    {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 {letter}[a-zA-Z0-9_]* 				    {fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
 \"[^\"]*\"                              {fprintf(yyout, "STRLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 
-.				        {fprintf(yyout, "%s", yytext);}
-\r\n|\n				    {fprintf(yyout, "");}
+.				        				{fprintf(yyout, "%s", yytext);}
+\r\n|\n				    				{fprintf(yyout, "");}
 
-<BCOMMENT>"*/" 	        {fprintf(yyout, "END BCOMMENT\n"); BEGIN 0;}
-<BCOMMENT>\n 	        {fprintf(yyout, "\n");}
-<BCOMMENT>. 	        {ECHO;}
+<BCOMMENT>"*/" 	        				{fprintf(yyout, "END BCOMMENT\n"); BEGIN 0;}
+<BCOMMENT>\r\n|\n 	        			{fprintf(yyout, "\n");}
+<BCOMMENT>. 	        				{ECHO;}
 
-<LCOMMENT>\n 	        {fprintf(yyout, "\n"); BEGIN 0;}
-<LCOMMENT>. 	        {ECHO;}
+<LCOMMENT>\r\n|\n 	        			{fprintf(yyout, "\n"); BEGIN 0;}
+<LCOMMENT>. 	        				{ECHO;}
 
-<SEMICOLON>\n                           {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;}
-<SEMICOLON>\s                           {fprintf(yyout, "");}
-<SEMICOLON>.                            {BEGIN 0;}
+<SEMICOLON>\r\n|\n                      {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;}
+<SEMICOLON>\s	                        {fprintf(yyout, "");}
+<SEMICOLON>.                            {yyless(0); BEGIN 0;}
 
 %%
 

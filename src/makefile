@@ -1,6 +1,6 @@
 main:
 	flex gocompiler.l
-	clang -o gocompiler lex.yy.c
+	clang-7 -o gocompiler lex.yy.c
 
 .PHONY: clean
 clean:
