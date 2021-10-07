@@ -5,7 +5,9 @@
 
 letter  [a-zA-Z]
 number  [0-9]
+float   {number}*"."{number}+
 hexa	(0(x|X)[0-9a-fA-F]+)
+octal   (0[0-7]+)
 
 %X SEMICOLON BCOMMENT LCOMMENT
 
@@ -54,13 +56,13 @@ hexa	(0(x|X)[0-9a-fA-F]+)
 "++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext);}
 " "             {fprintf(yyout, "");}
 
-{number}+|0[0-7]+|{hexa}				{fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
-{number}*"."{number}+		    	    {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+{number}+|{octal}|{hexa}				{fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+{float}((e|E)[+-]{number}+)* 	        {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 {letter}[a-zA-Z0-9_]* 				    {fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
 \"[^\"]*\"                              {fprintf(yyout, "STRLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 
-.				        				{fprintf(yyout, "%s", yytext);}
 \r\n|\n				    				{fprintf(yyout, "");}
+.				        				{fprintf(yyout, "INVALID(%s)\n", yytext);}
 
 <BCOMMENT>"*/" 	        				{fprintf(yyout, "END BCOMMENT\n"); BEGIN 0;}
 <BCOMMENT>\r\n|\n 	        			{fprintf(yyout, "\n");}
