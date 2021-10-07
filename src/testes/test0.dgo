@@ -1,0 +1,12 @@
+package main
+
+func teste(n int) int {
+    n = n + 01236 + 0xABC
+    return n
+}
+
+func main() {
+    var argument int;
+    fmt.Println("Hello World!")
+    fmt.Println(teste(argument))
+}

@@ -7,7 +7,7 @@ letter  [a-zA-Z]
 number  [0-9]
 
 
-%X INT BCOMMENT LCOMMENT
+%X SEMICOLON BCOMMENT LCOMMENT
 
 %%
 
@@ -32,11 +32,11 @@ number  [0-9]
 "!"				{fprintf(yyout, "NOT\n");}
 "&&"			{fprintf(yyout, "AND\n");}
 "||"			{fprintf(yyout, "OR\n");}
-"}"				{fprintf(yyout, "RBRACE\n");}
-")"				{fprintf(yyout, "RPAR\n");}
-"]"				{fprintf(yyout, "RSQ\n");}
+"}"				{fprintf(yyout, "RBRACE\n"); BEGIN SEMICOLON;}
+")"				{fprintf(yyout, "RPAR\n"); BEGIN SEMICOLON;}
+"]"				{fprintf(yyout, "RSQ\n"); BEGIN SEMICOLON;}
 "package"		{fprintf(yyout, "PACKAGE\n");}
-"return"		{fprintf(yyout, "RETURN\n");}
+"return"		{fprintf(yyout, "RETURN\n"); BEGIN SEMICOLON;}
 "else"			{fprintf(yyout, "ELSE\n");}
 "for"			{fprintf(yyout, "FOR\n");}
 "if"			{fprintf(yyout, "IF\n");}
@@ -49,25 +49,29 @@ number  [0-9]
 "strconv.Atoi"	{fprintf(yyout, "PARSEINT\n");}
 "func"			{fprintf(yyout, "FUNC\n");}
 "os.Args"		{fprintf(yyout, "CMDARGS\n");}
-"++"|"--"		{fprintf(yyout, "RESERVED\n");}
 "/*"			{fprintf(yyout, "BCOMMENT\n"); BEGIN BCOMMENT;}
 "//"			{fprintf(yyout, "LCOMMENT\n"); BEGIN LCOMMENT;}
+"++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext);}
 " "             {fprintf(yyout, "");}
 
-{number}+			                {fprintf(yyout, "INTLIT(%s)\n", yytext);}
-{number}*"."{number}+		    	{fprintf(yyout, "REALLIT(%s)\n", yytext);}
-{letter}[a-zA-Z0-9_]* 				{fprintf(yyout, "ID(%s)\n", yytext);}
-\"[^\"]*\"                          {fprintf(yyout, "STRLIT(%s)\n", yytext);}
+{number}+|0[0-7]+|(0(x|X)[0-9a-fA-F]+)	{fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+{number}*"."{number}+		    	    {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+{letter}[a-zA-Z0-9_]* 				    {fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
+\"[^\"]*\"                              {fprintf(yyout, "STRLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 
-.				{fprintf(yyout, "%s", yytext);}
-\r\n|\n				{fprintf(yyout, "");}
+.				        {fprintf(yyout, "%s", yytext);}
+\r\n|\n				    {fprintf(yyout, "");}
 
-<BCOMMENT>"*/" 	{fprintf(yyout, "END BCOMMENT\n"); BEGIN 0;}
-<BCOMMENT>\n 	{fprintf(yyout, "\n");}
-<BCOMMENT>. 	{ECHO;}
+<BCOMMENT>"*/" 	        {fprintf(yyout, "END BCOMMENT\n"); BEGIN 0;}
+<BCOMMENT>\n 	        {fprintf(yyout, "\n");}
+<BCOMMENT>. 	        {ECHO;}
 
-<LCOMMENT>\n 	{fprintf(yyout, "\n"); BEGIN 0;}
-<LCOMMENT>. 	{ECHO;}
+<LCOMMENT>\n 	        {fprintf(yyout, "\n"); BEGIN 0;}
+<LCOMMENT>. 	        {ECHO;}
+
+<SEMICOLON>\n                           {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;}
+<SEMICOLON>\s                           {fprintf(yyout, "");}
+<SEMICOLON>.                            {BEGIN 0;}
 
 %%
 
