@@ -1,6 +1,9 @@
 %{
-    /*  Tomás Mendes - 2019232272 */
-    /*  Joel Oliveira - 2019227468 */
+    // Tomás Mendes - 2019232272
+    // Joel Oliveira - 2019227468
+
+    int line = 1;
+    int col = 1;
 %}
 
 letter  [a-zA-Z]
@@ -51,8 +54,8 @@ octal   (0[0-7]+)
 "strconv.Atoi"	{fprintf(yyout, "PARSEINT\n");}
 "func"			{fprintf(yyout, "FUNC\n");}
 "os.Args"		{fprintf(yyout, "CMDARGS\n");}
-"/*"			{fprintf(yyout, "BCOMMENT\n"); BEGIN BCOMMENT;}
-"//"			{fprintf(yyout, "LCOMMENT\n"); BEGIN LCOMMENT;}
+"/*"			{fprintf(yyout, ""); BEGIN BCOMMENT;}
+"//"			{fprintf(yyout, ""); BEGIN LCOMMENT;}
 "++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext);}
 " "             {fprintf(yyout, "");}
 
@@ -61,15 +64,15 @@ octal   (0[0-7]+)
 {letter}[a-zA-Z0-9_]* 				    {fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
 \"[^\"]*\"                              {fprintf(yyout, "STRLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 
-\r\n|\n				    				{fprintf(yyout, "");}
+\r\n|\n				    				{fprintf(yyout, ""); line++;}
 .				        				{fprintf(yyout, "INVALID(%s)\n", yytext);}
 
-<BCOMMENT>"*/" 	        				{fprintf(yyout, "END BCOMMENT\n"); BEGIN 0;}
-<BCOMMENT>\r\n|\n 	        			{fprintf(yyout, "\n");}
-<BCOMMENT>. 	        				{ECHO;}
+<BCOMMENT>"*/" 	        				{fprintf(yyout, ""); BEGIN 0;}
+<BCOMMENT>\r\n|\n 	        			{fprintf(yyout, "");}
+<BCOMMENT>. 	        				{;}
 
-<LCOMMENT>\r\n|\n 	        			{fprintf(yyout, "\n"); BEGIN 0;}
-<LCOMMENT>. 	        				{ECHO;}
+<LCOMMENT>\r\n|\n 	        			{fprintf(yyout, ""); BEGIN 0;}
+<LCOMMENT>. 	        				{;}
 
 <SEMICOLON>\r\n|\n                      {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;}
 <SEMICOLON>\s	                        {fprintf(yyout, "");}
