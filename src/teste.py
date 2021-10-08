@@ -18,4 +18,3 @@ for test in os.listdir('./meta1'):
 for test in test_files:
     os.system(f'make && ./gocompiler < meta1/{test}.dgo | diff meta1/{test}.out - > meta1/outputs/{test}.txt')
 
-
