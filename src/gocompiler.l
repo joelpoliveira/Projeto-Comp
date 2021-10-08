@@ -1,14 +1,11 @@
 %{
     // Tomás Mendes - 2019232272
     // Joel Oliveira - 2019227468
-
-    int line = 1;
-    int col = 1;
 %}
 
-letter  [a-zA-Z]
+letter  [a-zA-Z_]
 number  [0-9]
-float   {number}*"."{number}+
+float   {number}*"."{number}*
 hexa	(0(x|X)[0-9a-fA-F]+)
 octal   (0[0-7]+)
 
@@ -59,12 +56,31 @@ octal   (0[0-7]+)
 "++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext);}
 " "             {fprintf(yyout, "");}
 
-{number}+|{octal}|{hexa}				{fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
-{float}((e|E)[+-]{number}+)* 	        {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
-{letter}[a-zA-Z0-9_]* 				    {fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
-\"[^\"]*\"                              {fprintf(yyout, "STRLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+"break"         {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"case"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"chan"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"const"         {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"continue"      {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"default"       {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"defer"         {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"fallthrough"   {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"go"            {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"goto"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"import"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"interface"     {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"map"           {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"range"         {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"select"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"struct"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"switch"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"type"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
 
-\r\n|\n				    				{fprintf(yyout, ""); line++;}
+{number}+|{octal}|{hexa}				        {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+({float}|{number})*((e|E)("+"?|"-"){number}+)*  {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+{letter}[a-zA-Z0-9_]*			                {fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
+\"[^\"]*\"                                      {fprintf(yyout, "STRLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+
+\r\n|\n				    				{fprintf(yyout, "");}
 .				        				{fprintf(yyout, "INVALID(%s)\n", yytext);}
 
 <BCOMMENT>"*/" 	        				{fprintf(yyout, ""); BEGIN 0;}
