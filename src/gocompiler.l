@@ -6,7 +6,7 @@
     int col = 1;
 %}
 
-letter  [a-zA-Z]
+letter  [a-zA-Z_]
 number  [0-9]
 float   {number}*"."{number}+
 hexa	(0(x|X)[0-9a-fA-F]+)
