@@ -6,7 +6,7 @@
 letter  [a-zA-Z_]
 number  [0-9]
 exp     (e|E)[-+]?{number}+
-float   {number}*"."{number}+|{number}+"."{number}*
+float   ({number}+"."{number}*)|({number}*"."{number}+)
 hexa	(0(x|X)[0-9a-fA-F]+)
 octal   (0[0-7]+)
 
@@ -77,7 +77,7 @@ octal   (0[0-7]+)
 "type"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
 
 {number}+|{octal}|{hexa}				        {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
-({float}|{number}+){exp}                        {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+({float}|{number}+){exp}?                       {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 {letter}[a-zA-Z0-9_]*			                {fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
 \"[^\"]*\"                                      {fprintf(yyout, "STRLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 
