@@ -10,7 +10,7 @@ float   ({number}+"."{number}*)|({number}*"."{number}+)
 hexa	(0(x|X)[0-9a-fA-F]+)
 octal   (0[0-7]+)
 
-%X SEMICOLON BCOMMENT LCOMMENT
+%X SEMICOLON BCOMMENT LCOMMENT STRING
 
 %%
 
@@ -54,9 +54,9 @@ octal   (0[0-7]+)
 "os.Args"		{fprintf(yyout, "CMDARGS\n");}
 "/*"			{fprintf(yyout, ""); BEGIN BCOMMENT;}
 "//"			{fprintf(yyout, ""); BEGIN LCOMMENT;}
-"++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext);}
 " "             {fprintf(yyout, "");}
 
+"++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext);}
 "break"         {fprintf(yyout, "RESERVED(%s)\n", yytext);}
 "case"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
 "chan"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
@@ -76,10 +76,10 @@ octal   (0[0-7]+)
 "switch"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
 "type"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
 
-{number}+|{octal}|{hexa}				        {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
-({float}|{number}+){exp}?                       {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
-{letter}[a-zA-Z0-9_]*			                {fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
-\"[^\"]*\"                                      {fprintf(yyout, "STRLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+{number}+|{octal}|{hexa}	    {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+({float}|{number}+){exp}?       {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+{letter}[a-zA-Z0-9_]*			{fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
+\"                              {fprintf(yyout, "STRLIT(\""); BEGIN STRING;}
 
 \r\n|\n				    				{fprintf(yyout, "");}
 .				        				{fprintf(yyout, "INVALID(%s)\n", yytext);}
@@ -94,6 +94,9 @@ octal   (0[0-7]+)
 <SEMICOLON>\r\n|\n                      {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;}
 <SEMICOLON>\s	                        {fprintf(yyout, "");}
 <SEMICOLON>.                            {yyless(0); BEGIN 0;}
+
+<STRING>\"                               {fprintf(yyout, "\")\n"); BEGIN SEMICOLON;}
+<STRING>.|\\\"                           {ECHO;} 
 
 %%
 
