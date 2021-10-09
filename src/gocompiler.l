@@ -96,7 +96,8 @@ octal   (0[0-7]+)
 <SEMICOLON>.                            {yyless(0); BEGIN 0;}
 
 <STRING>\"                               {fprintf(yyout, "\")\n"); BEGIN SEMICOLON;}
-<STRING>.|\\\"                           {ECHO;} 
+<STRING>\n                               {fprintf(yyout, "[ERRO!!]\n"); BEGIN 0;}
+<STRING>.|\\\"|\\n                       {ECHO;}
 
 %%
 
