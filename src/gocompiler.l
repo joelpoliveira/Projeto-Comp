@@ -12,7 +12,7 @@ octal   (0[0-7]+)
 newline \n|\r\n|\r
 sp_chr  \\(\"|n|r|t|f|\\){0,1}
 
-%X SEMICOLON BCOMMENT LCOMMENT STRING END_STRING
+%X SEMICOLON BCOMMENT LCOMMENT STRING END_STRING ILLEGAL_CHR
 
 %%
 
@@ -99,11 +99,14 @@ sp_chr  \\(\"|n|r|t|f|\\){0,1}
 
 <STRING>{newline}                                   {fprintf(yyout, "[ERRO]\n"); BEGIN 0;}
 <STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\n\r\t\f])*\"    {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
-<STRING>\".*\\[^\\\"\n\r\t\f].*\"                   {fprintf(yyout, "Illegal character\n"); BEGIN 0;}
+<STRING>\".*\\[^\\\"\n\r\t\f].*\"                   {yyless(0); BEGIN ILLEGAL_CHR;}
 <STRING>.                                           {;}
 
-<END_STRING>.                             {;}
+<ILLEGAL_CHR>\\[^\\\"\n\r\t\f]                      {fprintf(yyout, "Line <line>, column <col>: illegal character (%s)\n", yytext); END_STRING;}
+<ILLEGAL_CHR>.                                      {;}
 
+<END_STRING>\"                                      {BEGIN 0;}
+<END_STRING>.                                       {;}
 %%
 
 int main(){
