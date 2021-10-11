@@ -10,7 +10,7 @@ float   ({number}+"."{number}*)|({number}*"."{number}+)
 hexa	(0(x|X)[0-9a-fA-F]+)
 octal   (0[0-7]+)
 
-%X SEMICOLON BCOMMENT LCOMMENT STRING
+%X SEMICOLON BCOMMENT LCOMMENT STRING END_STRING
 
 %%
 
@@ -79,7 +79,7 @@ octal   (0[0-7]+)
 {number}+|{octal}|{hexa}	    {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 ({float}|{number}+){exp}?       {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 {letter}[a-zA-Z0-9_]*			{fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
-\"                              {fprintf(yyout, "STRLIT(\""); BEGIN STRING;}
+\"                              {BEGIN STRING;}
 
 \r\n|\n				    				{fprintf(yyout, "");}
 .				        				{fprintf(yyout, "INVALID(%s)\n", yytext);}
@@ -95,9 +95,11 @@ octal   (0[0-7]+)
 <SEMICOLON>\s	                        {fprintf(yyout, "");}
 <SEMICOLON>.                            {yyless(0); BEGIN 0;}
 
-<STRING>\"                               {fprintf(yyout, "\")\n"); BEGIN SEMICOLON;}
-<STRING>\n                               {fprintf(yyout, "[ERRO!!]\n"); BEGIN 0;}
-<STRING>.|\\\"|\\n                       {ECHO;}
+
+<STRING>\n                               {fprintf(yyout, "[ERRO]\n"); BEGIN 0;}
+<STRING>[^\"\n]\"|\\\"|\\n                 {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
+
+<END_STRING>.                         {;}
 
 %%
 
