@@ -9,6 +9,8 @@ exp     (e|E)[-+]?{number}+
 float   ({number}+"."{number}*)|({number}*"."{number}+)
 hexa	(0(x|X)[0-9a-fA-F]+)
 octal   (0[0-7]+)
+newline \n|\r\n|\r
+sp_chr  \\(\"|n|r|t|f|\\){0,1}
 
 %X SEMICOLON BCOMMENT LCOMMENT STRING END_STRING
 
@@ -79,27 +81,27 @@ octal   (0[0-7]+)
 {number}+|{octal}|{hexa}	    {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 ({float}|{number}+){exp}?       {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 {letter}[a-zA-Z0-9_]*			{fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
-\"                              {BEGIN STRING;}
+\"                              {yyless(0); BEGIN STRING;}
 
-\r\n|\n				    				{fprintf(yyout, "");}
-.				        				{fprintf(yyout, "INVALID(%s)\n", yytext);}
+{newline}				    			  {fprintf(yyout, "");}
+.				        				  {fprintf(yyout, "INVALID(%s)\n", yytext);}
 
-<BCOMMENT>"*/" 	        				{fprintf(yyout, ""); BEGIN 0;}
-<BCOMMENT>\r\n|\n 	        			{fprintf(yyout, "");}
-<BCOMMENT>. 	        				{;}
+<BCOMMENT>"*/" 	        				  {BEGIN 0;}
+<BCOMMENT>{newline}|.	        	      {;}
 
-<LCOMMENT>\r\n|\n 	        			{fprintf(yyout, ""); BEGIN 0;}
-<LCOMMENT>. 	        				{;}
+<LCOMMENT>{newline} 	        		  {BEGIN 0;}
+<LCOMMENT>. 	        				  {;}
 
-<SEMICOLON>\r\n|\n                      {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;}
-<SEMICOLON>\s	                        {fprintf(yyout, "");}
-<SEMICOLON>.                            {yyless(0); BEGIN 0;}
+<SEMICOLON>{newline}                      {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;}
+<SEMICOLON>\s	                          {fprintf(yyout, "");}
+<SEMICOLON>.                              {yyless(0); BEGIN 0;}
 
 
-<STRING>\n                               {fprintf(yyout, "[ERRO]\n"); BEGIN 0;}
-<STRING>[^\"\n]\"|\\\"|\\n                 {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
+<STRING>{newline}                                   {fprintf(yyout, "[ERRO]\n"); BEGIN 0;}
+<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\n\r\t\f])*\"    {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
+<STRING>.                                           {;}
 
-<END_STRING>.                         {;}
+<END_STRING>.                             {;}
 
 %%
 
