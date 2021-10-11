@@ -99,6 +99,7 @@ sp_chr  \\(\"|n|r|t|f|\\){0,1}
 
 <STRING>{newline}                                   {fprintf(yyout, "[ERRO]\n"); BEGIN 0;}
 <STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\n\r\t\f])*\"    {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
+<STRING>\".*\\[^\\\"\n\r\t\f].*\"                   {fprintf(yyout, "Illegal character\n"); BEGIN 0;}
 <STRING>.                                           {;}
 
 <END_STRING>.                             {;}
