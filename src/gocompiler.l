@@ -84,7 +84,7 @@ sp_chr  \\(\"|n|r|t|f|\\)
 \"                              {yyless(0); BEGIN STRING;}
 
 {newline}				    			  {;}
-.				        				  {fprintf(yyout, "INVALID(%s)\n", yytext);}
+.				        				  {fprintf(yyout, "Line <line>, column <col>: illegal character(%s)\n", yytext);}
 
 <BCOMMENT>"*/" 	        				  {BEGIN 0;}
 <BCOMMENT>{newline}|.	        	      {;}
@@ -97,16 +97,16 @@ sp_chr  \\(\"|n|r|t|f|\\)
 <SEMICOLON>.                              {yyless(0); BEGIN 0;}
 
 
-<STRING>{newline}                                   {fprintf(yyout, "[ERRO]\n"); BEGIN 0;}
+<STRING>{newline}                                       {fprintf(yyout, "Line <line>, column <col>: unterminated string literal\n"); BEGIN 0;}
 <STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"nrtf\n\r\t\f])*\"    {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
-<STRING>\".*\\[^\\\"nrtf][^\r\n\"]*(\"|{newline})   {yyless(0); BEGIN DUMMY_QUOTE;}
-<STRING>.                                           {;}
+<STRING>\".*\\[^\\\"nrtf][^\r\n\"]*(\"|{newline})       {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>.                                               {;}
 
-<DUMMY_QUOTE>\"                                     {BEGIN ILLEGAL_SCP;}
-<ILLEGAL_SCP>\"                                     {BEGIN SEMICOLON;}
-<ILLEGAL_SCP>{newline}                              {fprintf(yyout, "[ERRO]\n"); BEGIN 0;}
-<ILLEGAL_SCP>\\[^\\\"nrtf\r\n]                          {fprintf(yyout, "Line <line>, column <col>: illegal escape sequence (%s)\n", yytext);}
-<ILLEGAL_SCP>.                                      {;}
+<DUMMY_QUOTE>\"                            {BEGIN ILLEGAL_SCP;}
+<ILLEGAL_SCP>\"                            {BEGIN STRING;}
+<ILLEGAL_SCP>{newline}                     {fprintf(yyout, "Line <line>, column <col>: unterminated string literal\n"); BEGIN 0;}
+<ILLEGAL_SCP>\\[^\\\"nrtf\r\n]             {fprintf(yyout, "Line <line>, column <col>: illegal escape sequence (%s)\n", yytext);}
+<ILLEGAL_SCP>.                             {;}
 
 %%
 
