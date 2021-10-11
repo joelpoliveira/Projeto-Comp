@@ -10,9 +10,9 @@ float   ({number}+"."{number}*)|({number}*"."{number}+)
 hexa	(0(x|X)[0-9a-fA-F]+)
 octal   (0[0-7]+)
 newline \n|\r\n|\r
-sp_chr  \\(\"|n|r|t|f|\\){0,1}
+sp_chr  \\(\"|n|r|t|f|\\)
 
-%X SEMICOLON BCOMMENT LCOMMENT STRING END_STRING ILLEGAL_CHR
+%X SEMICOLON BCOMMENT LCOMMENT STRING DUMMY_QUOTE ILLEGAL_SCP
 
 %%
 
@@ -83,7 +83,7 @@ sp_chr  \\(\"|n|r|t|f|\\){0,1}
 {letter}[a-zA-Z0-9_]*			{fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
 \"                              {yyless(0); BEGIN STRING;}
 
-{newline}				    			  {fprintf(yyout, "");}
+{newline}				    			  {;}
 .				        				  {fprintf(yyout, "INVALID(%s)\n", yytext);}
 
 <BCOMMENT>"*/" 	        				  {BEGIN 0;}
@@ -93,20 +93,21 @@ sp_chr  \\(\"|n|r|t|f|\\){0,1}
 <LCOMMENT>. 	        				  {;}
 
 <SEMICOLON>{newline}                      {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;}
-<SEMICOLON>\s	                          {fprintf(yyout, "");}
+<SEMICOLON>\s	                          {;}
 <SEMICOLON>.                              {yyless(0); BEGIN 0;}
 
 
 <STRING>{newline}                                   {fprintf(yyout, "[ERRO]\n"); BEGIN 0;}
-<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\n\r\t\f])*\"    {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
-<STRING>\".*\\[^\\\"\n\r\t\f].*\"                   {yyless(0); BEGIN ILLEGAL_CHR;}
+<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"nrtf\n\r\t\f])*\"    {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
+<STRING>\".*\\[^\\\"nrtf][^\r\n\"]*(\"|{newline})   {yyless(0); BEGIN DUMMY_QUOTE;}
 <STRING>.                                           {;}
 
-<ILLEGAL_CHR>\\[^\\\"\n\r\t\f]                      {fprintf(yyout, "Line <line>, column <col>: illegal character (%s)\n", yytext); END_STRING;}
-<ILLEGAL_CHR>.                                      {;}
+<DUMMY_QUOTE>\"                                     {BEGIN ILLEGAL_SCP;}
+<ILLEGAL_SCP>\"                                     {BEGIN SEMICOLON;}
+<ILLEGAL_SCP>{newline}                              {fprintf(yyout, "[ERRO]\n"); BEGIN 0;}
+<ILLEGAL_SCP>\\[^\\\"nrtf\r\n]                          {fprintf(yyout, "Line <line>, column <col>: illegal escape sequence (%s)\n", yytext);}
+<ILLEGAL_SCP>.                                      {;}
 
-<END_STRING>\"                                      {BEGIN 0;}
-<END_STRING>.                                       {;}
 %%
 
 int main(){
