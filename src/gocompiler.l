@@ -8,11 +8,10 @@ number  [0-9]
 exp     (e|E)[-+]?{number}+
 float   ({number}+"."{number}*)|({number}*"."{number}+)
 hexa	(0(x|X)[0-9a-fA-F]+)
-octal   (0[0-7]+)
 newline \n|\r\n|\r
 sp_chr  \\(\"|n|r|t|f|\\)
 
-%X SEMICOLON BCOMMENT LCOMMENT STRING DUMMY_QUOTE ILLEGAL_SCP
+%X SEMICOLON BCOMMENT LCOMMENT STRING DUMMY_QUOTE ILLEGAL_SCP OCTAL HEXA
 
 %%
 
@@ -78,8 +77,10 @@ sp_chr  \\(\"|n|r|t|f|\\)
 "switch"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
 "type"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
 
-{number}+|{octal}|{hexa}	    {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
-({float}|{number}+){exp}?       {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+0                               {yyless(0); BEGIN OCTAL;}
+0(x|X)                          {yyless(0); BEGIN HEXA; }
+[1-9]{number}*|0{number}+      	{fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+({float}{exp}?|{number}+{exp})  {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
 {letter}[a-zA-Z0-9_]*			{fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
 \"                              {yyless(0); BEGIN STRING;}
 
@@ -111,6 +112,13 @@ sp_chr  \\(\"|n|r|t|f|\\)
 <ILLEGAL_SCP><<EOF>>                       {fprintf(yyout, "Line <line>, column <col>: unterminated string literal\n"); yyterminate();}
 <ILLEGAL_SCP>.                             {;}
 
+<OCTAL>0[0-7]*                               {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN 0;}
+<OCTAL>[0-9]+                                {fprintf(yyout, "Line <line>, column <col>: invalid octal constant (%s)\n", yytext); BEGIN 0;}
+<OCTAL>.                                     {yyless(0); BEGIN 0;}
+
+<HEXA>0(x|X)[0-9a-fA-F]+                     {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN 0;}
+<HEXA>0(x|X)                                 {fprintf(yyout, "Line <line>, column <col>: invalid hexa constant (%s)\n", yytext); BEGIN 0;}
+<HEXA>.                                      {yyless(0); BEGIN 0;}
 %%
 
 int main(){
