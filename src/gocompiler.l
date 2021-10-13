@@ -1,6 +1,10 @@
 %{
     // Tomás Mendes - 2019232272
     // Joel Oliveira - 2019227468
+    int line = 1;
+    int comment_lines = 1; 
+    int col = 1;
+    int comment_cols = 1; 
 %}
 
 letter  [a-zA-Z_]
@@ -15,104 +19,106 @@ sp_chr  \\(\"|n|r|t|f|\\)
 
 %%
 
-";"				{fprintf(yyout, "SEMICOLON\n");}
-","				{fprintf(yyout, "COMMA\n");}
-"_"				{fprintf(yyout, "BLANKID\n");}
-"="				{fprintf(yyout, "ASSIGN\n");}
-"*"				{fprintf(yyout, "STAR\n");}
-"/"				{fprintf(yyout, "DIV\n");}
-"-"				{fprintf(yyout, "MINUS\n");}
-"+"				{fprintf(yyout, "PLUS\n");}
-"=="			{fprintf(yyout, "EQ\n");}
-">="			{fprintf(yyout, "GE\n");}
-">"				{fprintf(yyout, "GT\n");}
-"{"				{fprintf(yyout, "LBRACE\n");}
-"<="			{fprintf(yyout, "LE\n");}
-"("				{fprintf(yyout, "LPAR\n");}
-"["				{fprintf(yyout, "LSQ\n");}	
-"<"				{fprintf(yyout, "LT\n");}
-"%"				{fprintf(yyout, "MOD\n");}
-"!="			{fprintf(yyout, "NE\n");}
-"!"				{fprintf(yyout, "NOT\n");}
-"&&"			{fprintf(yyout, "AND\n");}
-"||"			{fprintf(yyout, "OR\n");}
-"}"				{fprintf(yyout, "RBRACE\n"); BEGIN SEMICOLON;}
-")"				{fprintf(yyout, "RPAR\n"); BEGIN SEMICOLON;}
-"]"				{fprintf(yyout, "RSQ\n"); BEGIN SEMICOLON;}
-"package"		{fprintf(yyout, "PACKAGE\n");}
-"return"		{fprintf(yyout, "RETURN\n"); BEGIN SEMICOLON;}
-"else"			{fprintf(yyout, "ELSE\n");}
-"for"			{fprintf(yyout, "FOR\n");}
-"if"			{fprintf(yyout, "IF\n");}
-"var"			{fprintf(yyout, "VAR\n");}
-"int"			{fprintf(yyout, "INT\n");}
-"float32"		{fprintf(yyout, "FLOAT32\n");}
-"bool"			{fprintf(yyout, "BOOL\n");}
-"string"		{fprintf(yyout, "STRING\n");}
-"fmt.Println"	{fprintf(yyout, "PRINT\n");}
-"strconv.Atoi"	{fprintf(yyout, "PARSEINT\n");}
-"func"			{fprintf(yyout, "FUNC\n");}
-"os.Args"		{fprintf(yyout, "CMDARGS\n");}
-"/*"			{fprintf(yyout, ""); BEGIN BCOMMENT;}
-"//"			{fprintf(yyout, ""); BEGIN LCOMMENT;}
-" "             {fprintf(yyout, "");}
+";"				{fprintf(yyout, "SEMICOLON\n"); col+=yyleng;}
+","				{fprintf(yyout, "COMMA\n"); col+=yyleng;}
+"_"				{fprintf(yyout, "BLANKID\n"); col+=yyleng;}
+"="				{fprintf(yyout, "ASSIGN\n"); col+=yyleng;}
+"*"				{fprintf(yyout, "STAR\n"); col+=yyleng;}
+"/"				{fprintf(yyout, "DIV\n"); col+=yyleng;}
+"-"				{fprintf(yyout, "MINUS\n"); col+=yyleng;}
+"+"				{fprintf(yyout, "PLUS\n"); col+=yyleng;}
+"=="			{fprintf(yyout, "EQ\n"); col+=yyleng;}
+">="			{fprintf(yyout, "GE\n"); col+=yyleng;}
+">"				{fprintf(yyout, "GT\n"); col+=yyleng;}
+"{"				{fprintf(yyout, "LBRACE\n"); col+=yyleng;}
+"<="			{fprintf(yyout, "LE\n"); col+=yyleng;}
+"("				{fprintf(yyout, "LPAR\n"); col+=yyleng;}
+"["				{fprintf(yyout, "LSQ\n"); col+=yyleng;}	
+"<"				{fprintf(yyout, "LT\n"); col+=yyleng;}
+"%"				{fprintf(yyout, "MOD\n"); col+=yyleng;}
+"!="			{fprintf(yyout, "NE\n"); col+=yyleng;}
+"!"				{fprintf(yyout, "NOT\n"); col+=yyleng;}
+"&&"			{fprintf(yyout, "AND\n"); col+=yyleng;}
+"||"			{fprintf(yyout, "OR\n"); col+=yyleng;}
+"}"				{fprintf(yyout, "RBRACE\n"); col+=yyleng; BEGIN SEMICOLON;}
+")"				{fprintf(yyout, "RPAR\n"); col+=yyleng; BEGIN SEMICOLON;}
+"]"				{fprintf(yyout, "RSQ\n"); col+=yyleng; BEGIN SEMICOLON;}
+"package"		{fprintf(yyout, "PACKAGE\n"); col+=yyleng;}
+"return"		{fprintf(yyout, "RETURN\n"); col+=yyleng; BEGIN SEMICOLON;}
+"else"			{fprintf(yyout, "ELSE\n"); col+=yyleng;}
+"for"			{fprintf(yyout, "FOR\n"); col+=yyleng;}
+"if"			{fprintf(yyout, "IF\n"); col+=yyleng;}
+"var"			{fprintf(yyout, "VAR\n"); col+=yyleng;}
+"int"			{fprintf(yyout, "INT\n"); col+=yyleng;}
+"float32"		{fprintf(yyout, "FLOAT32\n"); col+=yyleng;}
+"bool"			{fprintf(yyout, "BOOL\n"); col+=yyleng;}
+"string"		{fprintf(yyout, "STRING\n"); col+=yyleng;}
+"fmt.Println"	{fprintf(yyout, "PRINT\n"); col+=yyleng;}
+"strconv.Atoi"	{fprintf(yyout, "PARSEINT\n"); col+=yyleng;}
+"func"			{fprintf(yyout, "FUNC\n"); col+=yyleng;}
+"os.Args"		{fprintf(yyout, "CMDARGS\n"); col+=yyleng;}
+"/*"			{col+=yyleng; comment_lines = 1; BEGIN BCOMMENT;}
+"//"			{col+=yyleng; BEGIN LCOMMENT;}
+" "             {col+=yyleng;}
 
-"++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"break"         {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"case"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"chan"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"const"         {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"continue"      {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"default"       {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"defer"         {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"fallthrough"   {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"go"            {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"goto"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"import"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"interface"     {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"map"           {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"range"         {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"select"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"struct"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"switch"        {fprintf(yyout, "RESERVED(%s)\n", yytext);}
-"type"          {fprintf(yyout, "RESERVED(%s)\n", yytext);}
+"++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"break"         {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"case"          {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"chan"          {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"const"         {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"continue"      {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"default"       {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"defer"         {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"fallthrough"   {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"go"            {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"import"        {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"goto"          {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"interface"     {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"map"           {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"range"         {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"select"        {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"struct"        {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"switch"        {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"type"          {fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 
 0                               {yyless(0); BEGIN OCTAL;}
-[1-9]{number}*|{hexa}          	{fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN SEMICOLON;}
-({float}{exp}?|{number}+{exp})  {fprintf(yyout, "REALLIT(%s)\n", yytext); BEGIN SEMICOLON;}
-{letter}[a-zA-Z0-9_]*			{fprintf(yyout, "ID(%s)\n", yytext); BEGIN SEMICOLON;}
+[1-9]{number}*|{hexa}          	{fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
+({float}{exp}?|{number}+{exp})  {fprintf(yyout, "REALLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
+{letter}[a-zA-Z0-9_]*			{fprintf(yyout, "ID(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
 \"                              {yyless(0); BEGIN STRING;}
 
-{newline}				    			  {;}
-.				        				  {fprintf(yyout, "Line <line>, column <col>: illegal character(%s)\n", yytext);}
+{newline}				    			  {line++; col = 0;}
+.				        				  {fprintf(yyout, "Line %d, column %d: illegal character (%s)\n", line, col, yytext); col+=yyleng;}
 
-<BCOMMENT>"*/" 	        				  {BEGIN 0;}
-<BCOMMENT>{newline}|.	        	      {;}
+<BCOMMENT>"*/" 	        				  {line+=comment_lines; col+=comment_cols; BEGIN 0;}
+<BCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0;}
+<BCOMMENT><<EOF>>                         {fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
+<BCOMMENT>.     	        	          {comment_cols+=yyleng;}
 
-<LCOMMENT>{newline} 	        		  {BEGIN 0;}
+<LCOMMENT>{newline} 	        		  {line++; col = 0; BEGIN 0;}
 <LCOMMENT>. 	        				  {;}
 
-<SEMICOLON>{newline}                      {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;}
+<SEMICOLON>{newline}                      {fprintf(yyout, "SEMICOLON\n"); line++; col = 0; BEGIN 0;}
 <SEMICOLON>\s	                          {;}
 <SEMICOLON>.                              {yyless(0); BEGIN 0;}
 
 
-<STRING>{newline}                                            {fprintf(yyout, "Line <line>, column <col>: unterminated string literal\n"); BEGIN 0;}
+<STRING>{newline}                                            {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
 <STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"nrtf\t\f\r\n])*\"         {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
-<STRING>\".*\\[^\\\"nrtf]?.*(\"|{newline})?                   {yyless(0); BEGIN DUMMY_QUOTE;}
-<STRING><<EOF>>                                              {fprintf(yyout, "Line <line>, column <col>: unterminated string literal\n"); yyterminate();}
-<STRING>.                                               {;}
+<STRING>\".*\\[^\\\"nrtf]?.*(\"|{newline})?                  {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING><<EOF>>                                              {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
+<STRING>.                                                    {;}
 
 <DUMMY_QUOTE>\"                            {BEGIN ILLEGAL_SCP;}
 <ILLEGAL_SCP>\"                            {BEGIN STRING;}
-<ILLEGAL_SCP>{newline}                     {fprintf(yyout, "Line <line>, column <col>: unterminated string literal\n"); BEGIN 0;}
-<ILLEGAL_SCP>\\[^\\\"nrtf\r\n ]            {fprintf(yyout, "Line <line>, column <col>: illegal escape sequence (%s)\n", yytext);}
-<ILLEGAL_SCP>\\[\r\n ]{0,2}                {fprintf(yyout, "Line <line>, column <col>: illegal escape sequence (%c)\n", yytext[0]);}
-<ILLEGAL_SCP><<EOF>>                       {fprintf(yyout, "Line <line>, column <col>: unterminated string literal\n"); yyterminate();}
-<ILLEGAL_SCP>.                             {;}
+<ILLEGAL_SCP>{newline}                     {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line++, col); col = 0; BEGIN 0;}
+<ILLEGAL_SCP>\\[^\\\"nrtf\r\n ]            {fprintf(yyout, "Line %d, column %d: illegal escape sequence (%s)\n", line, col, yytext); col+=yyleng;}
+<ILLEGAL_SCP>\\[\r\n ]{0,2}                {fprintf(yyout, "Line %d, column %d: illegal escape sequence (%c)\n", line, col, yytext[0]); col+=yyleng;}
+<ILLEGAL_SCP><<EOF>>                       {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
+<ILLEGAL_SCP>.                             {col+=yyleng;}
 
-<OCTAL>0[0-7]*                               {fprintf(yyout, "INTLIT(%s)\n", yytext); BEGIN 0;}
-<OCTAL>[0-9]+                                {fprintf(yyout, "Line <line>, column <col>: invalid octal constant (%s)\n", yytext); BEGIN 0;}
+<OCTAL>0[0-7]*                               {fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; BEGIN 0;}
+<OCTAL>[0-9]+                                {fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); col+=yyleng; BEGIN 0;}
 <OCTAL>.                                     {yyless(0); BEGIN 0;}
 
 %%
