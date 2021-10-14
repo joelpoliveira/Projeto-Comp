@@ -3,8 +3,8 @@
     // Joel Oliveira - 2019227468
     int line = 1;
     int comment_lines = 1; 
-    int col = 1;
-    int comment_cols = 1; 
+    int col = 0;
+    int comment_cols = 0; 
 %}
 
 letter  [a-zA-Z_]
@@ -57,8 +57,8 @@ sp_chr  \\(\"|n|r|t|f|\\)
 "strconv.Atoi"	{fprintf(yyout, "PARSEINT\n"); col+=yyleng;}
 "func"			{fprintf(yyout, "FUNC\n"); col+=yyleng;}
 "os.Args"		{fprintf(yyout, "CMDARGS\n"); col+=yyleng;}
-"/*"			{col+=yyleng; comment_lines = 1; BEGIN BCOMMENT;}
-"//"			{col+=yyleng; BEGIN LCOMMENT;}
+"/*"			{col+=yyleng-1; comment_lines = 1; BEGIN BCOMMENT;}
+"//"			{col+=yyleng-1; BEGIN LCOMMENT;}
 " "             {col+=yyleng;}
 
 "++"|"--"		{fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
@@ -90,7 +90,7 @@ sp_chr  \\(\"|n|r|t|f|\\)
 {newline}				    			  {line++; col = 0;}
 .				        				  {fprintf(yyout, "Line %d, column %d: illegal character (%s)\n", line, col, yytext); col+=yyleng;}
 
-<BCOMMENT>"*/" 	        				  {line+=comment_lines; col+=comment_cols; BEGIN 0;}
+<BCOMMENT>"*/" 	        				  {line+=comment_lines; col+=comment_cols+1; BEGIN 0;}
 <BCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0;}
 <BCOMMENT><<EOF>>                         {fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
 <BCOMMENT>.     	        	          {comment_cols+=yyleng;}
