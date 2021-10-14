@@ -59,7 +59,7 @@ sp_chr  \\(\"|n|r|t|f|\\)
 "strconv.Atoi"	{fprintf(yyout, "PARSEINT\n"); col+=yyleng;}
 "func"			{fprintf(yyout, "FUNC\n"); col+=yyleng;}
 "os.Args"		{fprintf(yyout, "CMDARGS\n"); col+=yyleng;}
-"/*"			{col+=yyleng-1; comment_lines = 1; BEGIN BCOMMENT;}
+"/*"			{col+=yyleng-1; comment_lines = 0; BEGIN BCOMMENT;}
 "//"			{col+=yyleng-1; BEGIN LCOMMENT;}
 " "             {col+=yyleng;}
 
@@ -101,8 +101,8 @@ sp_chr  \\(\"|n|r|t|f|\\)
 <LCOMMENT>. 	        				  {;}
 
 <SEMICOLON>{newline}                      {fprintf(yyout, "SEMICOLON\n"); line++; col = 0; BEGIN 0;}
-<SEMICOLON>\s	                          {;}
 <SEMICOLON>"/*"|"//"                      {yyless(0); fprintf(yyout, "SEMICOLON\n"); line++; col = 0; BEGIN 0;}
+<SEMICOLON>" "|\t	                      {col+=yyleng;}
 <SEMICOLON>.                              {yyless(0); BEGIN 0;}
 <SEMICOLON><<EOF>>                        {fprintf(yyout, "SEMICOLON\n"); yyterminate();}
 
@@ -114,17 +114,17 @@ sp_chr  \\(\"|n|r|t|f|\\)
 <STRING><<EOF>>                                            {if (flag) fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <STRING>.                                                  {col+=yyleng;}
 
-<DUMMY_QUOTE>\"                            {col++; BEGIN ILLEGAL_SCP;}
-<ILLEGAL_SCP>\"                            {BEGIN 0;}
+<DUMMY_QUOTE>\"                            {col++; comment_cols = 1; BEGIN ILLEGAL_SCP;}
+<ILLEGAL_SCP>\"                            {col+=comment_cols; BEGIN 0;}
 <ILLEGAL_SCP>{newline}                     {if (flag) fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
-<ILLEGAL_SCP>\\(\"|n|r|t|f|\\)             {col+=yyleng;}
-<ILLEGAL_SCP>\\[^\\\"nrtf\r\n ]            {if (flag) fprintf(yyout, "Line %d, column %d: illegal escape sequence (%s)\n", line, col, yytext); col+=yyleng;}
-<ILLEGAL_SCP>\\{newline}                   {if (flag) fprintf(yyout, "Line %d, column %d: illegal escape sequence (%c)\n"
-                                                           "Line %d, column %d: unterminated string literal\n", line, col, yytext[0], line, col); line++; col=0; BEGIN 0;}
-<ILLEGAL_SCP>\\                            {if (flag) fprintf(yyout, "Line %d, column %d: illegal escape sequence (%s)\n", line, col, yytext); col+=yyleng;}
-<ILLEGAL_SCP>\\" "                         {if (flag) fprintf(yyout, "Line %d, column %d: illegal escape sequence (%s)\n", line, col, yytext); col+=yyleng;}
+<ILLEGAL_SCP>\\(\"|n|r|t|f|\\)             {comment_cols+=yyleng;}
+<ILLEGAL_SCP>\\[^\\\"nrtf\r\n ]            {if (flag) fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
+<ILLEGAL_SCP>\\{newline}                   {if (flag) fprintf(yyout, "Line %d, column %d: invalid escape sequence (%c)\n"
+                                                           "Line %d, column %d: unterminated string literal\n", line, col+comment_cols, yytext[0], line, col); line++; col=0; BEGIN 0;}
+<ILLEGAL_SCP>\\                            {if (flag) fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
+<ILLEGAL_SCP>\\" "                         {if (flag) fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
 <ILLEGAL_SCP><<EOF>>                       {if (flag) fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
-<ILLEGAL_SCP>.                             {col+=yyleng;}
+<ILLEGAL_SCP>.                             {comment_cols+=yyleng;}
 
 <OCTAL>0[0-7]*                             {fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; BEGIN 0;}
 <OCTAL>[0-9]+                              {col++; if (flag) fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); col+=yyleng-1; BEGIN 0;}
