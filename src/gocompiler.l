@@ -97,7 +97,7 @@ sp_chr  \\(\"|n|r|t|f|\\)
 <BCOMMENT><<EOF>>                         {if (flag) fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
 <BCOMMENT>.     	        	          {comment_cols+=yyleng;}
 
-<LCOMMENT>{newline} 	        		  {line++; col = 0; BEGIN 0;}
+<LCOMMENT>{newline} 	        		  {col = 0; BEGIN 0;}
 <LCOMMENT>. 	        				  {;}
 
 <SEMICOLON>{newline}                      {fprintf(yyout, "SEMICOLON\n"); line++; col = 0; BEGIN 0;}

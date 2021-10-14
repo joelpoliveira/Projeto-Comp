@@ -1,3 +1,4 @@
+.SILENT:
 main:
 	flex gocompiler.l
 	clang-7 -o gocompiler lex.yy.c
