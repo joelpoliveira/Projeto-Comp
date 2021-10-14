@@ -1,6 +1,15 @@
 %{
     // Tomás Mendes - 2019232272
     // Joel Oliveira - 2019227468
+
+    /*
+        REVER   :: ids_keywords             ( C ) 16/20
+                :: comments                 ( F ) 10/15
+                :: literals                 ( G ) 25/30
+                :: unterminated_comments    ( I ) 0/10
+                :: str_bad                  ( J ) 0/20
+                :: semicolons               ( K ) 20/25
+    */
     int line = 1;
     int comment_lines = 1; 
     int col = 0;
