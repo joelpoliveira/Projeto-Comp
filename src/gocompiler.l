@@ -104,16 +104,20 @@ sp_chr  \\(\"|n|r|t|f|\\)
 
 
 <STRING>{newline}                                            {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
-<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"nrtf\t\f\r\n])*\"         {fprintf(yyout, "STRLIT(\"%s\")\n", yytext); BEGIN SEMICOLON;}
-<STRING>\".*\\[^\\\"nrtf]?.*(\"|{newline})?                  {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\t\f\r\n])*\"             {fprintf(yyout, "STRLIT(%s)\n", yytext); BEGIN SEMICOLON;}
+<STRING>\".*\\[^\\\"nrtf].*(\"|{newline})?                   {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>\".*\\                                               {yyless(0); BEGIN DUMMY_QUOTE;}
 <STRING><<EOF>>                                              {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <STRING>.                                                    {;}
 
 <DUMMY_QUOTE>\"                            {BEGIN ILLEGAL_SCP;}
-<ILLEGAL_SCP>\"                            {BEGIN STRING;}
+<ILLEGAL_SCP>\"                            {BEGIN 0;}
 <ILLEGAL_SCP>{newline}                     {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line++, col); col = 0; BEGIN 0;}
+<ILLEGAL_SCP>\\(\"|n|r|t|f|\\)             {col+=yyleng;}
 <ILLEGAL_SCP>\\[^\\\"nrtf\r\n ]            {fprintf(yyout, "Line %d, column %d: illegal escape sequence (%s)\n", line, col, yytext); col+=yyleng;}
-<ILLEGAL_SCP>\\[\r\n ]{0,2}                {fprintf(yyout, "Line %d, column %d: illegal escape sequence (%c)\n", line, col, yytext[0]); col+=yyleng;}
+<ILLEGAL_SCP>\\{newline}                   {fprintf(yyout, "Line %d, column %d: illegal escape sequence (%c)\n"
+                                                           "Line %d, column %d: unterminated string literal\n", line, col, yytext[0], line, col); col+=yyleng; BEGIN 0;}
+<ILLEGAL_SCP>\\                            {fprintf(yyout, "Line %d, column %d: illegal escape sequence (%s)\n", line, col, yytext); col+=yyleng;}
 <ILLEGAL_SCP><<EOF>>                       {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <ILLEGAL_SCP>.                             {col+=yyleng;}
 
