@@ -69,7 +69,7 @@ whispace (" "|\t)
 "strconv.Atoi"	{if (flag) fprintf(yyout, "PARSEINT\n"); col+=yyleng;}
 "func"			{if (flag) fprintf(yyout, "FUNC\n"); col+=yyleng;}
 "os.Args"		{if (flag) fprintf(yyout, "CMDARGS\n"); col+=yyleng;}
-"/*"			{col+=yyleng-1; comment_lines = 0; BEGIN BCOMMENT;}
+"/*"			{col++; comment_lines = 0; BEGIN BCOMMENT;}
 "//"			{col+=yyleng-1; BEGIN LCOMMENT;}
 " "             {col+=yyleng;}
 
@@ -103,7 +103,7 @@ whispace (" "|\t)
 {whispace}                                {col+=yyleng;}
 .				        				  {col+=yyleng; fprintf(yyout, "Line %d, column %d: illegal character (%s)\n", line, col, yytext);}
 
-<BCOMMENT>"*/" 	        				  {line+=comment_lines; col+=comment_cols+1; BEGIN 0;}
+<BCOMMENT>"*/" 	        				  {line+=comment_lines; col+=comment_cols+yyleng+1; BEGIN 0;}
 <BCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0;}
 <BCOMMENT><<EOF>>                         {fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
 <BCOMMENT>.     	        	          {comment_cols+=yyleng;}
@@ -118,14 +118,15 @@ whispace (" "|\t)
 <SEMICOLON><<EOF>>                        {if (flag) fprintf(yyout, "SEMICOLON\n"); yyterminate();}
 
 
-<STRING>{newline}                                          {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
-<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\t\f\r\n])*\"           {if (flag) fprintf(yyout, "STRLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
-<STRING>\".*\\[^\\\"nrtf ].*(\"|{newline})?                {yyless(0); BEGIN DUMMY_QUOTE;}
-<STRING>\".*\\                                             {yyless(0); BEGIN DUMMY_QUOTE;}
-<STRING><<EOF>>                                            {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
-<STRING>.                                                  {col+=yyleng;}
+<STRING>{newline}                                           {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
+<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\t\f\r\n])*\"            {if (flag) fprintf(yyout, "STRLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
+<STRING>\"[^\"\r\n]*\\[^\\\"nrtf ][^\"\r\n]*(\"|{newline})? {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>\".*\\                                              {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING><<EOF>>                                             {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
+<STRING>\"                                                  {col+=yyleng;}
+<STRING>.                                                   {;}
 
-<DUMMY_QUOTE>\"                            {col++; comment_cols = 1; BEGIN ILLEGAL_SCP;}
+<DUMMY_QUOTE>\"                            {col++; comment_cols = 1;BEGIN ILLEGAL_SCP;}
 <ILLEGAL_SCP>\"                            {col+=comment_cols; BEGIN 0;}
 <ILLEGAL_SCP>{newline}                     {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
 <ILLEGAL_SCP>\\(\"|n|r|t|f|\\)             {comment_cols+=yyleng;}
