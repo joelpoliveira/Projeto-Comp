@@ -74,11 +74,11 @@ whispace (" "|\t)
 " "             {col+=yyleng;}
 
 "++"|"--"		{if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
-"break"         {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"break"         {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
 "case"          {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "chan"          {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "const"         {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
-"continue"      {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
+"continue"      {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
 "default"       {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "defer"         {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "fallthrough"   {if (flag) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
