@@ -121,7 +121,7 @@ whispace (" "|\t)
 <STRING>{newline}                                           {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
 <STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\t\f\r\n])*\"            {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
 <STRING>\"[^\"\r\n]*\\[^\\\"nrtf ][^\"\r\n]*(\"|{newline})? {yyless(0); BEGIN DUMMY_QUOTE;}
-<STRING>\".*\\                                              {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>[^\r\n\"*]\\                                        {yyless(0); BEGIN DUMMY_QUOTE;}
 <STRING><<EOF>>                                             {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <STRING>\"                                                  {col+=yyleng;}
 <STRING>.                                                   {;}
