@@ -14,7 +14,7 @@
     int col = 0;
     int comment_cols = 0;
 
-    int flag_1;
+    int flag_1, swaped_line;
 %}
 
 letter  [a-zA-Z_]
@@ -68,8 +68,8 @@ whispace (" "|\t)
 "strconv.Atoi"	{if (flag_1) fprintf(yyout, "PARSEINT\n"); col+=yyleng;}
 "func"			{if (flag_1) fprintf(yyout, "FUNC\n"); col+=yyleng;}
 "os.Args"		{if (flag_1) fprintf(yyout, "CMDARGS\n"); col+=yyleng;}
-"/*"			{col++; comment_lines = 0; BEGIN BCOMMENT;}
-"//"			{col+=yyleng-1; BEGIN LCOMMENT;}
+"/*"			{col++; comment_lines = 0; comment_cols = 0; swaped_line = 0; BEGIN BCOMMENT;}
+"//"			{col++; BEGIN LCOMMENT;}
 
 "++"|"--"		{if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "break"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
@@ -101,8 +101,8 @@ whispace (" "|\t)
 {whispace}                                {col+=yyleng;}
 .				        				  {col+=1; fprintf(yyout, "Line %d, column %d: illegal character (%s)\n", line, col, yytext);col+=yyleng-1;}
 
-<BCOMMENT>"*/" 	        				  {line+=comment_lines; col+=comment_cols+1; BEGIN 0;}
-<BCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0;}
+<BCOMMENT>"*/" 	        				  {line+=comment_lines; if (swaped_line) col = 0; col+=comment_cols+1+yyleng; BEGIN 0;}
+<BCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0; swaped_line = 1;}
 <BCOMMENT><<EOF>>                         {fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
 <BCOMMENT>.     	        	          {comment_cols+=yyleng;}
 
@@ -111,13 +111,13 @@ whispace (" "|\t)
 
 <SEMICOLON>{newline}                      {if (flag_1) fprintf(yyout, "SEMICOLON\n"); line++; col = 0; BEGIN 0;}
 <SEMICOLON>{whispace}	                  {col+=yyleng;}
-<SEMICOLON>"/*"                           {col++; comment_lines = 0; comment_cols = 0; BEGIN SEMIBCOMMENT;}
+<SEMICOLON>"/*"                           {col++; comment_lines = 0; comment_cols = 0; swaped_line = 0; BEGIN SEMIBCOMMENT;}
 <SEMICOLON>"//"                           {BEGIN SEMILCOMMENT;}
 <SEMICOLON>.                              {yyless(0); BEGIN 0;}
 <SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n"); yyterminate();}
 
-<SEMIBCOMMENT>"*/" 	        				  {line+=comment_lines; col+=comment_cols+1; BEGIN SEMICOLON;}
-<SEMIBCOMMENT>{newline}        	              {col = 0; comment_lines++; comment_cols = 0;}
+<SEMIBCOMMENT>"*/" 	        				  {line+=comment_lines;if (swaped_line) col = 0; col+=comment_cols+1+yyleng; BEGIN SEMICOLON;}
+<SEMIBCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0; swaped_line=1; }
 <SEMIBCOMMENT><<EOF>>                         {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
 <SEMIBCOMMENT>.     	        	          {comment_cols+=yyleng;}
 
@@ -127,7 +127,7 @@ whispace (" "|\t)
 <STRING>{newline}                                           {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
 <STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\t\f\r\n])*\"            {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
 <STRING>\"[^\"\r\n]*\\[^\\\"nrtf ][^\"\r\n]*(\"|{newline})? {yyless(0); BEGIN DUMMY_QUOTE;}
-<STRING>\"[^\"\r\n]*\\                                              {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>\"[^\"\r\n]*\\                                      {yyless(0); BEGIN DUMMY_QUOTE;}
 <STRING><<EOF>>                                             {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <STRING>\"                                                  {col+=yyleng;}
 <STRING>.                                                   {;}
