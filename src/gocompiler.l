@@ -72,11 +72,11 @@ whispace (" "|\t)
 "//"			{col+=yyleng-1; BEGIN LCOMMENT;}
 
 "++"|"--"		{if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
-"break"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
+"break"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "case"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "chan"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "const"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
-"continue"      {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
+"continue"      {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "default"       {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "defer"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
 "fallthrough"   {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;}
@@ -127,7 +127,7 @@ whispace (" "|\t)
 <STRING>{newline}                                           {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
 <STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\t\f\r\n])*\"            {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
 <STRING>\"[^\"\r\n]*\\[^\\\"nrtf ][^\"\r\n]*(\"|{newline})? {yyless(0); BEGIN DUMMY_QUOTE;}
-<STRING>\".*\\                                              {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>\"[^\"\r\n]*\\                                              {yyless(0); BEGIN DUMMY_QUOTE;}
 <STRING><<EOF>>                                             {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <STRING>\"                                                  {col+=yyleng;}
 <STRING>.                                                   {;}
