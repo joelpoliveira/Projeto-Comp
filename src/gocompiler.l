@@ -3,11 +3,11 @@
     // Joel Oliveira - 2019227468
 
     /*
-        REVER   :: ids_keywords             ( C ) 16/20
+        REVER   :: ids_keywords             ( C ) 20/20
                 :: literals                 ( G ) 25/30
-                :: unterminated_comments    ( I ) 0/10
+                :: unterminated_comments    ( I ) 10/10
                 :: str_bad                  ( J ) 0/20
-                :: semicolons               ( K ) 21/25
+                :: semicolons               ( K ) 25/25
     */
     int line = 1;
     int comment_lines = 1; 
