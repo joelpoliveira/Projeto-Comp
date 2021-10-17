@@ -4,11 +4,10 @@
 
     /*
         REVER   :: ids_keywords             ( C ) 16/20
-                :: comments                 ( F ) 10/15
                 :: literals                 ( G ) 25/30
                 :: unterminated_comments    ( I ) 0/10
                 :: str_bad                  ( J ) 0/20
-                :: semicolons               ( K ) 20/25
+                :: semicolons               ( K ) 21/25
     */
     int line = 1;
     int comment_lines = 1; 
@@ -112,13 +111,13 @@ whispace (" "|\t)
 
 <SEMICOLON>{newline}                      {if (flag_1) fprintf(yyout, "SEMICOLON\n"); line++; col = 0; BEGIN 0;}
 <SEMICOLON>{whispace}	                  {col+=yyleng;}
-<SEMICOLON>"/*"                           {comment_lines = 0; comment_cols = 0; BEGIN SEMIBCOMMENT;}
+<SEMICOLON>"/*"                           {col++; comment_lines = 0; comment_cols = 0; BEGIN SEMIBCOMMENT;}
 <SEMICOLON>"//"                           {BEGIN SEMILCOMMENT;}
 <SEMICOLON>.                              {yyless(0); BEGIN 0;}
 <SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n"); yyterminate();}
 
 <SEMIBCOMMENT>"*/" 	        				  {line+=comment_lines; col+=comment_cols+1; BEGIN SEMICOLON;}
-<SEMIBCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0;}
+<SEMIBCOMMENT>{newline}        	              {col = 0; comment_lines++; comment_cols = 0;}
 <SEMIBCOMMENT><<EOF>>                         {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
 <SEMIBCOMMENT>.     	        	          {comment_cols+=yyleng;}
 
@@ -145,7 +144,7 @@ whispace (" "|\t)
 <ILLEGAL_SCP><<EOF>>                       {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <ILLEGAL_SCP>.                             {comment_cols+=yyleng;}
 
-<OCTAL>0[0-7]*                             {if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; BEGIN 0;}
+<OCTAL>0[0-7]*                             {if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
 <OCTAL>[0-9]+                              {col++; fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); col+=yyleng-1; BEGIN 0;}
 <OCTAL>.                                   {yyless(0); BEGIN 0;}
 
