@@ -3,11 +3,17 @@
     // Joel Oliveira - 2019227468
 
     /*
-        REVER   :: ids_keywords             ( C ) 20/20
-                :: literals                 ( G ) 25/30
-                :: unterminated_comments    ( I ) 10/10
-                :: str_bad                  ( J ) 0/20
+        REVER   :: blank                    ( B ) 5/5
+                :: ids_keywords             ( C ) 20/20
+                :: ops_brackets_punc_mars   ( D ) 10/10
+                :: text                     ( E ) 10/10
+                :: comments                 ( F ) 15/15
+                :: literals                 ( G ) 25/30 <<<<---------
+                :: illegalchar              ( H ) 20/20
+                :: comments_bad             ( I ) 10/10
+                :: str_bad                  ( J ) 0/20  <<<<---------
                 :: semicolons               ( K ) 25/25
+                :: programs                 ( L ) 25/25
     */
     int line = 1;
     int comment_lines = 1; 
@@ -20,9 +26,9 @@
 letter  [a-zA-Z_]
 number  [0-9]
 exp     (e|E)[-+]?{number}+
-float   ({number}+"."{number}*)|({number}*"."{number}+)
+float   ({number}+"."{number}*)|("."{number}+)
 hexa	(0(x|X)[0-9a-fA-F]+)
-newline \n|\r\n|\r|\f
+newline \r?\n
 sp_chr  \\(\"|n|r|t|f|\\)
 whispace (" "|\t)
 
@@ -116,7 +122,7 @@ whispace (" "|\t)
 <SEMICOLON>.                              {yyless(0); BEGIN 0;}
 <SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n"); yyterminate();}
 
-<SEMIBCOMMENT>"*/" 	        				  {line+=comment_lines;if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; BEGIN SEMICOLON;}
+<SEMIBCOMMENT>"*/" 	        				  {line+=comment_lines; if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;} else BEGIN SEMICOLON;}
 <SEMIBCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0; swaped_line=1; }
 <SEMIBCOMMENT><<EOF>>                         {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
 <SEMIBCOMMENT>.     	        	          {comment_cols+=yyleng;}
@@ -126,7 +132,7 @@ whispace (" "|\t)
 
 <STRING>{newline}                                           {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
 <STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\t\f\r\n])*\"            {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
-<STRING>\"[^\"\r\n]*\\[^\\\"nrtf ][^\"\r\n]*(\"|{newline})? {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>\"[^\"\r\n\f]*\\[^\\\"nrtf ][^\"\r\n\f]*(\"|{newline})? {yyless(0); BEGIN DUMMY_QUOTE;}
 <STRING>\"[^\"\r\n]*\\                                      {yyless(0); BEGIN DUMMY_QUOTE;}
 <STRING><<EOF>>                                             {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <STRING>\"                                                  {col+=yyleng;}
