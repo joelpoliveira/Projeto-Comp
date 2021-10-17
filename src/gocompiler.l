@@ -101,7 +101,7 @@ whispace (" "|\t)
 {whispace}                                {col+=yyleng;}
 .				        				  {col+=1; fprintf(yyout, "Line %d, column %d: illegal character (%s)\n", line, col, yytext);col+=yyleng-1;}
 
-<BCOMMENT>"*/" 	        				  {line+=comment_lines; if (swaped_line) col = 0; col+=comment_cols+1+yyleng; BEGIN 0;}
+<BCOMMENT>"*/" 	        				  {line+=comment_lines; if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; BEGIN 0;}
 <BCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0; swaped_line = 1;}
 <BCOMMENT><<EOF>>                         {fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
 <BCOMMENT>.     	        	          {comment_cols+=yyleng;}
@@ -116,7 +116,7 @@ whispace (" "|\t)
 <SEMICOLON>.                              {yyless(0); BEGIN 0;}
 <SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n"); yyterminate();}
 
-<SEMIBCOMMENT>"*/" 	        				  {line+=comment_lines;if (swaped_line) col = 0; col+=comment_cols+1+yyleng; BEGIN SEMICOLON;}
+<SEMIBCOMMENT>"*/" 	        				  {line+=comment_lines;if (swaped_line) col = 0; else col++; col+=comment_cols+1+yyleng; BEGIN SEMICOLON;}
 <SEMIBCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0; swaped_line=1; }
 <SEMIBCOMMENT><<EOF>>                         {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
 <SEMIBCOMMENT>.     	        	          {comment_cols+=yyleng;}
