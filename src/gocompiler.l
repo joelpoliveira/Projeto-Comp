@@ -128,6 +128,7 @@ whispace (" "|\t)
 <SEMIBCOMMENT>.     	        	          {comment_cols+=yyleng;}
 
 <SEMILCOMMENT>{newline} 	        		  {yyless(0); BEGIN SEMICOLON;}
+<SEMILCOMMENT><<EOF>>                         {fprintf(yyout, "SEMICOLON\n"); yyterminate();}
 <SEMILCOMMENT>. 	        				  {;}
 
 <STRING>{newline}                                           {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
