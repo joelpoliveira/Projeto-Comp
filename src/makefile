@@ -1,6 +1,7 @@
+.SILENT:
 main:
-	flex deiGoLex.l
-	clang -o gocompiler lex.yy.c
+	flex gocompiler.l
+	clang-7 -o gocompiler lex.yy.c
 
 .PHONY: clean
 clean:
