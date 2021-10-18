@@ -30,7 +30,6 @@
 
 # Executables
 *.exe
-*.out
 *.app
 *.i*86
 *.x86_64
@@ -54,3 +53,5 @@ dkms.conf
 #Random stuff
 src/gocompiler
 src/lex.yy.c
+src/meta1/outputs
+src/makefile
