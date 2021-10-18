@@ -20,7 +20,7 @@
     int col = 0;
     int comment_cols = 0;
 
-    int flag_1, swaped_line, is_ill_sq;
+    int flag_1, swaped_line;
 %}
 
 letter  [a-zA-Z_]
@@ -32,7 +32,7 @@ newline \r?\n
 sp_chr  \\(\"|n|r|t|f|\\)
 whispace (" "|\t)
 
-%X SEMICOLON BCOMMENT LCOMMENT STRING DUMMY_QUOTE INVALID_ESCAPE_SQ UNTERMINATED OCTAL SEMIBCOMMENT SEMILCOMMENT
+%X SEMICOLON BCOMMENT LCOMMENT STRING DUMMY_QUOTE OCTAL SEMIBCOMMENT SEMILCOMMENT INVALID_STRING
 
 %%
 
@@ -133,26 +133,18 @@ whispace (" "|\t)
 
 <STRING>{newline}                                               {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
 <STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\r\n])*\"                    {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
-<STRING>\"[^\"\r\n]*\\[^\\\"nrtf][^\"\r\n\\]*\"                   {yyless(0); is_ill_sq = 1; BEGIN DUMMY_QUOTE;}
-<STRING>\"[^\"\r\n]*{newline}?                                  {yyless(0); is_ill_sq = 0; BEGIN DUMMY_QUOTE;}
-<STRING>.                                                       {;}
+<STRING>\"[^\"\r\n]*\\[^\\\"nrtf][^\"\r\n]*\"                   {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>\"[^\"\r\n]*{newline}?                                  {yyless(0); BEGIN DUMMY_QUOTE;}
 
-<DUMMY_QUOTE>\"                            {col++; comment_cols = 1; if (is_ill_sq) BEGIN INVALID_ESCAPE_SQ; else BEGIN UNTERMINATED;}
+<DUMMY_QUOTE>\"                            {col++; comment_cols = 1; BEGIN INVALID_STRING;}
 
-<INVALID_ESCAPE_SQ>\"                      {col+=comment_cols; BEGIN 0;}
-<INVALID_ESCAPE_SQ>\\[^\\\"nrtf\t\f ]      {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
-<INVALID_ESCAPE_SQ>\\(\"|n|r|t|f|\\)       {comment_cols+=yyleng;}
-<INVALID_ESCAPE_SQ>\\                      {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
-<INVALID_ESCAPE_SQ>.                       {comment_cols+=yyleng;}
-
-<UNTERMINATED>{newline}                     {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
-<UNTERMINATED>\\(\"|n|r|t|f|\\)             {comment_cols+=yyleng;}
-<UNTERMINATED>\\[^\\\"nrtf\t\f\r\n ]        {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
-<UNTERMINATED>\\{newline}                   {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%c)\n"
-                                                           "Line %d, column %d: unterminated string literal\n", line, col+comment_cols, yytext[0], line, col); line++; col=0; BEGIN 0;}
-<UNTERMINATED>\\                            {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
-<UNTERMINATED><<EOF>>                       {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
-<UNTERMINATED>.                             {comment_cols+=yyleng;}
+<INVALID_STRING>\"                          {col+=comment_cols; BEGIN 0;}
+<INVALID_STRING>{newline}                   {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
+<INVALID_STRING>\\(\"|n|r|t|f|\\)           {comment_cols+=yyleng;}
+<INVALID_STRING>\\[^\\\"nrtf\r\n]           {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
+<INVALID_STRING>\\                          {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
+<INVALID_STRING><<EOF>>                       {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
+<INVALID_STRING>.                             {comment_cols+=yyleng;}
 
 <OCTAL>0[0-7]*                             {if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
 <OCTAL>[0-9]+                              {col++; fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); col+=yyleng-1; BEGIN 0;}
