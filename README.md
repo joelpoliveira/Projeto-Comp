@@ -15,14 +15,14 @@ make && ./gocompiler -l < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out -
 
 ### TODO
 
-[x] Meta 1
-- [x] Tokens
-    - [x] Reserved words
-    - [x] Literals (decimal, hexadecimal, octal)
-    - [x] Emitir SEMICOLON se estiver em falta, em situações específicas
-- [x] Erros
-    - [x] linha e coluna do erro
-    - [x] motivo do erro
+- [x] Meta 1
+    - [x] Tokens
+        - [x] Reserved words
+        - [x] Literals (decimal, hexadecimal, octal)
+        - [x] Emitir SEMICOLON se estiver em falta, em situações específicas
+    - [x] Erros
+        - [x] linha e coluna do erro
+        - [x] motivo do erro
 
 [ ] Meta 2
 
