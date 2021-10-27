@@ -2,19 +2,8 @@
     // Tomás Mendes - 2019232272
     // Joel Oliveira - 2019227468
 
-    /*
-        REVER   :: blank                    ( B ) 5/5
-                :: ids_keywords             ( C ) 20/20
-                :: ops_brackets_punc_mars   ( D ) 10/10
-                :: text                     ( E ) 10/10
-                :: comments                 ( F ) 15/15
-                :: literals                 ( G ) 25/30 <<<<---------
-                :: illegalchar              ( H ) 20/20
-                :: comments_bad             ( I ) 10/10
-                :: str_bad                  ( J ) 0/20  <<<<---------
-                :: semicolons               ( K ) 25/25
-                :: programs                 ( L ) 25/25
-    */
+    #include "y.tab.h"
+
     int line = 1;
     int comment_lines = 1; 
     int col = 0;
@@ -60,7 +49,7 @@ whispace (" "|\t)
 "}"				{if (flag_1) fprintf(yyout, "RBRACE\n"); col+=yyleng; BEGIN SEMICOLON;}
 ")"				{if (flag_1) fprintf(yyout, "RPAR\n"); col+=yyleng; BEGIN SEMICOLON;}
 "]"				{if (flag_1) fprintf(yyout, "RSQ\n"); col+=yyleng; BEGIN SEMICOLON;}
-"package"		{if (flag_1) fprintf(yyout, "PACKAGE\n"); col+=yyleng;}
+"package"		{if (flag_1) fprintf(yyout, "PACKAGE\n"); col+=yyleng; return PROGRAM;}
 "return"		{if (flag_1) fprintf(yyout, "RETURN\n"); col+=yyleng; BEGIN SEMICOLON;}
 "else"			{if (flag_1) fprintf(yyout, "ELSE\n"); col+=yyleng;}
 "for"			{if (flag_1) fprintf(yyout, "FOR\n"); col+=yyleng;}
@@ -122,45 +111,35 @@ whispace (" "|\t)
 <SEMICOLON>.                              {yyless(0); BEGIN 0;}
 <SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n"); yyterminate();}
 
-<SEMIBCOMMENT>"*/" 	        				  {line+=comment_lines; if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;} else BEGIN SEMICOLON;}
-<SEMIBCOMMENT>{newline}        	              {comment_lines++; comment_cols = 0; swaped_line=1; }
-<SEMIBCOMMENT><<EOF>>                         {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
-<SEMIBCOMMENT>.     	        	          {comment_cols+=yyleng;}
+<SEMIBCOMMENT>"*/" 	        			  {line+=comment_lines; if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); BEGIN 0;} else BEGIN SEMICOLON;}
+<SEMIBCOMMENT>{newline}        	          {comment_lines++; comment_cols = 0; swaped_line=1; }
+<SEMIBCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate();}
+<SEMIBCOMMENT>.     	        	      {comment_cols+=yyleng;}
 
-<SEMILCOMMENT>{newline} 	        		  {yyless(0); BEGIN SEMICOLON;}
-<SEMILCOMMENT><<EOF>>                         {fprintf(yyout, "SEMICOLON\n"); yyterminate();}
-<SEMILCOMMENT>. 	        				  {;}
+<SEMILCOMMENT>{newline} 	              {yyless(0); BEGIN SEMICOLON;}
+<SEMILCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); yyterminate();}
+<SEMILCOMMENT>. 	        		      {;}
 
-<STRING>{newline}                                               {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
-<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\r\n])*\"                    {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
-<STRING>\"[^\"\r\n]*\\[^\\\"nrtf][^\"\r\n]*\"                   {yyless(0); BEGIN DUMMY_QUOTE;}
-<STRING>\"[^\"\r\n]*{newline}?                                  {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>{newline}                                   {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
+<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\r\n])*\"        {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
+<STRING>\"[^\"\r\n]*\\[^\\\"nrtf][^\"\r\n]*\"       {yyless(0); BEGIN DUMMY_QUOTE;}
+<STRING>\"[^\"\r\n]*{newline}?                      {yyless(0); BEGIN DUMMY_QUOTE;}
 
 <DUMMY_QUOTE>\"                            {col++; comment_cols = 1; BEGIN INVALID_STRING;}
 
-<INVALID_STRING>\"                          {col+=comment_cols; BEGIN 0;}
-<INVALID_STRING>{newline}                   {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
-<INVALID_STRING>\\(\"|n|r|t|f|\\)           {comment_cols+=yyleng;}
-<INVALID_STRING>\\[^\\\"nrtf\r\n]           {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
-<INVALID_STRING>\\                          {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
-<INVALID_STRING><<EOF>>                       {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
-<INVALID_STRING>.                             {comment_cols+=yyleng;}
+<INVALID_STRING>\"                         {col+=comment_cols; BEGIN 0;}
+<INVALID_STRING>{newline}                  {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
+<INVALID_STRING>\\(\"|n|r|t|f|\\)          {comment_cols+=yyleng;}
+<INVALID_STRING>\\[^\\\"nrtf\r\n]          {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
+<INVALID_STRING>\\                         {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng;}
+<INVALID_STRING><<EOF>>                    {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
+<INVALID_STRING>.                          {comment_cols+=yyleng;}
 
 <OCTAL>0[0-7]*                             {if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; BEGIN SEMICOLON;}
 <OCTAL>[0-9]+                              {col++; fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); col+=yyleng-1; BEGIN 0;}
 <OCTAL>.                                   {yyless(0); BEGIN 0;}
 
 %%
-
-int main(int argc, char *argv[]){
-    if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 'l')){
-        //checkig for argument -l like this so we dont have to import string.h
-        flag_1 = 1;
-    }   
-
-    yylex();
-    return 0;
-}
 
 int yywrap(){
     return 1;

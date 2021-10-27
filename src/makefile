@@ -1,8 +1,9 @@
 .SILENT:
 main:
 	flex gocompiler.l
-	clang-7 -o gocompiler lex.yy.c
+	yacc gocompiler.y -d
+	clang -o gocompiler y.tab.c lex.yy.c
 
 .PHONY: clean
 clean:
-	rm gocompiler lex.yy.c
+	rm gocompiler y.tab.c lex.yy.c
