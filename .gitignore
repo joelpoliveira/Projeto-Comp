@@ -54,5 +54,7 @@ dkms.conf
 src/gocompiler
 src/lex.yy.c
 src/y.tab.c
+src/y.tab.h
+src/y.output
 src/meta1/outputs
 src/makefile
