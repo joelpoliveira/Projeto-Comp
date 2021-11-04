@@ -1,11 +1,21 @@
 %{
     #include <stdio.h>
+    #include <string.h>
+    
     int yylex(void);
     void yyerror (const char *s);
 %}
 
-%token PROGRAM
+%union{
+    int intval;
+    char* string;
+    float floatval;
+}
+%token SEMICOLON COMMA BLANKID ASSIGN STAR DIV MINUS PLUS EQ GE GT LBRACE   //linhas 28-39
+%token LE LPAR LSQ LT MOD NE NOT AND OR RBRACE RPAR RSQ PACKAGE RETURN ELSE //linhas 40-54
+%token FOR IF VAR INT FLOAT32 BOOL STRING PRINT PARSEINT FUNC CMDARGS       //linhas 55-65
 
+%type <>program 
 %%
 
 Program:    {printf("%d\n", $$);};
