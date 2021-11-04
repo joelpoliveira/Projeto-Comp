@@ -8,6 +8,7 @@
 
     is_program* myprogram;
     int flag_1 = 1;
+    int yydebug = 1;
 %}
 
 %union{
