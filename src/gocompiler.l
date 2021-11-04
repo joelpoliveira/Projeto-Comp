@@ -21,7 +21,7 @@ newline \r?\n
 sp_chr  \\(\"|n|r|t|f|\\)
 whispace (" "|\t)
 
-%X SEMICOLON BCOMMENT LCOMMENT STRING DUMMY_QUOTE OCTAL SEMIBCOMMENT SEMILCOMMENT INVALID_STRING
+%X _SEMICOLON BCOMMENT LCOMMENT _STRING DUMMY_QUOTE OCTAL SEMIBCOMMENT SEMILCOMMENT INVALID_STRING
 
 %%
 
@@ -46,11 +46,11 @@ whispace (" "|\t)
 "!"				{if (flag_1) fprintf(yyout, "NOT\n"); col+=yyleng; return NOT;}
 "&&"			{if (flag_1) fprintf(yyout, "AND\n"); col+=yyleng; return AND;}
 "||"			{if (flag_1) fprintf(yyout, "OR\n"); col+=yyleng; return OR;}
-"}"				{if (flag_1) fprintf(yyout, "RBRACE\n"); col+=yyleng; return RBRACE; BEGIN SEMICOLON;}
-")"				{if (flag_1) fprintf(yyout, "RPAR\n"); col+=yyleng; return RPAR; BEGIN SEMICOLON;}
-"]"				{if (flag_1) fprintf(yyout, "RSQ\n"); col+=yyleng; return RSQ; BEGIN SEMICOLON;}
+"}"				{if (flag_1) fprintf(yyout, "RBRACE\n"); col+=yyleng; return RBRACE; BEGIN _SEMICOLON;}
+")"				{if (flag_1) fprintf(yyout, "RPAR\n"); col+=yyleng; return RPAR; BEGIN _SEMICOLON;}
+"]"				{if (flag_1) fprintf(yyout, "RSQ\n"); col+=yyleng; return RSQ; BEGIN _SEMICOLON;}
 "package"		{if (flag_1) fprintf(yyout, "PACKAGE\n"); col+=yyleng; return PACKAGE;}
-"return"		{if (flag_1) fprintf(yyout, "RETURN\n"); col+=yyleng; return RETURN; BEGIN SEMICOLON;}
+"return"		{if (flag_1) fprintf(yyout, "RETURN\n"); col+=yyleng; return RETURN; BEGIN _SEMICOLON;}
 "else"			{if (flag_1) fprintf(yyout, "ELSE\n"); col+=yyleng; return ELSE; }
 "for"			{if (flag_1) fprintf(yyout, "FOR\n"); col+=yyleng; return FOR; }
 "if"			{if (flag_1) fprintf(yyout, "IF\n"); col+=yyleng; return IF; }
@@ -87,10 +87,10 @@ whispace (" "|\t)
 "type"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
 
 0                               {yyless(0); BEGIN OCTAL;}
-[1-9]{number}*|{hexa}          	{if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; yylval.string = strdup(yytext); return INTLIT; BEGIN SEMICOLON;}
-({float}{exp}?|{number}+{exp})  {if (flag_1) fprintf(yyout, "REALLIT(%s)\n", yytext); col+=yyleng; yylval.string = strdup(yytext); return REALLIT; BEGIN SEMICOLON;}
-{letter}[a-zA-Z0-9_]*			{if (flag_1) fprintf(yyout, "ID(%s)\n", yytext); yylval.string =strdup(yytext); return ID; col+=yyleng; BEGIN SEMICOLON;}
-\"                              {yyless(0); BEGIN STRING;}
+[1-9]{number}*|{hexa}          	{if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; yylval.string = strdup(yytext); return INTLIT; BEGIN _SEMICOLON;}
+({float}{exp}?|{number}+{exp})  {if (flag_1) fprintf(yyout, "REALLIT(%s)\n", yytext); col+=yyleng; yylval.string = strdup(yytext); return REALLIT; BEGIN _SEMICOLON;}
+{letter}[a-zA-Z0-9_]*			{if (flag_1) fprintf(yyout, "ID(%s)\n", yytext); yylval.string =strdup(yytext); return ID; col+=yyleng; BEGIN _SEMICOLON;}
+\"                              {yyless(0); BEGIN _STRING;}
 
 {newline}				    			  {line++; col = 0;}
 {whispace}                                {col+=yyleng;}
@@ -104,26 +104,26 @@ whispace (" "|\t)
 <LCOMMENT>{newline} 	        		  {line++; col = 0; BEGIN 0;}
 <LCOMMENT>. 	        				  {;}
 
-<SEMICOLON>{newline}                      {if (flag_1) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON}; line++; col = 0; BEGIN 0;}
-<SEMICOLON>{whispace}	                  {col+=yyleng;}
-<SEMICOLON>"/*"                           {col++; comment_lines = 0; comment_cols = 0; swaped_line = 0; BEGIN SEMIBCOMMENT;}
-<SEMICOLON>"//"                           {BEGIN SEMILCOMMENT;}
-<SEMICOLON>.                              {yyless(0); BEGIN 0;}
-<SEMICOLON><<EOF>>                        {if (flag_1) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON;}; yyterminate();}
+<_SEMICOLON>{newline}                      {if (flag_1) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON;}; line++; col = 0; BEGIN 0;}
+<_SEMICOLON>{whispace}	                  {col+=yyleng;}
+<_SEMICOLON>"/*"                           {col++; comment_lines = 0; comment_cols = 0; swaped_line = 0; BEGIN SEMIBCOMMENT;}
+<_SEMICOLON>"//"                           {BEGIN SEMILCOMMENT;}
+<_SEMICOLON>.                              {yyless(0); BEGIN 0;}
+<_SEMICOLON><<EOF>>                        {if (flag_1) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON;}; yyterminate();}
 
-<SEMIBCOMMENT>"*/" 	        			  {line+=comment_lines; if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON; BEGIN 0;} else BEGIN SEMICOLON;}
+<SEMIBCOMMENT>"*/" 	        			  {line+=comment_lines; if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON; BEGIN 0;} else BEGIN _SEMICOLON;}
 <SEMIBCOMMENT>{newline}        	          {comment_lines++; comment_cols = 0; swaped_line=1; }
 <SEMIBCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); return SEMICOLON; yyterminate();}
 <SEMIBCOMMENT>.     	        	      {comment_cols+=yyleng;}
 
-<SEMILCOMMENT>{newline} 	              {yyless(0); BEGIN SEMICOLON;}
+<SEMILCOMMENT>{newline} 	              {yyless(0); BEGIN _SEMICOLON;}
 <SEMILCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON; yyterminate();}
 <SEMILCOMMENT>. 	        		      {;}
 
-<STRING>{newline}                                   {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
-<STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\r\n])*\"        {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); yylval.string =strdup(yytext); return STRLIT; col+=yyleng; BEGIN SEMICOLON;}
-<STRING>\"[^\"\r\n]*\\[^\\\"nrtf][^\"\r\n]*\"       {yyless(0); BEGIN DUMMY_QUOTE;}
-<STRING>\"[^\"\r\n]*{newline}?                      {yyless(0); BEGIN DUMMY_QUOTE;}
+<_STRING>{newline}                                   {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
+<_STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\r\n])*\"        {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); yylval.string =strdup(yytext); return STRLIT; col+=yyleng; BEGIN _SEMICOLON;}
+<_STRING>\"[^\"\r\n]*\\[^\\\"nrtf][^\"\r\n]*\"       {yyless(0); BEGIN DUMMY_QUOTE;}
+<_STRING>\"[^\"\r\n]*{newline}?                      {yyless(0); BEGIN DUMMY_QUOTE;}
 
 <DUMMY_QUOTE>\"                            {col++; comment_cols = 1; BEGIN INVALID_STRING;}
 
@@ -135,7 +135,7 @@ whispace (" "|\t)
 <INVALID_STRING><<EOF>>                    {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <INVALID_STRING>.                          {comment_cols+=yyleng;}
 
-<OCTAL>0[0-7]*                             {if (flag_1) {fprintf(yyout, "INTLIT(%s)\n", yytext); yylval.string = strdup(yytext); return INTLIT;}col+=yyleng; BEGIN SEMICOLON;}
+<OCTAL>0[0-7]*                             {if (flag_1) {fprintf(yyout, "INTLIT(%s)\n", yytext); yylval.string = strdup(yytext); return INTLIT;}col+=yyleng; BEGIN _SEMICOLON;}
 <OCTAL>[0-9]+                              {col++; fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); col+=yyleng-1; BEGIN 0;}
 <OCTAL>.                                   {yyless(0); BEGIN 0;}
 

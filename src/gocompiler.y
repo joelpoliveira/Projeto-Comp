@@ -4,30 +4,24 @@
     #include "functions.h"
 
     int yylex(void);
-    void yyerror (const char *s);
+    void yyerror (char *s);
 
     is_program* myprogram;
+    int flag_1 = 1;
 %}
 
 %union{
     char* string;
-    is_program* ip;
-    is_vardec_list* ivl;
-    is_vardec* iv;
-    is_statement_list* isl;
-    is_statement* is;
+
 }
 
 %token SEMICOLON COMMA BLANKID ASSIGN STAR DIV MINUS PLUS EQ GE GT LBRACE   //linhas 28-39
 %token LE LPAR LSQ LT MOD NE NOT AND OR RBRACE RPAR RSQ PACKAGE RETURN ELSE //linhas 40-54
 %token FOR IF VAR INT FLOAT32 BOOL STRING PRINT PARSEINT FUNC CMDARGS       //linhas 55-65
 
-%token<string>RESERVED INTLIT REALLIT ID STRING
-%type<ip>program
-%type<ivl>vardeclist
-%type<iv>vardec
-%type<isl>statementlist
-%type<is>statement
+%token <string> RESERVED INTLIT REALLIT ID STRLIT
+
+
 %%
 
 program: PACKAGE ID SEMICOLON vardeclist {printf("PROGRAM\n");}
@@ -132,6 +126,7 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-/*void yyerror ( char * s ) {
-    printf ( " Line %d, column % d: % s: % s \n " , line, col ,s ,yytext );
-}*/
+void yyerror ( char * s ) {
+    //printf ( " Line %d, column % d: % s: % s \n " , line, col ,s ,yytext );
+    printf("Print no yyerror\n");
+}
