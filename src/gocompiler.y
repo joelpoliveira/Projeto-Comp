@@ -32,22 +32,22 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON vardeclist {printf("PROGRAM\n");}
+program: PACKAGE ID SEMICOLON var_declarations {printf("PROGRAM\n");}
         ;
 
-vardeclist:                             {printf("\n");}  
-        |  vardeclist vardec SEMICOLON  {printf("VAR\n"); }
-        |  vardeclist funcdec SEMICOLON {printf("FUNC\n"); }
+var_declarations:                                      {printf("\n");}  
+                |  var_declarations var_dec SEMICOLON  {printf("VAR\n"); }
+                |  var_declarations func_dec SEMICOLON {printf("FUNC\n"); }
+                ;
+
+var_dec:    VAR var_spec                         {printf("VarDec\n"); }
+        |   VAR LPAR var_spec SEMICOLON RPAR     {printf("VarDec\n"); }
         ;
 
-vardec: VAR varspec                         {printf("VarDec\n"); }
-    |   VAR LPAR varspec SEMICOLON RPAR     {printf("VarDec\n"); }
-    ;
-
-varspec: ID comma_id_rec type   {printf("VarSpec\n"); }
+var_spec: ID comma_id_rec type   {printf("VarSpec\n"); }
         ;
 comma_id_rec:
-            |   comma_id_rec COMMA ID
+            |   comma_id_rec comma_id
             ;
 
 type:   INT
@@ -56,74 +56,104 @@ type:   INT
     |   STRING
     ;
 
-funcdec: FUNC ID LPAR parameters RPAR type funcbody
-    |   FUNC ID LPAR RPAR type funcbody
-    |   FUNC ID LPAR parameters RPAR funcbody
-    |   FUNC ID LPAR RPAR funcbody
-    ;
+func_dec:   FUNC ID LPAR parameters RPAR type func_body
+        |   FUNC ID LPAR RPAR type func_body
+        |   FUNC ID LPAR parameters RPAR func_body
+        |   FUNC ID LPAR RPAR func_body
+        ;
 
 parameters: ID type comma_id_type_rec;
 comma_id_type_rec: 
-                | comma_id_type_rec COMMA ID type
+                | comma_id_type_rec comma_id type
                 ;
 
-funcbody: LBRACE vars_and_statements RBRACE;
+func_body: LBRACE vars_and_statements RBRACE;
 vars_and_statements:
-                |   vars_and_statements SEMICOLON
-                |   vars_and_statements vardec SEMICOLON
-                |   vars_and_statements statement SEMICOLON 
-                ;
+                    |   vars_and_statements SEMICOLON
+                    |   vars_and_statements var_dec SEMICOLON
+                    |   vars_and_statements statements SEMICOLON 
+                    ;
 
-statement:  ID ASSIGN expr
-        |   LBRACE state_semic_rec RBRACE
-        |   IF expr LBRACE state_semic_rec RBRACE
-        |   IF expr LBRACE state_semic_rec RBRACE ELSE LBRACE state_semic_rec RBRACE
-        |   FOR expr LBRACE state_semic_rec RBRACE
-        |   FOR LBRACE state_semic_rec RBRACE
-        |   RETURN expr
-        |   RETURN
-        |   func_invocation
-        |   parse_args
-        |   PRINT LPAR expr RPAR
-        |   PRINT LPAR STRLIT RPAR 
+statements: if_state
+        |   for_state
+        |   return_state
+        |   normal_state
+        |   print_state
         ;
 
-state_semic_rec:
-                | state_semic_rec statement SEMICOLON
-                ;
+if_state: IF expr states_in_brace
+        | IF expr states_in_brace ELSE states_in_brace
+        ;
 
+for_state:  FOR expr states_in_brace
+        |   FOR states_in_brace
+        ;
+
+return_state:   RETURN expr
+            |   RETURN
+            ;
+
+print_state:    PRINT LPAR expr RPAR
+            |   PRINT LPAR STRLIT RPAR 
+            ;
+
+normal_state:   ID ASSIGN expr
+            |   states_in_brace
+            |   func_invocation
+            |   parse_args
+            ;
+states_in_brace: LBRACE state_semic_rec RBRACE;
+state_semic_rec:
+                | state_semic_rec statements SEMICOLON
+                ;
 parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr RSQ RPAR;
 
 func_invocation: ID LPAR expr comma_expr_rec RPAR
             |   ID LPAR RPAR
             ;
-
 comma_expr_rec:
             |   comma_expr_rec COMMA expr
             ;
 
-expr:   expr AND expr
-    |   expr OR expr
-    |   expr LT expr
-    |   expr GT expr
-    |   expr EQ expr
-    |   expr NE expr
-    |   expr LE expr
-    |   expr GE expr
-    |   expr PLUS expr
-    |   expr MINUS expr
-    |   expr STAR expr
-    |   expr DIV expr
-    |   expr MOD expr
-    |   NOT expr
-    |   PLUS expr
-    |   MINUS expr
-    |   INTLIT
-    |   REALLIT
-    |   ID
-    |   func_invocation
-    |   LPAR expr RPAR
+expr:   logic_expr
+    |   comp_expr
+    |   oper_expr
+    |   inplace_expr
+    |   dec_expr
     ;
+
+logic_expr: expr OR expr
+        |   expr AND expr
+        ;
+
+comp_expr:  expr LT expr
+        |   expr GT expr
+        |   expr EQ expr
+        |   expr NE expr
+        |   expr LE expr
+        |   expr GE expr
+        ;
+
+oper_expr:  expr PLUS expr
+        |   expr MINUS expr
+        |   expr STAR expr
+        |   expr DIV expr
+        |   expr MOD expr
+        ;
+
+inplace_expr:   NOT dec_expr
+            |   PLUS dec_expr
+            |   MINUS dec_expr
+            ;
+            
+dec_expr:   INTLIT
+        |   REALLIT
+        |   ID
+        |   func_invocation
+        |   LPAR expr RPAR
+        ;
+
+comma_id: COMMA ID;
 
 %%
 
