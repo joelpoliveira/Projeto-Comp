@@ -3,6 +3,7 @@
     // Joel Oliveira - 2019227468
 
     #include "y.tab.h"
+    #include "header.h"
 
     int line = 1;
     int comment_lines = 1; 
@@ -10,7 +11,7 @@
     int comment_cols = 0;
 
     int swaped_line;
-    extern int flag_1;
+    //flag_1 = 0;
 %}
 
 letter  [a-zA-Z_]

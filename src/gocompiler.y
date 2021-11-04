@@ -2,11 +2,12 @@
     #include <stdio.h>
     #include <string.h>
     #include "y.tab.h"
+    #include "header.h"
 
     int yylex(void);
     void yyerror (char *s);
 
-    int flag_1 = 1;
+    int flag_1 = 0;
     int yydebug = 1;
 %}
 
@@ -169,5 +170,5 @@ int main(int argc, char *argv[]){
 
 void yyerror (char * s) {
     //printf ( " Line %d, column % d: % s: % s \n " , line, col ,s ,yytext );
-    printf("Print no yyerror\n");
+    printf("Erro: %s\n\n", s);
 }
