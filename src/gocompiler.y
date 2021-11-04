@@ -115,43 +115,43 @@ comma_expr_rec:
             |   comma_expr_rec COMMA expr
             ;
 
-expr:   logic_expr
-    |   comp_expr
-    |   oper_expr
-    |   inplace_expr
-    |   dec_expr
+expr:   expr OR expr2
+    |   expr AND expr2
+    |   expr2
     ;
 
-logic_expr: expr OR expr
-        |   expr AND expr
-        ;
+// tentar comparações
+expr2:  expr2 LT expr3
+    |   expr2 GT expr3
+    |   expr2 EQ expr3
+    |   expr2 NE expr3
+    |   expr2 LE expr3
+    |   expr2 GE expr3
+    |   expr3
+    ;
 
-comp_expr:  expr LT expr
-        |   expr GT expr
-        |   expr EQ expr
-        |   expr NE expr
-        |   expr LE expr
-        |   expr GE expr
-        ;
+// tentar operações
+expr3:  expr3 PLUS expr4
+    |   expr3 MINUS expr4
+    |   expr3 STAR expr4
+    |   expr3 DIV expr4
+    |   expr3 MOD expr4
+    |   expr4
+    ;
 
-oper_expr:  expr PLUS expr
-        |   expr MINUS expr
-        |   expr STAR expr
-        |   expr DIV expr
-        |   expr MOD expr
-        ;
+//tentar self operations e finalizar
+expr4: NOT final_expr
+    |  PLUS final_expr
+    |  MINUS final_expr
+    |  final_expr
+    ;
 
-inplace_expr:   NOT dec_expr
-            |   PLUS dec_expr
-            |   MINUS dec_expr
-            ;
-            
-dec_expr:   INTLIT
-        |   REALLIT
-        |   ID
-        |   func_invocation
-        |   LPAR expr RPAR
-        ;
+final_expr:   INTLIT
+          |   REALLIT
+          |   ID
+          |   func_invocation
+          |   LPAR expr RPAR
+          ;
 
 comma_id: COMMA ID;
 
