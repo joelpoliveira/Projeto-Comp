@@ -53,8 +53,6 @@ dkms.conf
 #Random stuff
 src/gocompiler
 src/lex.yy.c
-src/y.tab.c
-src/y.tab.h
-src/y.output
+src/y.*
 src/meta1/outputs
 src/makefile

@@ -1,12 +1,11 @@
 %{
     #include <stdio.h>
     #include <string.h>
-    #include "functions.h"
+    #include "y.tab.h"
 
     int yylex(void);
     void yyerror (char *s);
 
-    is_program* myprogram;
     int flag_1 = 1;
     int yydebug = 1;
 %}
@@ -22,6 +21,14 @@
 
 %token <string> RESERVED INTLIT REALLIT ID STRLIT
 
+%left  COMMA
+%right ASSIGN //'+=' '-='
+%left  OR
+%left  AND
+%left  EQ NE
+%left  PLUS MINUS
+%left  STAR
+%left  LPAR RSQ
 
 %%
 
@@ -80,6 +87,7 @@ statement:  ID ASSIGN expr
         |   PRINT LPAR expr RPAR
         |   PRINT LPAR STRLIT RPAR 
         ;
+
 state_semic_rec:
                 | state_semic_rec statement SEMICOLON
                 ;
@@ -89,6 +97,7 @@ parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr RSQ RPAR;
 func_invocation: ID LPAR expr comma_expr_rec RPAR
             |   ID LPAR RPAR
             ;
+
 comma_expr_rec:
             |   comma_expr_rec COMMA expr
             ;
@@ -115,6 +124,7 @@ expr:   expr AND expr
     |   func_invocation
     |   LPAR expr RPAR
     ;
+
 %%
 
 int main(int argc, char *argv[]){
@@ -127,7 +137,7 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-void yyerror ( char * s ) {
+void yyerror (char * s) {
     //printf ( " Line %d, column % d: % s: % s \n " , line, col ,s ,yytext );
     printf("Print no yyerror\n");
 }
