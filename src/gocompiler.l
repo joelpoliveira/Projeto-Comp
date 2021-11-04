@@ -9,7 +9,8 @@
     int col = 0;
     int comment_cols = 0;
 
-    int flag_1, swaped_line;
+    int swaped_line;
+    extern int flag_1;
 %}
 
 letter  [a-zA-Z_]
