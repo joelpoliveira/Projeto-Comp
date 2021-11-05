@@ -7,6 +7,11 @@
     int yylex(void);
     void yyerror (char *s);
 
+    int line = 1;
+    int comment_lines = 1; 
+    int col = 0;
+    int comment_cols = 0;
+
     int flag_1 = 0, flag_2 = 0;
     int yydebug = 1;
 %}
@@ -174,5 +179,5 @@ int main(int argc, char *argv[]){
 
 void yyerror (char *s) {
     //printf ( " Line %d, column % d: % s: % s \n " , line, col ,s ,yytext );
-    printf("Erro: %s\n\n", s);
+    printf("Line %d, column % d: %s\n\n", line, col, s);
 }
