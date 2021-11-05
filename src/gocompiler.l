@@ -3,12 +3,13 @@
     // Joel Oliveira - 2019227468
 
     #include "y.tab.h"
-   // #include "header.h"
-
-    extern int line, comment_lines, col, comment_cols;
 
     int swaped_line;
-    extern int flag_1;
+    extern int  flag_1,
+                line, 
+                comment_lines, 
+                col, 
+                comment_cols;
 %}
 
 letter  [a-zA-Z_]

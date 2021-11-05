@@ -7,13 +7,13 @@
     int yylex(void);
     void yyerror (char *s);
 
-    int line = 1;
-    int comment_lines = 1; 
-    int col = 0;
-    int comment_cols = 0;
+    int line = 1,
+        comment_lines = 1,
+        col = 0,
+        comment_cols = 0;
 
     int flag_1 = 0, flag_2 = 0;
-    int yydebug = 1;
+    int yydebug = 0;
 %}
 
 %union{
@@ -38,7 +38,7 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON var_declarations {printf("PROGRAM\n");}
+program: PACKAGE ID SEMICOLON var_declarations {  printf("PROGRAM\n");}
         ;
 
 var_declarations:                                      {printf("\n");}  
@@ -53,7 +53,7 @@ var_dec:    VAR var_spec                         {printf("VarDec\n"); }
 var_spec: ID comma_id_rec type   {printf("VarSpec\n"); }
         ;
 comma_id_rec:
-            |   comma_id_rec comma_id
+            |   comma_id_rec COMMA ID
             ;
 
 type:   INT
@@ -70,44 +70,34 @@ func_dec:   FUNC ID LPAR parameters RPAR type func_body
 
 parameters: ID type comma_id_type_rec;
 comma_id_type_rec: 
-                | comma_id_type_rec comma_id type
+                | comma_id_type_rec COMMA ID type
                 ;
 
-func_body: LBRACE vars_and_statements RBRACE;
-vars_and_statements:
+func_body: LBRACE vars_and_statements RBRACE
+        ;
+vars_and_statements:    
                     |   vars_and_statements SEMICOLON
                     |   vars_and_statements var_dec SEMICOLON
-                    |   vars_and_statements statements SEMICOLON 
+                    |   vars_and_statements statements SEMICOLON
                     ;
 
-statements: if_state
-        |   for_state
-        |   return_state
-        |   normal_state
-        |   print_state
-        ;
-
-if_state: IF expr states_in_brace
-        | IF expr states_in_brace ELSE states_in_brace
-        ;
-
-for_state:  FOR expr states_in_brace
+statements: IF expr states_in_brace
+        |   IF expr states_in_brace ELSE states_in_brace
+        |   FOR expr states_in_brace
         |   FOR states_in_brace
+        |   RETURN expr
+        |   RETURN
+        |   PRINT LPAR expr RPAR
+        |   PRINT LPAR STRLIT RPAR 
+        |   ID ASSIGN expr
+        |   states_in_brace
+        |   final_states
         ;
 
-return_state:   RETURN expr
-            |   RETURN
-            ;
-
-print_state:    PRINT LPAR expr RPAR
-            |   PRINT LPAR STRLIT RPAR 
-            ;
-
-normal_state:   ID ASSIGN expr
-            |   states_in_brace
-            |   func_invocation
+final_states:   func_invocation
             |   parse_args
             ;
+
 states_in_brace: LBRACE state_semic_rec RBRACE;
 state_semic_rec:
                 | state_semic_rec statements SEMICOLON
@@ -121,35 +111,12 @@ comma_expr_rec:
             |   comma_expr_rec COMMA expr
             ;
 
-expr:   expr OR expr2
-    |   expr AND expr2
+expr:   expr operators expr2
     |   expr2
     ;
 
-// tentar comparações
-expr2:  expr2 LT expr3
-    |   expr2 GT expr3
-    |   expr2 EQ expr3
-    |   expr2 NE expr3
-    |   expr2 LE expr3
-    |   expr2 GE expr3
-    |   expr3
-    ;
-
-// tentar operações
-expr3:  expr3 PLUS expr4
-    |   expr3 MINUS expr4
-    |   expr3 STAR expr4
-    |   expr3 DIV expr4
-    |   expr3 MOD expr4
-    |   expr4
-    ;
-
-//tentar self operations e finalizar
-expr4: NOT final_expr
-    |  PLUS final_expr
-    |  MINUS final_expr
-    |  final_expr
+expr2:  self_oper expr2
+    |   final_expr
     ;
 
 final_expr:   INTLIT
@@ -159,7 +126,25 @@ final_expr:   INTLIT
           |   LPAR expr RPAR
           ;
 
-comma_id: COMMA ID;
+operators:  OR
+        |   AND
+        |   LT
+        |   GT
+        |   EQ
+        |   NE
+        |   GE
+        |   PLUS
+        |   MINUS
+        |   STAR
+        |   DIV
+        |   MOD
+        ;
+
+self_oper:  PLUS
+        |   MINUS
+        |   NE
+        ;
+
 
 %%
 
@@ -172,8 +157,10 @@ int main(int argc, char *argv[]){
     if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 't')){
         flag_2 = 1;
     } 
-
-    yyparse();
+    if (!flag_1)
+        yyparse();
+    else
+        while (yylex());
     return 0;
 }
 
