@@ -2,12 +2,12 @@
     #include <stdio.h>
     #include <string.h>
     #include "y.tab.h"
-    #include "header.h"
+    //#include "header.h"
 
     int yylex(void);
     void yyerror (char *s);
 
-    int flag_1 = 0;
+    int flag_1 = 0, flag_2;
     int yydebug = 1;
 %}
 
@@ -159,16 +159,20 @@ comma_id: COMMA ID;
 %%
 
 int main(int argc, char *argv[]){
+    //checkig for argument -l like this so we dont have to import string.h
     if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 'l')){
-        //checkig for argument -l like this so we dont have to import string.h
         flag_1 = 1;
-    }   
+    }
+
+    if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 't')){
+        flag_2 = 1;
+    } 
 
     yyparse();
     return 0;
 }
 
-void yyerror (char * s) {
+void yyerror (char *s) {
     //printf ( " Line %d, column % d: % s: % s \n " , line, col ,s ,yytext );
     printf("Erro: %s\n\n", s);
 }
