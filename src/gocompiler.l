@@ -104,12 +104,12 @@ whispace (" "|\t)
 <LCOMMENT>{newline} 	        		  {line++; col = 0; BEGIN 0;}
 <LCOMMENT>. 	        				  {;}
 
-<_SEMICOLON>{newline}                      {if (flag_1) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON;}; line++; col = 0; BEGIN 0;}
+<_SEMICOLON>{newline}                      {if (flag_1) fprintf(yyout, "SEMICOLON\n"); return SEMICOLON;; line++; col = 0; BEGIN 0;}
 <_SEMICOLON>{whispace}	                  {col+=yyleng;}
 <_SEMICOLON>"/*"                           {col++; comment_lines = 0; comment_cols = 0; swaped_line = 0; BEGIN SEMIBCOMMENT;}
 <_SEMICOLON>"//"                           {BEGIN SEMILCOMMENT;}
 <_SEMICOLON>.                              {yyless(0); BEGIN 0;}
-<_SEMICOLON><<EOF>>                        {if (flag_1) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON;}; yyterminate();}
+<_SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n"); return SEMICOLON; yyterminate();}
 
 <SEMIBCOMMENT>"*/" 	        			  {line+=comment_lines; if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON; BEGIN 0;} else BEGIN _SEMICOLON;}
 <SEMIBCOMMENT>{newline}        	          {comment_lines++; comment_cols = 0; swaped_line=1; }
@@ -135,7 +135,7 @@ whispace (" "|\t)
 <INVALID_STRING><<EOF>>                    {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <INVALID_STRING>.                          {comment_cols+=yyleng;}
 
-<OCTAL>0[0-7]*                             {if (flag_1) {fprintf(yyout, "INTLIT(%s)\n", yytext); yylval.string = strdup(yytext); return INTLIT;}col+=yyleng; BEGIN _SEMICOLON;}
+<OCTAL>0[0-7]*                             {if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); yylval.string = strdup(yytext); return INTLIT; col+=yyleng; BEGIN _SEMICOLON;}
 <OCTAL>[0-9]+                              {col++; fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); col+=yyleng-1; BEGIN 0;}
 <OCTAL>.                                   {yyless(0); BEGIN 0;}
 
