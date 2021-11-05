@@ -7,7 +7,7 @@
     int yylex(void);
     void yyerror (char *s);
 
-    int flag_1 = 0, flag_2;
+    int flag_1 = 0, flag_2 = 0;
     int yydebug = 1;
 %}
 
