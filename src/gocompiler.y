@@ -24,7 +24,7 @@
 %token SEMICOLON COMMA BLANKID ASSIGN STAR DIV MINUS PLUS EQ GE GT LBRACE   //linhas 28-39
 %token LE LPAR LSQ LT MOD NE NOT AND OR RBRACE RPAR RSQ PACKAGE RETURN ELSE //linhas 40-54
 %token FOR IF VAR INT FLOAT32 BOOL STRING PRINT PARSEINT FUNC CMDARGS       //linhas 55-65
-
+%token UNARY
 %token <string> RESERVED INTLIT REALLIT ID STRLIT
 
 %left  COMMA
@@ -33,7 +33,8 @@
 %left  AND
 %left  EQ NE
 %left  PLUS MINUS
-%left  STAR
+%left  STAR DIV
+%nonassoc UNARY
 %left  LPAR RSQ
 
 %%
@@ -115,7 +116,7 @@ expr:   expr operators expr2
     |   expr2
     ;
 
-expr2:  self_oper expr2
+expr2:  self_oper expr2 %prec UNARY
     |   final_expr
     ;
 
