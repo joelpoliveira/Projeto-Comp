@@ -25,7 +25,7 @@ make && ./gocompiler -l < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out -
         - [x] motivo do erro
 
 - [ ] Meta 2
-    - [ ] Gramática
+    - [x] Gramática
     - [ ] Erros
     - [ ] AST 
 
