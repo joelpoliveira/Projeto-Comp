@@ -1,9 +1,9 @@
 .SILENT:
 main:
 	flex gocompiler.l
-	yacc gocompiler.y -d --debug --verbose
-	clang-7 -o gocompiler y.tab.c lex.yy.c
+	yacc gocompiler.y -d #--debug --verbose
+	clang-7 -o gocompiler y.tab.c lex.yy.c functions.c
 	
 .PHONY: clean
 clean:
-	rm gocompiler y.tab.c lex.yy.c
+	rm gocompiler y.tab.c lex.yy.c y.output

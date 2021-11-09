@@ -4,8 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-is_program* insert_program(is_vardec_list* ivl, is_statement_list* isl)
-{
+is_program* insert_program(is_vardec_list* ivl, is_statement_list* isl){
 	is_program* ip=(is_program*)malloc(sizeof(is_program));
 
 	ip->vlist=ivl;
@@ -14,8 +13,7 @@ is_program* insert_program(is_vardec_list* ivl, is_statement_list* isl)
 	return ip;
 }
 
-is_vardec_list* insert_vardec_list(is_vardec_list* head, is_vardec* iv)
-{
+is_vardec_list* insert_vardec_list(is_vardec_list* head, is_vardec* iv){
         is_vardec_list* ivl=(is_vardec_list*)malloc(sizeof(is_vardec_list));
         is_vardec_list* tmp;
 
@@ -106,7 +104,7 @@ is_statement* insert_write_statement(char* id)
 
 
 void print_state(is_statement_list* var){
-	printf("\t\t%s\n", var->val->data_statement.u_write_statement->id);
+	printf("\t\tWriteStatement(%s)\n", var->val->data_statement.u_write_statement->id);
 }
 
 void print_right(is_statement_list* list){
@@ -117,16 +115,15 @@ void print_right(is_statement_list* list){
 }
 
 void print_var(is_vardec_list* var){
-	switch (var->val->disc_d)
-	{
+	switch (var->val->disc_d){
 	case d_integer:
-		printf("\t\t%s\n", var->val->data_vardec.u_integer_dec->id);
+		printf("\t\tVarDec(%s)\n", var->val->data_vardec.u_integer_dec->id);
 		break;
 	case d_character:
-		printf("\t\t%s\n", var->val->data_vardec.u_character_dec->id);
+		printf("\t\tVardecList(%s)\n", var->val->data_vardec.u_character_dec->id);
 		break;
 	case d_double:
-		printf("\t\t%s\n", var->val->data_vardec.u_double_dec->id);
+		printf("\t\tVardecList(%s)\n", var->val->data_vardec.u_double_dec->id);
 		break;
 	default:
 		break;
@@ -146,8 +143,8 @@ void print_ast(is_program* root){
 	if (root==NULL) return;
 
 	printf("Program\n");
-	printf("\tVardec_list\n");
+	printf("\tVardecList\n");
 	print_left(root->vlist);
-	printf("\tStatement_list\n");
+	printf("\tStatementList\n");
 	print_right(root->slist);
 }
