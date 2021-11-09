@@ -5,13 +5,16 @@
 
 Compilar com o comando
 ```
-make && ./gocompiler -l < {nome_ficheiro}.dgo > {nome_ficheiro}.out
+make && ./gocompiler [-l | -t] < {nome_ficheiro}.dgo > {nome_ficheiro}.out
 ```
 Usar o seguinte comando para comparar o output do compilador com um ficheiro
 ```
-make && ./gocompiler -l < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out - 
+make && ./gocompiler [-l | -t] < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out - 
 
 ```
+
+ - -l -> 1ª meta
+ - -t -> 2ª meta
 
 ### TODO
 
