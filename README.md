@@ -24,9 +24,12 @@ make && ./gocompiler -l < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out -
         - [x] linha e coluna do erro
         - [x] motivo do erro
 
-[ ] Meta 2
+- [ ] Meta 2
+    - [ ] Gramática
+    - [ ] Erros
+    - [ ] AST 
 
-[ ] Meta 3
+- [ ] Meta 3
 
-[ ] Meta 4
+- [ ] Meta 4
 
