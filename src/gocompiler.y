@@ -39,12 +39,12 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON var_declarations {  printf("PROGRAM\n");}
+program: PACKAGE ID SEMICOLON declarations {  printf("PROGRAM\n");}
         ;
 
-var_declarations:                                      {printf("\n");}  
-                |  var_declarations var_dec SEMICOLON  {printf("VAR\n"); }
-                |  var_declarations func_dec SEMICOLON {printf("FUNC\n"); }
+declarations:                                      {printf("\n");}  
+                |  declarations var_dec SEMICOLON  {printf("VAR\n"); }
+                |  declarations func_dec SEMICOLON {printf("FUNC\n"); }
                 ;
 
 var_dec:    VAR var_spec                         {printf("VarDec\n"); }
@@ -79,7 +79,7 @@ func_body: LBRACE vars_and_statements RBRACE
 vars_and_statements:    
                     |   vars_and_statements SEMICOLON
                     |   vars_and_statements var_dec SEMICOLON
-                    |   vars_and_statements statements SEMICOLON
+                |   v|ars_and_statements statements SEMICOLON
                     ;
 
 statements: IF expr states_in_brace
@@ -127,18 +127,18 @@ final_expr:   INTLIT
           |   LPAR expr RPAR
           ;
 
-operators:  OR
-        |   AND
-        |   LT
-        |   GT
-        |   EQ
-        |   NE
-        |   GE
-        |   PLUS
-        |   MINUS
-        |   STAR
-        |   DIV
-        |   MOD
+operators:  OR                  {$$ = $1;}
+        |   AND                 {$$ = $1;}
+        |   LT                  {$$ = $1;}
+        |   GT                  {$$ = $1;}
+        |   EQ                  {$$ = $1;}
+        |   NE                  {$$ = $1;}
+        |   GE                  {$$ = $1;}
+        |   PLUS                {$$ = $1;}
+        |   MINUS               {$$ = $1;}
+        |   STAR                {$$ = $1;}
+        |   DIV                 {$$ = $1;}
+        |   MOD                 {$$ = $1;}
         ;
 
 self_oper:  PLUS
