@@ -19,20 +19,17 @@
     int flag_1 = 0, flag_2 = 0;
     int yydebug = 0;
 
-    is_program* myprogram;
+    is_program* program;
 
 %}
 
 %union{
     char *id;
     is_program* ip;
-    is_vardec_list* ivl;
-    is_vardec* iv;
-    is_statement_list* isl;
-    is_statement* is;
-
-    is_function* if;
-    is_function_list* ifl;
+    is_declarations_list* idl;
+    insert_declaration * idec;
+    is_var_spec * ivs;
+    is_id_list * iil;
 }
 
 %token SEMICOLON COMMA BLANKID ASSIGN STAR DIV MINUS PLUS EQ GE GT LBRACE   //linhas 28-39
@@ -41,15 +38,12 @@
 %token UNARY
 
 //%token <string> RESERVED INTLIT REALLIT ID STRLIT
-%token<id>ID
+%token<id>ID 
 %type<ip>program
-%type<ivl>vardeclist
-%type<iv>vardec
-%type<isl>statementlist
-%type<is>statement
-
-%type<if>functions
-%type<ifl>func_dec
+%type<idl>declarations
+%type<idec>var_dec
+%type<ivs>var_spec
+%type<iil>comma_id_rec
 
 %left  COMMA
 %right ASSIGN //'+=' '-='
@@ -63,34 +57,34 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON declarations {  printf("PROGRAM\n");}
+program: PACKAGE ID SEMICOLON declarations {  $$ = program = insert_program($4);}
         ;
 
-declarations:                                      {printf("\n");}  
-                |  declarations var_dec SEMICOLON  {printf("VAR\n"); }
-                |  declarations func_dec SEMICOLON {printf("FUNC\n"); }
+declarations:                                      {;}  
+                |  declarations var_dec SEMICOLON  {$$ = insert_declaration($1, $2); }
+                |  declarations func_dec SEMICOLON {$$ = insert_declaration($1, $2); }
                 ;
 
-var_dec:    VAR var_spec                         {$$ = insert_vardec_list($2);}
-        |   VAR LPAR var_spec SEMICOLON RPAR     {$$ = insert_vardec_list($3);}
+var_dec:    VAR var_spec                         {$$ = insert_var_declaration($2);}
+        |   VAR LPAR var_spec SEMICOLON RPAR     {$$ = insert_var_declaration($3);}
         ;
 
-var_spec: ID comma_id_rec type   {printf("VarSpec\n"); }
+var_spec: ID comma_id_rec type   {$$ = insert_var_specifications($2, $3)}
         ;
-comma_id_rec:   /*EMPTY*/            {$$ = NULL;}
-            |   comma_id_rec COMMA ID   {;}
+comma_id_rec:   /*EMPTY*/            {;}
+            |   comma_id_rec COMMA ID   {$$ = insert_var_id($1, $3);}
             ;
 
-type:   INT             {;}
-    |   FLOAT32         {;}
-    |   BOOL            {;}
-    |   STRING          {;}
+type:   INT             {$$ = $1;}
+    |   FLOAT32         {$$ = $1;}
+    |   BOOL            {$$ = $1;}
+    |   STRING          {$$ = $1;}
     ;
 
-func_dec:   FUNC ID LPAR parameters RPAR type func_body     {;}
-        |   FUNC ID LPAR RPAR type func_body                {;}
-        |   FUNC ID LPAR parameters RPAR func_body          {;}
-        |   FUNC ID LPAR RPAR func_body                     {;}
+func_dec:   FUNC ID LPAR parameters RPAR type func_body     {insert_func_declaration($4, $6, $7);}
+        |   FUNC ID LPAR RPAR type func_body                {insert_func_declaration(NULL, $5, $7);}
+        |   FUNC ID LPAR parameters RPAR func_body          {insert_func_declaration($4, NULL, $7);}
+        |   FUNC ID LPAR RPAR func_body                     {insert_func_declaration(NULL, NULL $7);}
         ;
 
 parameters: ID type comma_id_type_rec;
@@ -151,8 +145,19 @@ final_expr:   INTLIT
           |   LPAR expr RPAR
           ;
 
+operators:  OR                  {;}
+        |   AND                 {;}
+        |   LT                  {;}
+        |   GT                  {;}
+        |   EQ                  {;}
+        |   NE                  {;}
+        |   GE                  {;}
+        |   PLUS                {;}
+        |   MINUS               {;}
+        |   STAR                {;}
+        |   DIV                 {;}
+        |   MOD                 {;}
         ;
-
 self_oper:  PLUS
         |   MINUS
         |   NE

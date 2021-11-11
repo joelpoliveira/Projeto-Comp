@@ -4,147 +4,72 @@
 #include <string.h>
 #include <stdio.h>
 
-is_program* insert_program(is_vardec_list* ivl, is_statement_list* isl){
-	is_program* ip=(is_program*)malloc(sizeof(is_program));
-
-	ip->vlist=ivl;
-	ip->slist=isl;
+is_program * insert_program(is_declarations_list * idl){
+	is_program * ip = (is_program*) malloc(sizeof(is_program));
+	ip->idlist = idl;
 
 	return ip;
 }
 
-is_vardec_list* insert_vardec_list(is_vardec_list* head, is_vardec* iv){
-        is_vardec_list* ivl=(is_vardec_list*)malloc(sizeof(is_vardec_list));
-        is_vardec_list* tmp;
+is_declarations_list * insert_declaration(is_declarations_list * head, is_declaration * id){
+	is_declarations_list * idl = (is_declarations_list*) malloc(sizeof(is_declarations_list));
+	is_declarations_list * aux;
 
-        ivl->val=iv;
-        ivl->next=NULL;
+	idl->val = id;
+	idl->next = NULL;
 
-        if(head==NULL)
-                return ivl;
-
-        for(tmp=head; tmp->next; tmp=tmp->next);
-        tmp->next=ivl;
-
-        return head;
-}
-
-is_vardec* insert_integer_dec(char* id)
-{
-	is_vardec* iv=(is_vardec*)malloc(sizeof(is_vardec));
-	is_integer_dec* iid=(is_integer_dec*)malloc(sizeof(is_integer_dec));
+	if (head == NULL)
+		return idl;
 	
-	iid->id=(char*)strdup(id);  /* Por precaucao. Seria apenas necessario copiar o ponteiro, pois o strdup ja foi feito atras*/
-	iv->disc_d=d_integer;
-	iv->data_vardec.u_integer_dec=iid;
-	
-	//printf("Inserted a new integer var: %s\n", iv->data_vardec.u_integer_dec->id); 
-
-	return iv;
-}
-
-is_vardec* insert_character_dec(char* id)
-{
-        is_vardec* iv=(is_vardec*)malloc(sizeof(is_vardec));
-        is_character_dec* icd=(is_character_dec*)malloc(sizeof(is_character_dec));
-
-        icd->id=(char*)strdup(id);  /* Por precaucao. Seria apenas necessario copiar o ponteiro, pois o strdup ja foi feito atras*/
-        iv->disc_d=d_character;
-        iv->data_vardec.u_character_dec=icd;
-
-	//printf("Inserted a new char var: %s\n", iv->data_vardec.u_character_dec->id);
-
-        return iv;
-}
-
-is_vardec* insert_double_dec(char* id)
-{
-        is_vardec* iv=(is_vardec*)malloc(sizeof(is_vardec));
-        is_double_dec* idd=(is_double_dec*)malloc(sizeof(is_double_dec));
-
-        idd->id=(char*)strdup(id);  /* Por precaucao. Seria apenas necessario copiar o ponteiro, pois o strdup ja foi feito atras*/
-        iv->disc_d=d_double;
-        iv->data_vardec.u_double_dec=idd;
-
-	//printf("Inserted a new double var: %s\n", iv->data_vardec.u_double_dec->id);
-
-        return iv;
-}
-
-
-is_statement_list* insert_statement_list(is_statement_list* head, is_statement* is)
-{
-	is_statement_list* isl=(is_statement_list*)malloc(sizeof(is_statement_list));
-	is_statement_list* tmp;	
-
-	isl->val=is;
-	isl->next=NULL;
-
-	if(head==NULL)
-		return isl;
-
-	for(tmp=head; tmp->next; tmp=tmp->next);
-	tmp->next=isl;
+	for( aux = head; aux->next; aux = aux->next);
+	aux->next = idl;
 
 	return head;
 }
 
-is_statement* insert_write_statement(char* id)
-{
-	is_statement* is=(is_statement*)malloc(sizeof(is_statement));
-	is_write_statement* iws=(is_write_statement*)malloc(sizeof(is_write_statement));
-
-	iws->id=(char*)strdup(id);
-	is->disc_d=d_write;
-	is->data_statement.u_write_statement=iws;
-
-	return is;
+is_declaration * insert_var_declaration(is_var_spec * ivs){
+	is_declaration * id = (is_declaration*) malloc(sizeof(is_declaration));
+	id->dec.ivd = (is_var_dec*) malloc(sizeof(is_var_dec)); 
 	
+	id->type_dec = d_var_dec;
+	id->dec.ivd->ivs = ivs;
+
+	return id;
 }
 
 
-void print_state(is_statement_list* var){
-	printf("\t\tWriteStatement(%s)\n", var->val->data_statement.u_write_statement->id);
+is_declaration * insert_func_declaration(is_parameters_list * ipl, char*type, is_func_body * ifb){
+	is_declaration * id = (is_declaration *) malloc(sizeof(is_declaration));
+	id->dec.ifd = (is_func_dec*) malloc(sizeof(is_func_dec));
+
+	id->type_dec = d_func_dec;
+	id->dec.ifd->ipl = ipl;
+	id->dec.ifd->ifb = ifb;
+	id->dec.ifd->type = (char *) strdup(type);
+
+	return id;
 }
 
-void print_right(is_statement_list* list){
-	while(list!=NULL){
-		print_state(list);
-		list = list->next;
-	}
+is_var_spec * insert_var_specifications(is_id_list * iis, char * type){
+	is_var_spec * ivs = (is_var_spec *) malloc(sizeof(is_var_spec));
+	ivs->iil = iis;
+	ivs->type = (char *) strdup(type);
+	return ivs;
 }
 
-void print_var(is_vardec_list* var){
-	switch (var->val->disc_d){
-	case d_integer:
-		printf("\t\tVarDec(%s)\n", var->val->data_vardec.u_integer_dec->id);
-		break;
-	case d_character:
-		printf("\t\tVardecList(%s)\n", var->val->data_vardec.u_character_dec->id);
-		break;
-	case d_double:
-		printf("\t\tVardecList(%s)\n", var->val->data_vardec.u_double_dec->id);
-		break;
-	default:
-		break;
-	}
+is_id_list * insert_var_id(is_id_list * head, is_var_id * ivi ){
+	is_id_list * iil = (is_id_list *) malloc(sizeof(is_id_list));
+	is_id_list * aux;
+
+	iil->val = ivi;
+	iil->next = NULL;
+
+	if (head == NULL)
+		return iil;
+	
+	for (aux = head; aux->next; aux = aux-> next);
+	aux->next = iil;
+
+	return head;
 }
 
-void print_left(is_vardec_list * list){
-	while(list!=NULL){
-		print_var(list);
-		list = list->next;
-	}
-}
-
-
-
-void print_ast(is_program* root){
-	if (root==NULL) return;
-
-	printf("Program\n");
-	printf("\tVardecList\n");
-	print_left(root->vlist);
-	printf("\tStatementList\n");
-	print_right(root->slist);
-}

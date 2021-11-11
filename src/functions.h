@@ -1,10 +1,8 @@
 #include "structures.h"
 
-is_program* insert_program(is_vardec_list* ivl, is_statement_list* isl);
-is_vardec_list* insert_vardec_list(is_vardec_list* head, is_vardec* iv);
-is_vardec* insert_integer_dec(char* id);
-is_vardec* insert_character_dec(char* id);
-is_vardec* insert_double_dec(char* id);
-is_statement_list* insert_statement_list(is_statement_list* head, is_statement* is);
-is_statement* insert_write_statement(char* id);
-void print_ast(is_program* root);
+is_program* insert_program(is_declarations_list *);
+is_declarations_list * insert_declaration(is_declarations_list *, is_declaration *);
+is_declaration * insert_var_declaration(is_var_dec* );
+is_var_spec * insert_var_specifications(is_id_list *);
+is_id_list * insert_var_id(is_id_list * , is_var_id * );
+is_declaration * insert_func_declaration(is_parameters_list * , char* , is_func_body * );
