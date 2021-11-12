@@ -1,6 +1,7 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
+
 typedef struct _s39{
         char * id;
 } is_var_id;

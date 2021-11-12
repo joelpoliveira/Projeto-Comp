@@ -11,15 +11,11 @@
     int yylex(void);
     void yyerror (char *s);
 
-    int line = 1,
-        comment_lines = 1,
-        col = 0,
-        comment_cols = 0;
-
-    int flag_1 = 0, flag_2 = 0;
-    int yydebug = 0;
+    extern int flag_1, flag_2;
+    //int yydebug = 1;
 
     is_program* program;
+    //error_node* error_list;
 
 %}
 
@@ -124,6 +120,7 @@ statements: IF expr states_in_brace                     { $$ = insert_if_stateme
         |   ID ASSIGN expr                              { $$ = insert_assign_statement($1, $3); }
         |   states_in_brace                             { $$ = insert_statements_list($1); }
         |   final_states                                { $$ = insert_final_statement($1); }
+        |   error
         ;
 
 final_states:   func_invocation  { $$ = insert_final_state_func_inv($1) }
@@ -135,21 +132,24 @@ state_semic_rec: /*EMPTY*/      {$$ = NULL;}
                 | state_semic_rec statements SEMICOLON  { $$ = insert_statement_in_list($1, $2); }
                 ;
 parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr RSQ RPAR { $$ = insert_parse_args($1, $9); }
-            ;
+        |   ID COMMA BLANKID ASSIGN PARSEINT LPAR error RPAR
+        ;
 
-func_invocation: ID LPAR expr comma_expr_rec RPAR
+func_invocation: ID LPAR error RPAR
+            |   ID LPAR expr comma_expr_rec RPAR
             |   ID LPAR RPAR
             ;
-comma_expr_rec: /*EMPTY*/      {$$ = NULL;}
+comma_expr_rec: /*EMPTY*/     {;}
             |   comma_expr_rec COMMA expr
             ;
 
-expr:   expr operators expr2
+expr:   LPAR error RPAR
+    |   expr operators expr2
     |   expr2
     ;
 
-expr2:  self_oper expr2 %prec UNARY
-    |   final_expr
+expr2:  self_oper expr2 %prec UNARY {;}
+    |   final_expr {;}
     ;
 
 final_expr:   INTLIT
@@ -177,25 +177,7 @@ self_oper:  PLUS
         |   NOT
         ;
 
-
 %%
 
-int main(int argc, char *argv[]){
-    //checkig for argument -l like this so we dont have to import string.h
-    if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 'l')){
-        flag_1 = 1;
-    }
 
-    if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 't')){
-        flag_2 = 1;
-    } 
-    if (!flag_1)
-        yyparse();
-    else
-        while (yylex());
-    return 0;
-}
 
-void yyerror (char *s) {
-    printf("Line %d, column % d: %s\n\n", line, col, s);
-}
