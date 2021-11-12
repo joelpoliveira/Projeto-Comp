@@ -27,9 +27,15 @@
     char *id;
     is_program* ip;
     is_declarations_list* idl;
-    insert_declaration * idec;
-    is_var_spec * ivs;
+    is_declaration * idec;
+    is_var_spec * ivs;    
     is_id_list * iil;
+    is_parameter * iparam;
+    is_id_type_list * iitl;
+    is_func_body * ifb;
+    is_vars_and_statements_list * ivsl;
+    is_statement * is;
+    is_final_statement * ifs;
 }
 
 %token SEMICOLON COMMA BLANKID ASSIGN STAR DIV MINUS PLUS EQ GE GT LBRACE   //linhas 28-39
@@ -38,12 +44,19 @@
 %token UNARY
 
 //%token <string> RESERVED INTLIT REALLIT ID STRLIT
-%token<id>ID 
+%token<id>ID STRLIT INTLIT REALLIT
 %type<ip>program
 %type<idl>declarations
-%type<idec>var_dec
+%type<idec>var_dec func_dec
 %type<ivs>var_spec
 %type<iil>comma_id_rec
+%type<id>type
+%type<iparam>parameters
+%type<iitl>comma_id_type_rec
+%type<ifb>func_body
+%type<ivsl> vars_and_statements
+%type<is>statements
+%type<ifs>final_states
 
 %left  COMMA
 %right ASSIGN //'+=' '-='
@@ -87,41 +100,42 @@ func_dec:   FUNC ID LPAR parameters RPAR type func_body     {insert_func_declara
         |   FUNC ID LPAR RPAR func_body                     {insert_func_declaration(NULL, NULL $7);}
         ;
 
-parameters: ID type comma_id_type_rec;
-comma_id_type_rec: 
-                | comma_id_type_rec COMMA ID type
+parameters: ID type comma_id_type_rec  { $$ = insert_parameter($1, $2, $3); };
+comma_id_type_rec:  
+                | comma_id_type_rec COMMA ID type   {$$ = insert_id_type($1, $3, $4)}
                 ;
 
-func_body: LBRACE vars_and_statements RBRACE
+func_body: LBRACE vars_and_statements RBRACE    {$$ = insert_func_body($1);}
         ;
-vars_and_statements: /*EMPTY*/      {$$ = NULL;}
-                    |   vars_and_statements SEMICOLON
-                    |   vars_and_statements var_dec SEMICOLON
-                    |   vars_and_statements statements SEMICOLON
+vars_and_statements: /*EMPTY*/                                      { $$ = NULL; }
+                    |   vars_and_statements SEMICOLON               {;}
+                    |   vars_and_statements var_dec SEMICOLON       { $$ = insert_var_dec($1, $2); }
+                    |   vars_and_statements statements SEMICOLON    { $$ = insert_statements($1, $2); }
                     ;
 
-statements: IF expr states_in_brace
-        |   IF expr states_in_brace ELSE states_in_brace
-        |   FOR expr states_in_brace
-        |   FOR states_in_brace
-        |   RETURN expr
-        |   RETURN
-        |   PRINT LPAR expr RPAR
-        |   PRINT LPAR STRLIT RPAR 
-        |   ID ASSIGN expr
-        |   states_in_brace
-        |   final_states
+statements: IF expr states_in_brace                     { $$ = insert_if_statement($2, $3, NULL); }
+        |   IF expr states_in_brace ELSE states_in_brace{ $$ = insert_if_statement($2, $3, $5); }
+        |   FOR expr states_in_brace                    { $$ = insert_for_statement($1, $2);}
+        |   FOR states_in_brace                         { $$ = insert_for_statement(NULL, $1);  }
+        |   RETURN expr                                 { $$ = insert_return_statement($1);     }
+        |   RETURN                                      { $$ = insert_return_statement(NULL);   }
+        |   PRINT LPAR expr RPAR                        { $$ = insert_print_expr_statement($3); }    
+        |   PRINT LPAR STRLIT RPAR                      { $$ = insert_print_str_statement($3);  }
+        |   ID ASSIGN expr                              { $$ = insert_assign_statement($1, $3); }
+        |   states_in_brace                             { $$ = insert_statements_list($1); }
+        |   final_states                                { $$ = insert_final_statement($1); }
         ;
 
-final_states:   func_invocation
-            |   parse_args
+final_states:   func_invocation  { $$ = insert_final_state_func_inv($1) }
+            |   parse_args       { $$ = insert_final_state_args($1) }
             ;
 
 states_in_brace: LBRACE state_semic_rec RBRACE;
 state_semic_rec: /*EMPTY*/      {$$ = NULL;}
-                | state_semic_rec statements SEMICOLON
+                | state_semic_rec statements SEMICOLON  { $$ = insert_statement_in_list($1, $2); }
                 ;
-parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr RSQ RPAR;
+parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr RSQ RPAR { $$ = insert_parse_args($1, $9); }
+            ;
 
 func_invocation: ID LPAR expr comma_expr_rec RPAR
             |   ID LPAR RPAR
@@ -160,7 +174,7 @@ operators:  OR                  {;}
         ;
 self_oper:  PLUS
         |   MINUS
-        |   NE
+        |   NOT
         ;
 
 

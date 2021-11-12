@@ -95,6 +95,7 @@ typedef struct _s24{
 } is_function_invocation;
 
 typedef struct _s23{
+        char * id;
         is_expression_list * iel;
 } is_parse_arguments;
 
@@ -109,7 +110,8 @@ typedef struct _s22{
 } is_final_statement;
 
 typedef struct _s21{
-        is_expression * ie;
+        char * id;
+        is_expression_list * iel;
 } is_assign_statement;
 
 typedef struct _s20{
@@ -121,26 +123,26 @@ typedef enum {d_expression, d_str} print_type;
 typedef struct _s19{
         print_type * type_print;
         union{
-                is_expression * ie;
+                is_expression_list * iel;
                 is_str * u_str_state;
         } print;
 } is_print_statement;
 
 typedef struct _s18{
-        is_expression * ie;
+        is_expression_list * iel;
 } is_return_statement;
 
 typedef struct _s17{
-        is_expression * ie;
+        is_expression_list * iel;
         is_statements_list * isl;
 } is_for_statement;
 
 typedef struct _s16{
-        is_statements_list;
+        is_statements_list * isl;
 } is_else_statement;
 
 typedef struct _s15 {
-        is_expression * ie;
+        is_expression_list * iel;
         is_statements_list * isl;
         is_else_statement * ies;
 } is_if_statement;
@@ -180,46 +182,25 @@ typedef struct _s11{
         struct _s11 * next;
 } is_vars_and_statements_list;
 
-typedef struct _s10{
-        char * id;
-} is_var_param;
-
-typedef struct _s9{
-        char * id;
-} is_bool_param;
-
-typedef struct _s8{
-        char * id;
-} is_str_param;
-
-typedef struct _s7 {
-        char * id;
-} is_float32_param;
-
-typedef struct _s6{
-        char * id;
-} is_integer_param;
 //possiveis tipos de variavel INT, FLOAT32, 
 typedef enum {d_integer, d_float32, d_str, d_bool, d_var} parameter_type;
 
 typedef struct _s5{
         parameter_type type_param;
-        union {
-                is_integer_param* u_integer_param;
-                is_float32_param * u_float32_param;
-                is_str_param * u_str_param;
-                is_bool_param * u_bool_param;
-                is_var_param * u_var_param;
-        } param;
-} is_parameter;
+        char * id;
+} is_id_type;
+
+typedef struct _s4_1{
+        is_id_type * val;
+        struct _s4_1 * next;
+} is_id_type_list;
 
 typedef struct _s4{
-        is_parameter * val;
-        struct _s4 * next;
-} is_parameters_list;
+        is_id_type_list * val;
+} is_parameter;
 
 typedef struct _s3 {
-        is_parameters_list * ipl;
+        is_parameter * ipl;
         is_func_body * ifb;
         char * type;
 } is_func_dec;
