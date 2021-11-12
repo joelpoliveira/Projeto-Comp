@@ -3,13 +3,20 @@
     // Joel Oliveira - 2019227468
 
     #include "y.tab.h"
+     #include <string.h>
+    #include <stdbool.h>
 
-    int swaped_line;
-    extern int  flag_1,
-                line, 
-                comment_lines, 
-                col, 
-                comment_cols;
+    void yyerror (char *s);
+
+    bool flag_1 = 0, 
+        flag_2 = 0, 
+        swaped_line;
+
+    int line = 1,
+        comment_lines = 1,
+        col = 0,
+        comment_cols = 0;
+
 %}
 
 letter  [a-zA-Z_]
@@ -46,11 +53,11 @@ whispace (" "|\t)
 "!"				{if (flag_1) fprintf(yyout, "NOT\n"); col+=yyleng; return NOT;}
 "&&"			{if (flag_1) fprintf(yyout, "AND\n"); col+=yyleng; return AND;}
 "||"			{if (flag_1) fprintf(yyout, "OR\n"); col+=yyleng; return OR;}
-"}"				{if (flag_1) fprintf(yyout, "RBRACE\n"); col+=yyleng; return RBRACE; BEGIN _SEMICOLON;}
-")"				{if (flag_1) fprintf(yyout, "RPAR\n"); col+=yyleng; return RPAR; BEGIN _SEMICOLON;}
-"]"				{if (flag_1) fprintf(yyout, "RSQ\n"); col+=yyleng; return RSQ; BEGIN _SEMICOLON;}
+"}"				{if (flag_1) fprintf(yyout, "RBRACE\n"); col+=yyleng;  BEGIN _SEMICOLON; return RBRACE;}
+")"				{if (flag_1) fprintf(yyout, "RPAR\n"); col+=yyleng;  BEGIN _SEMICOLON; return RPAR;}
+"]"				{if (flag_1) fprintf(yyout, "RSQ\n"); col+=yyleng; BEGIN _SEMICOLON; return RSQ;}
 "package"		{if (flag_1) fprintf(yyout, "PACKAGE\n"); col+=yyleng; return PACKAGE;}
-"return"		{if (flag_1) fprintf(yyout, "RETURN\n"); col+=yyleng; return RETURN; BEGIN _SEMICOLON;}
+"return"		{if (flag_1) fprintf(yyout, "RETURN\n"); col+=yyleng; BEGIN _SEMICOLON; return RETURN;}
 "else"			{if (flag_1) fprintf(yyout, "ELSE\n"); col+=yyleng; return ELSE; }
 "for"			{if (flag_1) fprintf(yyout, "FOR\n"); col+=yyleng; return FOR; }
 "if"			{if (flag_1) fprintf(yyout, "IF\n"); col+=yyleng; return IF; }
@@ -66,30 +73,30 @@ whispace (" "|\t)
 "/*"			{col++; comment_lines = 0; comment_cols = 0; swaped_line = 0; BEGIN BCOMMENT;}
 "//"			{col++; BEGIN LCOMMENT;}
 
-"++"|"--"		{if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED; }
-"break"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED; }
-"case"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED; }
-"chan"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED; }
-"const"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED; }
-"continue"      {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED; }
-"default"       {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED; }
-"defer"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED; }
-"fallthrough"   {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED; }
-"go"            {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
-"import"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
-"goto"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
-"interface"     {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
-"map"           {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
-"range"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
-"select"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
-"struct"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
-"switch"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
-"type"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.string =strdup(yytext); return RESERVED;}
+"++"|"--"		{if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED; }
+"break"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED; }
+"case"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED; }
+"chan"          {if  (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED; }
+"const"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED; }
+"continue"      {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED; }
+"default"       {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED; }
+"defer"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED; }
+"fallthrough"   {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED; }
+"go"            {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
+"import"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
+"goto"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
+"interface"     {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
+"map"           {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
+"range"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
+"select"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
+"struct"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
+"switch"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
+"type"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; yylval.id=strdup(yytext); return RESERVED;}
 
 0                               {yyless(0); BEGIN OCTAL;}
-[1-9]{number}*|{hexa}          	{if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; yylval.string = strdup(yytext); return INTLIT; BEGIN _SEMICOLON;}
-({float}{exp}?|{number}+{exp})  {if (flag_1) fprintf(yyout, "REALLIT(%s)\n", yytext); col+=yyleng; yylval.string = strdup(yytext); return REALLIT; BEGIN _SEMICOLON;}
-{letter}[a-zA-Z0-9_]*			{if (flag_1) fprintf(yyout, "ID(%s)\n", yytext); yylval.string =strdup(yytext); return ID; col+=yyleng; BEGIN _SEMICOLON;}
+[1-9]{number}*|{hexa}          	{if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng; yylval.id = strdup(yytext);  BEGIN _SEMICOLON; return INTLIT; }
+({float}{exp}?|{number}+{exp})  {if (flag_1) fprintf(yyout, "REALLIT(%s)\n", yytext); col+=yyleng; yylval.id = strdup(yytext); BEGIN _SEMICOLON; return REALLIT;}
+{letter}[a-zA-Z0-9_]*			{if (flag_1) fprintf(yyout, "ID(%s)\n", yytext); yylval.id =strdup(yytext); col+=yyleng;  BEGIN _SEMICOLON; return ID;}
 \"                              {yyless(0); BEGIN _STRING;}
 
 {newline}				    			  {line++; col = 0;}
@@ -104,24 +111,24 @@ whispace (" "|\t)
 <LCOMMENT>{newline} 	        		  {line++; col = 0; BEGIN 0;}
 <LCOMMENT>. 	        				  {;}
 
-<_SEMICOLON>{newline}                      {if (flag_1) fprintf(yyout, "SEMICOLON\n"); return SEMICOLON;; line++; col = 0; BEGIN 0;}
-<_SEMICOLON>{whispace}	                  {col+=yyleng;}
+<_SEMICOLON>{newline}                      {if (flag_1) fprintf(yyout, "SEMICOLON\n");  line++; col = 0; BEGIN 0;  return SEMICOLON;    }
+<_SEMICOLON>{whispace}	                   {col+=yyleng;}
 <_SEMICOLON>"/*"                           {col++; comment_lines = 0; comment_cols = 0; swaped_line = 0; BEGIN SEMIBCOMMENT;}
 <_SEMICOLON>"//"                           {BEGIN SEMILCOMMENT;}
 <_SEMICOLON>.                              {yyless(0); BEGIN 0;}
-<_SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n"); return SEMICOLON; yyterminate();}
+<_SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n");  yyterminate(); return SEMICOLON;}
 
-<SEMIBCOMMENT>"*/" 	        			  {line+=comment_lines; if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON; BEGIN 0;} else BEGIN _SEMICOLON;}
+<SEMIBCOMMENT>"*/" 	        			  {line+=comment_lines; if (swaped_line) col = 0; else col++; col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); BEGIN 0; return SEMICOLON; } else BEGIN _SEMICOLON;}
 <SEMIBCOMMENT>{newline}        	          {comment_lines++; comment_cols = 0; swaped_line=1; }
-<SEMIBCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); return SEMICOLON; yyterminate();}
+<SEMIBCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); yyterminate(); return SEMICOLON;}
 <SEMIBCOMMENT>.     	        	      {comment_cols+=yyleng;}
 
 <SEMILCOMMENT>{newline} 	              {yyless(0); BEGIN _SEMICOLON;}
-<SEMILCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); return SEMICOLON; yyterminate();}
+<SEMILCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); yyterminate(); return SEMICOLON;}
 <SEMILCOMMENT>. 	        		      {;}
 
 <_STRING>{newline}                                   {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); line++; col = 0; BEGIN 0;}
-<_STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\r\n])*\"        {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); yylval.string =strdup(yytext); return STRLIT; col+=yyleng; BEGIN _SEMICOLON;}
+<_STRING>\"(\\(\"|n|r|t|f|\\)|[^\\\"\r\n])*\"        {if (flag_1) fprintf(yyout, "STRLIT(%s)\n", yytext); yylval.id =strdup(yytext); col+=yyleng;  BEGIN _SEMICOLON; return STRLIT;}
 <_STRING>\"[^\"\r\n]*\\[^\\\"nrtf][^\"\r\n]*\"       {yyless(0); BEGIN DUMMY_QUOTE;}
 <_STRING>\"[^\"\r\n]*{newline}?                      {yyless(0); BEGIN DUMMY_QUOTE;}
 
@@ -135,12 +142,34 @@ whispace (" "|\t)
 <INVALID_STRING><<EOF>>                    {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); yyterminate();}
 <INVALID_STRING>.                          {comment_cols+=yyleng;}
 
-<OCTAL>0[0-7]*                             {if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); yylval.string = strdup(yytext); return INTLIT; col+=yyleng; BEGIN _SEMICOLON;}
+<OCTAL>0[0-7]*                             {if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); yylval.id = strdup(yytext);  col+=yyleng; BEGIN _SEMICOLON; return INTLIT;}
 <OCTAL>[0-9]+                              {col++; fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); col+=yyleng-1; BEGIN 0;}
 <OCTAL>.                                   {yyless(0); BEGIN 0;}
 
 %%
 
+int main(int argc, char *argv[]){
+    //checkig for argument like this so we dont have to import string.h
+    if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 'l')){
+        flag_1 = 1;
+    }
+
+    if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 't')){
+        flag_2 = 1;
+    }
+
+    if (!flag_1)
+        yyparse();
+    else
+        while(yylex());
+    return 0;
+}
+
+void yyerror (char *s) {
+    fprintf(yyout, "Line %d, column %lu: %s: %s\n", line, col - strlen(yytext) + 1, s, yytext );
+}
+
 int yywrap(){
     return 1;
 }
+

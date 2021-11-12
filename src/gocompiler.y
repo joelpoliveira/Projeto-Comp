@@ -11,28 +11,24 @@
     int yylex(void);
     void yyerror (char *s);
 
-    int line = 1,
-        comment_lines = 1,
-        col = 0,
-        comment_cols = 0;
+    extern int flag_1, flag_2;
+    //int yydebug = 1;
 
-    int flag_1 = 0, flag_2 = 0;
-    int yydebug = 0;
-
-    is_program* myprogram;
+    //is_program* myprogram;
+    //error_node* error_list;
 
 %}
 
 %union{
     char *id;
-    is_program* ip;
-    is_vardec_list* ivl;
-    is_vardec* iv;
-    is_statement_list* isl;
-    is_statement* is;
+    // is_program* ip;
+    // is_vardec_list* ivl;
+    // is_vardec* iv;
+    // is_statement_list* isl;
+    // is_statement* is;
 
-    is_function* if;
-    is_function_list* ifl;
+    // is_function* if;
+    // is_function_list* ifl;
 }
 
 %token SEMICOLON COMMA BLANKID ASSIGN STAR DIV MINUS PLUS EQ GE GT LBRACE   //linhas 28-39
@@ -40,16 +36,18 @@
 %token FOR IF VAR INT FLOAT32 BOOL STRING PRINT PARSEINT FUNC CMDARGS       //linhas 55-65
 %token UNARY
 
-//%token <string> RESERVED INTLIT REALLIT ID STRLIT
-%token<id>ID
-%type<ip>program
-%type<ivl>vardeclist
-%type<iv>vardec
-%type<isl>statementlist
-%type<is>statement
+//%token<string> RESERVED INTLIT REALLIT ID STRLIT
+%token<id>ID RESERVED INTLIT REALLIT STRLIT
+// %type<ip>program
+// %type<ivl>vardeclist
+// %type<iv>vardec
+// %type<isl>statementlist
+// %type<is>statement
 
-%type<if>functions
-%type<ifl>func_dec
+// %type<if>functions
+// %type<ifl>func_dec
+
+//%type<>
 
 %left  COMMA
 %right ASSIGN //'+=' '-='
@@ -63,21 +61,21 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON declarations {  printf("PROGRAM\n");}
+program: PACKAGE ID SEMICOLON declarations {;}
         ;
 
-declarations:                                      {printf("\n");}  
-                |  declarations var_dec SEMICOLON  {printf("VAR\n"); }
-                |  declarations func_dec SEMICOLON {printf("FUNC\n"); }
-                ;
+declarations: /*EMPTY*/                        {;}  
+            |  declarations var_dec SEMICOLON  {;}
+            |  declarations func_dec SEMICOLON {;}
+            ;
 
-var_dec:    VAR var_spec                         {$$ = insert_vardec_list($2);}
-        |   VAR LPAR var_spec SEMICOLON RPAR     {$$ = insert_vardec_list($3);}
+var_dec:    VAR var_spec                         {;}
+        |   VAR LPAR var_spec SEMICOLON RPAR     {;}
         ;
 
-var_spec: ID comma_id_rec type   {printf("VarSpec\n"); }
+var_spec: ID comma_id_rec type   {;}
         ;
-comma_id_rec:   /*EMPTY*/            {$$ = NULL;}
+comma_id_rec:   /*EMPTY*/            {;}
             |   comma_id_rec COMMA ID   {;}
             ;
 
@@ -100,13 +98,14 @@ comma_id_type_rec:
 
 func_body: LBRACE vars_and_statements RBRACE
         ;
-vars_and_statements: /*EMPTY*/      {$$ = NULL;}
+vars_and_statements: /*EMPTY*/      {;}
                     |   vars_and_statements SEMICOLON
                     |   vars_and_statements var_dec SEMICOLON
                     |   vars_and_statements statements SEMICOLON
                     ;
 
-statements: IF expr states_in_brace
+statements: error
+        |   IF expr states_in_brace
         |   IF expr states_in_brace ELSE states_in_brace
         |   FOR expr states_in_brace
         |   FOR states_in_brace
@@ -124,24 +123,28 @@ final_states:   func_invocation
             ;
 
 states_in_brace: LBRACE state_semic_rec RBRACE;
-state_semic_rec: /*EMPTY*/      {$$ = NULL;}
+state_semic_rec: /*EMPTY*/      {;}
                 | state_semic_rec statements SEMICOLON
                 ;
-parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr RSQ RPAR;
+parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR error RPAR
+        |ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr RSQ RPAR  
+        ;
 
-func_invocation: ID LPAR expr comma_expr_rec RPAR
+func_invocation: ID LPAR error RPAR
+            |   ID LPAR expr comma_expr_rec RPAR
             |   ID LPAR RPAR
             ;
-comma_expr_rec: /*EMPTY*/      {$$ = NULL;}
+comma_expr_rec: /*EMPTY*/     {;}
             |   comma_expr_rec COMMA expr
             ;
 
-expr:   expr operators expr2
+expr:   LPAR error RPAR
+    |   expr operators expr2
     |   expr2
     ;
 
-expr2:  self_oper expr2 %prec UNARY
-    |   final_expr
+expr2:  self_oper expr2 %prec UNARY {;}
+    |   final_expr {;}
     ;
 
 final_expr:   INTLIT
@@ -151,6 +154,19 @@ final_expr:   INTLIT
           |   LPAR expr RPAR
           ;
 
+        
+operators:  OR                  {;}
+        |   AND                 {;}
+        |   LT                  {;}
+        |   GT                  {;}
+        |   EQ                  {;}
+        |   NE                  {;}
+        |   GE                  {;}
+        |   PLUS                {;}
+        |   MINUS               {;}
+        |   STAR                {;}
+        |   DIV                 {;}
+        |   MOD                 {;}
         ;
 
 self_oper:  PLUS
@@ -158,25 +174,7 @@ self_oper:  PLUS
         |   NE
         ;
 
-
 %%
 
-int main(int argc, char *argv[]){
-    //checkig for argument -l like this so we dont have to import string.h
-    if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 'l')){
-        flag_1 = 1;
-    }
 
-    if (argv[1] != 0 && (argv[1][0] == '-' && argv[1][1] == 't')){
-        flag_2 = 1;
-    } 
-    if (!flag_1)
-        yyparse();
-    else
-        while (yylex());
-    return 0;
-}
 
-void yyerror (char *s) {
-    printf("Line %d, column % d: %s\n\n", line, col, s);
-}
