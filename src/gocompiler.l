@@ -1,7 +1,7 @@
 %{
     // Tomás Mendes - 2019232272
     // Joel Oliveira - 2019227468
-
+    #include "structures.h"
     #include "y.tab.h"
      #include <string.h>
     #include <stdbool.h>
@@ -10,13 +10,14 @@
 
     bool flag_1 = 0, 
         flag_2 = 0, 
-        swaped_line;
+        swaped_line = 0;
 
     int line = 1,
         comment_lines = 1,
         col = 0,
         comment_cols = 0;
 
+    extern is_program * program;
 %}
 
 letter  [a-zA-Z_]
