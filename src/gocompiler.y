@@ -6,6 +6,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include "functions.h"
+    #include "print_ast.h"
     #include "y.tab.h"
 
     int yylex(void);
@@ -98,7 +99,7 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON declarations {  $$ = program = insert_program($4); printf("Program\n");}
+program: PACKAGE ID SEMICOLON declarations { $$ = program = insert_program($4); print_ast(program); printf("Program\n");}
         ;
 
 declarations:                                      {;}  

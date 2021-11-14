@@ -2,7 +2,7 @@
 main:
 	flex gocompiler.l
 	yacc gocompiler.y -d #--debug --verbose
-	clang-7 -o gocompiler y.tab.c lex.yy.c functions.c
+	clang -o gocompiler y.tab.c lex.yy.c functions.c print_ast.c
 	
 .PHONY: clean
 clean:
