@@ -387,27 +387,33 @@ is_expression2_list * insert_second_expr(is_final_expression * ife){
 
 is_final_expression * insert_intlit(char * id){
 	is_final_expression * ife = (is_final_expression *)malloc(sizeof(is_final_expression));
+	is_intlit * intlit = (is_intlit*)malloc(sizeof(is_intlit));
+	intlit->intlit = (char *) strdup(id);
 
 	ife->type_final_expression = d_intlit;
-	ife->expr.u_intlit->intlit = (char *)strdup(id);
+	ife->expr.u_intlit = intlit;
 
 	return ife;
 }
 
 is_final_expression * insert_real(char * id){
 	is_final_expression * ife = (is_final_expression *)malloc(sizeof(is_final_expression));
+	is_reallit * real = (is_reallit *) malloc(sizeof(is_reallit));
+	real->reallit = (char *)strdup(id);
 
 	ife->type_final_expression = d_reallit;
-	ife->expr.u_reallit->reallit = (char *)strdup(id);
+	ife->expr.u_reallit = real;
 
 	return ife;
 }
 
 is_final_expression * insert_id(char * id){
 	is_final_expression * ife = (is_final_expression *)malloc(sizeof(is_final_expression));
+	is_id * iid = (is_id*)malloc(sizeof(is_id));
+	iid->id = (char *) strdup(id);
 
 	ife->type_final_expression = d_id;
-	ife->expr.u_id->id = (char *)strdup(id);
+	ife->expr.u_id = iid;
 
 	return ife;
 }
