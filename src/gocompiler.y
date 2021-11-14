@@ -102,25 +102,25 @@
 program: PACKAGE ID SEMICOLON declarations { $$ = program = insert_program($4); print_ast(program); printf("Program\n");}
         ;
 
-declarations:                                      {;}  
-                |  declarations var_dec SEMICOLON  {$$ = insert_declaration($1, $2); printf("Decs1\n");}
-                |  declarations func_dec SEMICOLON {$$ = insert_declaration($1, $2); printf("Decs2\n");}
+declarations:    /*EMPTY*/                         {$$ = NULL;}  
+                |  declarations var_dec SEMICOLON  {printf("Decs1\n");$$ = insert_declaration($1, $2); }
+                |  declarations func_dec SEMICOLON {printf("Decs2\n");$$ = insert_declaration($1, $2); }
                 ;
 
-var_dec:    VAR var_spec                         {$$ = insert_var_declaration($2);printf("vdec1\n");}
-        |   VAR LPAR var_spec SEMICOLON RPAR     {$$ = insert_var_declaration($3);printf("vdec2\n");}
+var_dec:    VAR var_spec                         {printf("vdec1\n");$$ = insert_var_declaration($2);}
+        |   VAR LPAR var_spec SEMICOLON RPAR     {printf("vdec2\n");$$ = insert_var_declaration($3);}
         ;
 
-var_spec: ID comma_id_rec type   {$$ = insert_var_specifications($1, $2, $3);printf("vspec\n");}
+var_spec: ID comma_id_rec type   {printf("vspec\n");$$ = insert_var_specifications($1, $2, $3);}
         ;
-comma_id_rec:   /*EMPTY*/               {;}
-            |   comma_id_rec COMMA ID   {$$ = insert_var_id($1, $3);printf(", id_list\n");}
+comma_id_rec:   /*EMPTY*/               {$$ = NULL;}
+            |   comma_id_rec COMMA ID   {printf(", id_list\n");$$ = insert_var_id($1, $3);}
             ;
 
-type:   INT             {$$ = insert_type("INT");printf("int\n");}
-    |   FLOAT32         {$$ = insert_type("FLOAT");printf("float\n");}
-    |   BOOL            {$$ = insert_type("BOOL");printf("bool\n");}
-    |   STRING          {$$ = insert_type("STR");printf("string\n");}
+type:   INT             {printf("int\n");$$ = insert_type("INT");}
+    |   FLOAT32         {printf("float\n");$$ = insert_type("FLOAT");}
+    |   BOOL            {printf("bool\n");$$ = insert_type("BOOL");}
+    |   STRING          {printf("string\n");$$ = insert_type("STR");}
     ;
 
 func_dec:   FUNC ID LPAR parameters RPAR type func_body     {printf("f_dec1\n");insert_func_declaration($2, $4, $6, $7);}
@@ -130,14 +130,14 @@ func_dec:   FUNC ID LPAR parameters RPAR type func_body     {printf("f_dec1\n");
         ;
 
 parameters: ID type comma_id_type_rec               {  printf("parameters\n");$$ = insert_parameter($1, $2, $3);};
-comma_id_type_rec:                                  { ; }
+comma_id_type_rec:   /*EMPTY*/                     { $$ = NULL; }
                 | comma_id_type_rec COMMA ID type   { printf(", id_type_list\n"); $$ = insert_id_type($1, $3, $4);}
                 ;
 
 func_body: LBRACE vars_and_statements RBRACE    {printf("func_body\n");$$ = insert_func_body($2);}
         ;
 vars_and_statements: /*EMPTY*/                                      { $$ = NULL; }
-                    |   vars_and_statements SEMICOLON               {;}
+                    |   vars_and_statements SEMICOLON               { $$ = NULL;}
                     |   vars_and_statements var_dec SEMICOLON       { printf("vars_states1\n");$$ = insert_var_dec($1, ($2)->dec.ivd);}
                     |   vars_and_statements statements SEMICOLON    {printf("vars_states2\n"); $$ = insert_statements($1, $2); }
                     ;
@@ -161,22 +161,22 @@ final_states:   func_invocation  {  printf("final_s1\n"); $$ = insert_final_stat
             ;
 
 states_in_brace: LBRACE state_semic_rec RBRACE          {printf("in_brace\n"); $$ = $2; };
-state_semic_rec: /*EMPTY*/                              { ;}
+state_semic_rec: /*EMPTY*/                              { $$ = NULL ; }
                 | state_semic_rec statements SEMICOLON  {  printf("s_;_list\n"); $$ = insert_statement_in_list($1, $2);}
                 ;
 parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr RSQ RPAR {  printf("parse\n"); $$ = insert_parse_args($1, $9); }
         |   ID COMMA BLANKID ASSIGN PARSEINT LPAR error RPAR                { $$ = NULL; }
         ;
 
-func_invocation: ID LPAR error RPAR                 { $$ = NULL; }
+func_invocation: ID LPAR error RPAR                 { ; }
             |   ID LPAR expr comma_expr_rec RPAR    { printf("f_iv1\n"); $$ = insert_func_inv($1, $3, $4);}
             |   ID LPAR RPAR                        { printf("f_inv2\n"); $$ = insert_func_inv($1, NULL, NULL);}
             ;
-comma_expr_rec: /*EMPTY*/                   {;}
+comma_expr_rec: /*EMPTY*/                   { $$ = NULL;}
             |   comma_expr_rec COMMA expr   { printf("expr_list\n"); $$ = insert_expression($1, $3);}
             ;
 
-expr:   LPAR error RPAR         {$$ = NULL;}
+expr:   LPAR error RPAR         {;}
     |   expr operators expr2    {  printf("expr1\n"); $$ = insert_first_expr($1, $2, $3); }
     |   expr2                   {  printf("expr1_2\n"); $$ = insert_first_expr(NULL, NULL, $1); }
     ;
