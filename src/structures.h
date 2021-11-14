@@ -12,7 +12,7 @@ typedef enum {d_expression, d_str}                                 print_type;
 typedef enum {d_if, d_for, d_return, d_print, d_assign, 
                 d_statement_list, d_final_statement}               statement_type;
 typedef enum {d_var_dec, d_statement}                              var_or_statement;
-typedef enum {d_integer, d_float32, d_string, d_bool, d_var}       parameter_type;
+typedef enum {d_integer, d_float32, d_string, d_bool, d_var, d_dummy}       parameter_type;
 typedef enum {d_func_dec, d_var_declaration}                       declaration_type;
 
 typedef struct _s0 is_program;
