@@ -221,7 +221,7 @@ typedef struct _s3 {
         is_parameter * ipl;
         is_func_body * ifb;
         parameter_type type;
-        char * id;
+        char* id;
 } is_func_dec;
 
 //a lista de declarações pode ter 2 tipos de elementos. func_dec e var_dec;

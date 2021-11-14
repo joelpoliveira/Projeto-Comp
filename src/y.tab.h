@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 3.7.6.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -31,70 +31,81 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_YY_Y_TAB_H_INCLUDED
 # define YY_YY_Y_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    SEMICOLON = 258,
-    COMMA = 259,
-    BLANKID = 260,
-    ASSIGN = 261,
-    STAR = 262,
-    DIV = 263,
-    MINUS = 264,
-    PLUS = 265,
-    EQ = 266,
-    GE = 267,
-    GT = 268,
-    LBRACE = 269,
-    LE = 270,
-    LPAR = 271,
-    LSQ = 272,
-    LT = 273,
-    MOD = 274,
-    NE = 275,
-    NOT = 276,
-    AND = 277,
-    OR = 278,
-    RBRACE = 279,
-    RPAR = 280,
-    RSQ = 281,
-    PACKAGE = 282,
-    RETURN = 283,
-    ELSE = 284,
-    FOR = 285,
-    IF = 286,
-    VAR = 287,
-    INT = 288,
-    FLOAT32 = 289,
-    BOOL = 290,
-    STRING = 291,
-    PRINT = 292,
-    PARSEINT = 293,
-    FUNC = 294,
-    CMDARGS = 295,
-    RESERVED = 296,
-    INTLIT = 297,
-    REALLIT = 298,
-    ID = 299,
-    STRLIT = 300
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    SEMICOLON = 258,               /* SEMICOLON  */
+    COMMA = 259,                   /* COMMA  */
+    BLANKID = 260,                 /* BLANKID  */
+    ASSIGN = 261,                  /* ASSIGN  */
+    STAR = 262,                    /* STAR  */
+    DIV = 263,                     /* DIV  */
+    MINUS = 264,                   /* MINUS  */
+    PLUS = 265,                    /* PLUS  */
+    EQ = 266,                      /* EQ  */
+    GE = 267,                      /* GE  */
+    GT = 268,                      /* GT  */
+    LBRACE = 269,                  /* LBRACE  */
+    LE = 270,                      /* LE  */
+    LPAR = 271,                    /* LPAR  */
+    LSQ = 272,                     /* LSQ  */
+    LT = 273,                      /* LT  */
+    MOD = 274,                     /* MOD  */
+    NE = 275,                      /* NE  */
+    NOT = 276,                     /* NOT  */
+    AND = 277,                     /* AND  */
+    OR = 278,                      /* OR  */
+    RBRACE = 279,                  /* RBRACE  */
+    RPAR = 280,                    /* RPAR  */
+    RSQ = 281,                     /* RSQ  */
+    PACKAGE = 282,                 /* PACKAGE  */
+    RETURN = 283,                  /* RETURN  */
+    ELSE = 284,                    /* ELSE  */
+    FOR = 285,                     /* FOR  */
+    IF = 286,                      /* IF  */
+    VAR = 287,                     /* VAR  */
+    PRINT = 288,                   /* PRINT  */
+    PARSEINT = 289,                /* PARSEINT  */
+    FUNC = 290,                    /* FUNC  */
+    CMDARGS = 291,                 /* CMDARGS  */
+    INT = 292,                     /* INT  */
+    FLOAT32 = 293,                 /* FLOAT32  */
+    STRING = 294,                  /* STRING  */
+    BOOL = 295,                    /* BOOL  */
+    UNARY = 296,                   /* UNARY  */
+    ID = 297,                      /* ID  */
+    STRLIT = 298,                  /* STRLIT  */
+    INTLIT = 299,                  /* INTLIT  */
+    REALLIT = 300,                 /* REALLIT  */
+    RESERVED = 301                 /* RESERVED  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Tokens.  */
+/* Token kinds.  */
+#define YYEMPTY -2
+#define YYEOF 0
+#define YYerror 256
+#define YYUNDEF 257
 #define SEMICOLON 258
 #define COMMA 259
 #define BLANKID 260
@@ -125,30 +136,51 @@ extern int yydebug;
 #define FOR 285
 #define IF 286
 #define VAR 287
-#define INT 288
-#define FLOAT32 289
-#define BOOL 290
-#define STRING 291
-#define PRINT 292
-#define PARSEINT 293
-#define FUNC 294
-#define CMDARGS 295
-#define RESERVED 296
-#define INTLIT 297
-#define REALLIT 298
-#define ID 299
-#define STRLIT 300
+#define PRINT 288
+#define PARSEINT 289
+#define FUNC 290
+#define CMDARGS 291
+#define INT 292
+#define FLOAT32 293
+#define STRING 294
+#define BOOL 295
+#define UNARY 296
+#define ID 297
+#define STRLIT 298
+#define INTLIT 299
+#define REALLIT 300
+#define RESERVED 301
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 19 "gocompiler.y"
+#line 35 "gocompiler.y"
 
-    char* string;
+    char *id;
+    parameter_type pt;
+    is_program* ip;
+    is_declarations_list* idl;
+    is_declaration * idec;
+    is_var_spec * ivs;    
+    is_id_list * iil;
+    is_parameter * iparam;
+    is_id_type_list * iitl;
+    is_func_body * ifb;
+    is_vars_and_statements_list * ivsl;
+    is_statement * is;
+    is_final_statement * ifs;
+    is_statements_list * isl;
+    is_parse_arguments * ipa;
+    is_function_invocation * ifi;
+    is_expression_list * iel;
+    is_expression2_list * ie2l;
+    is_final_expression * ife;
+    is_operation * io;
+    is_self_operation * iso;
+    is_func_dec * ifd;
 
-
-#line 152 "y.tab.h"
+#line 184 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

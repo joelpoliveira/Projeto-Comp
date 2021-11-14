@@ -43,7 +43,7 @@ is_declaration * insert_func_declaration(char * id, is_parameter * iparam, param
 	idec->dec.ifd = (is_func_dec*) malloc(sizeof(is_func_dec));
 	idec->type_dec = d_func_dec;
 
-	idec->dec.ifd->id = (char * ) strdup(id);
+	idec->dec.ifd->id = (char*) strdup(id);
 	idec->dec.ifd->ipl = iparam;
 	idec->dec.ifd->ifb = ifb;
 	idec->dec.ifd->type = type;
