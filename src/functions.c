@@ -14,7 +14,7 @@ is_program * insert_program(is_declarations_list * idl){
 is_declarations_list * insert_declaration(is_declarations_list * head, is_declaration * id){
 	is_declarations_list * idl = (is_declarations_list*) malloc(sizeof(is_declarations_list));
 	is_declarations_list * aux;
-	
+
 	idl->val = id;
 	idl->next = NULL;
 
