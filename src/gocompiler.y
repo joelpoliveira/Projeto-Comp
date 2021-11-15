@@ -64,10 +64,7 @@
 %token FOR IF VAR PRINT PARSEINT FUNC CMDARGS INT FLOAT32 STRING BOOL      //linhas 55-65
 %token UNARY
 
-//%token <string> RESERVED INTLIT REALLIT ID STRLIT
 %token<id> ID STRLIT INTLIT REALLIT RESERVED
-//%token<pt> 
-
 %type<ip> program
 %type<idl> declarations
 %type<idec> var_dec func_dec

@@ -187,27 +187,61 @@ void print_statement_if(is_if_statement* iifs){
 void print_expression_list(is_expression_list* iel){
     if (iel == NULL) return;
 
-    expression2_type type = iel->type_expr;
-    //d_self_oper, d_expr_2
+    is_expression_list* current = iel;
 
-    switch(type){
-        case d_self_oper:
-            printf("self_operator\n");
-            print_is_operation(iel->expr.io);
-            break;
-        case d_expr_2:
-            printf("expression2\n");
-            print_expression2_list(iel->expr.ie2l);
-            break;
-        default:
-            printf("erro print_expression_list\n");
+    while(current != NULL){
+        expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
+
+        switch(type){
+            case d_operation:
+                printf("operation\n");
+                print_is_operation(current->expr.io);
+                break;
+            case d_expr:
+                printf("expression2\n");
+                //current->expr.
+                print_expression2_list(current->expr.ie2l);
+                break;
+            default:
+                printf("erro print_expression_list\n");
+        }
+
+        current = current->next;
     }
+    
 }
 
 
-void print_expression2_list(is_expression2_list* iel2){
-    if (iel2 == NULL) return;
-    //TODO
+void print_expression2_list(is_expression2_list* ie2l){
+    if (ie2l == NULL) return;
+
+    is_expression2_list* current = ie2l;
+
+    while(current != NULL){
+        expression2_type type = current->type_expression; //{d_self_oper, d_expr_2} 
+
+        printf("-----\n");
+        printf("type = %d\n", type);
+        printf("d_expr_2 = %d\n", d_expr_2);
+        printf("d_self_oper = %d\n", d_self_oper);
+        printf("-----\n");
+        
+        switch (type){
+            case d_expr_2:
+
+                printf("expression2\n");
+                break;
+            case d_self_oper:
+                printf("self_operator\n");
+                break;
+            default:
+                printf("erro print_expression2_list\n");
+                break;
+        }
+
+        current = current->next;
+    }
+
 }
 
 
