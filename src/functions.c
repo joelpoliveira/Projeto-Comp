@@ -366,6 +366,7 @@ is_expression2_list * insert_second_oper(is_expression2_list * head, is_self_ope
 	ie2l->next = NULL;
 	ie2l->expr.iso = iso;
 	ie2l->type_expression = d_self_oper;
+	printf("---------------ie2l->type_expression = %d\n", ie2l->type_expression);
 
 	if( head == NULL )
 		return ie2l;
