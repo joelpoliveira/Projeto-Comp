@@ -198,17 +198,17 @@ void print_expression_list(is_expression_list* iel){
 
     while (current != NULL){
         expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
-
+        printf("Type = %d\n", type);
         switch(type){
             case d_operation:
-                print_is_operation(current->expr.io);
+                print_is_operation(current->op_type);
                 //print_expression_list(current->next);
-                //print_expression2_list(current->next->expr.ie2l);
+                //print_expression2_list(current->next->ie2l);
                 break;
             case d_expr:
                 //current->expr.
-                //print_is_operation(current->expr.io);
-                print_expression2_list(current->expr.ie2l);
+                //print_is_operation(current->op_type);
+                print_expression2_list(current->ie2l);
                 break;
             default:
                 printf("erro print_expression_list\n");
@@ -226,7 +226,7 @@ void print_expression2_list(is_expression2_list* ie2l){
     is_expression2_list* current = ie2l;
     while(current != NULL){
         expression2_type type = current->type_expression;
-        switch(current->type_expression){
+        switch(type){
             case d_expr_2:
                 printf("..........");
                 print_final_expression(current->expr.ife);
@@ -245,8 +245,8 @@ void print_expression2_list(is_expression2_list* ie2l){
 }
 
 
-void print_is_operation(is_operation* io){
-    if (io == NULL) return;
+void print_is_operation(operation_type io){
+    if (io == d_none) return;
     //d_or, d_and, d_lt, d_gt, d_eq, d_ne, d_ge, d_le,
     //d_plus, d_minus, d_star, d_div, d_mod
     printf("........");
@@ -291,7 +291,7 @@ void print_is_operation(is_operation* io){
             printf("Mod\n");
             break;
         default:
-            printf("Erro print_is_operation: %d\n", io->type_operation);
+            printf("Erro print_is_operation: %d\n", io);
             break;
     }
 }
