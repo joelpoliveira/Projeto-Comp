@@ -194,16 +194,15 @@ void print_expression_list(is_expression_list* iel){
 
         switch(type){
             case d_operation:
-                printf("operation\n");
                 print_is_operation(current->expr.io);
                 break;
             case d_expr:
-                printf("expression2\n");
                 //current->expr.
                 print_expression2_list(current->expr.ie2l);
                 break;
             default:
                 printf("erro print_expression_list\n");
+                break;
         }
 
         current = current->next;
@@ -216,20 +215,12 @@ void print_expression2_list(is_expression2_list* ie2l){
     if (ie2l == NULL) return;
 
     is_expression2_list* current = ie2l;
-
     while(current != NULL){
-        expression2_type type = current->type_expression; //{d_self_oper, d_expr_2} 
-
-        printf("-----\n");
-        printf("type = %d\n", type);
-        printf("d_expr_2 = %d\n", d_expr_2);
-        printf("d_self_oper = %d\n", d_self_oper);
-        printf("-----\n");
-        
-        switch (type){
+        expression2_type type = current->type_expression;
+        switch(current->type_expression){
             case d_expr_2:
 
-                printf("expression2\n");
+                print_final_expression(current->expr.ife);
                 break;
             case d_self_oper:
                 printf("self_operator\n");
@@ -250,3 +241,27 @@ void print_is_operation(is_operation* io){
     //TODO
 }
 
+void print_final_expression(is_final_expression * ife){
+    if (ife == NULL) return;
+
+    switch (ife->type_final_expression)
+    {
+    case d_intlit:
+        printf("..............%s\n", ife->expr.u_intlit->intlit);
+        break;
+    case d_reallit:
+        printf("..............%s\n", ife->expr.u_reallit->reallit);
+        break;
+    case d_id:
+        printf("..............%s\n", ife->expr.u_id->id);
+        break;
+    case d_func_inv:
+        
+        break;
+    case d_expr_final:
+        print_expression_list(ife->expr.iel); 
+        break;
+    default:
+        break;
+    }
+}

@@ -341,14 +341,12 @@ is_expression_list * insert_first_expr(is_expression_list * head, is_operation *
 	if (io == NULL){
 		iel->type_expr = d_expr;
 		iel->expr.ie2l = ie2l;
-
 		
 	}else{
 		iel->type_expr = d_operation;
 		iel->expr.io = io;
 		iel->expr.io->ie2l = ie2l;
 	}
-
 	if (head == NULL)
 		return iel;
 
@@ -366,7 +364,6 @@ is_expression2_list * insert_second_oper(is_expression2_list * head, is_self_ope
 	ie2l->next = NULL;
 	ie2l->expr.iso = iso;
 	ie2l->type_expression = d_self_oper;
-	printf("---------------ie2l->type_expression = %d\n", ie2l->type_expression);
 
 	if( head == NULL )
 		return ie2l;
@@ -380,6 +377,7 @@ is_expression2_list * insert_second_oper(is_expression2_list * head, is_self_ope
 is_expression2_list * insert_second_expr(is_final_expression * ife){
 	is_expression2_list * ie2l =(is_expression2_list*) malloc(sizeof(is_expression2_list));
 	ie2l->type_expression = d_expr_2;
+
 	ie2l->expr.ife = ife;
 	ie2l->next = NULL;
 

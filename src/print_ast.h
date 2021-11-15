@@ -13,7 +13,7 @@ void print_statement_if(is_if_statement* iifs);
 void print_expression_list(is_expression_list* iel);
 void print_expression2_list(is_expression2_list* iel2);
 void print_is_operation(is_operation* io);
-
+void print_final_expression(is_final_expression * ife);
 
 
 
