@@ -13,8 +13,7 @@
     int yylex(void);
     void yyerror (char *s);
 
-    extern int flag_1, flag_2;
-    extern bool error_flag;
+    extern bool flag_1, flag_2, error_flag;
 
     //int yydebug = 1;
 
@@ -101,7 +100,7 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON declarations { $$ = program = insert_program($4); if (!error_flag) print_ast(program);}
+program: PACKAGE ID SEMICOLON declarations { $$ = program = insert_program($4); if (!error_flag && flag_2) print_ast(program);}
         ;
 
 declarations:    /*EMPTY*/                         {$$ = NULL;}  
