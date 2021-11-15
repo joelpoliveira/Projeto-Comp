@@ -2,10 +2,10 @@
 #define STRUCTURES_H
 
 typedef enum {d_intlit, d_reallit, d_id, d_func_inv, d_expr_final} final_expression_type;
-typedef enum {d_self_plus, d_self_minus, d_self_not}               self_operation_type;
+typedef enum {d_self_plus, d_self_minus, d_self_not, d_self_none}               self_operation_type;
 typedef enum {d_self_oper, d_expr_2}                               expression2_type;
 typedef enum {d_or, d_and, d_lt, d_gt, d_eq, d_ne, d_ge, d_le,
-                d_plus, d_minus, d_star, d_div, d_mod}             operation_type;
+                d_plus, d_minus, d_star, d_div, d_mod, d_none}             operation_type;
 typedef enum {d_operation, d_expr}                                 expression_type;
 typedef enum { d_function_invoc, d_arguments}                      final_state_type;
 typedef enum {d_expression, d_str}                                 print_type;
@@ -91,32 +91,18 @@ typedef struct _s24{
         } expr;
 } is_final_expression;
 
-typedef struct _s23{
-        self_operation_type type_operation;
-} is_self_operation;
-
 typedef struct _s22{
         expression2_type type_expression;
-        union {
-                is_self_operation * iso;
-                is_final_expression * ife;
-        } expr;
+        self_operation_type iso;
+        is_final_expression * ife;
         struct _s22 * next;
 } is_expression2_list;
-
-
-typedef struct _s21{
-        operation_type type_operation;
-} is_operation;
-
 //se for d_expression is operation é null então só há expression_2
 
 typedef struct _s20 {
         expression_type type_expr;
-        union {
-                is_operation * io;
-                is_expression2_list * ie2l;
-        } expr;
+        operation_type op_type;
+        is_expression2_list * ie2l;
         struct _s20 * next;
 } is_expression_list;
 

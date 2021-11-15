@@ -4,6 +4,20 @@
 #include <string.h>
 #include <stdio.h>
 
+void print(is_expression_list * iel){
+	if (iel == NULL) return;
+	is_expression_list * aux;
+
+	printf("=======START===========\n");
+	for(aux = iel; aux; aux = aux->next){
+		printf("Exp --> "); printf("%d\n", aux->type_expr);
+		if (aux->type_expr == 0){
+			printf("\tkey --> "); printf("%d\n", aux->op_type);
+		}
+	}
+	printf("=============END=======\n");
+}
+
 is_program * insert_program(is_declarations_list * idl){
 	is_program * ip = (is_program*) malloc(sizeof(is_program));
 	ip->idlist = idl;
@@ -191,7 +205,7 @@ is_statement * insert_for_statement(is_expression_list * iel, is_statements_list
 
 	is->type_state = d_for;
 	is->statement.u_for_state = ifs;
-
+	print(iel);
 	return is;
 }
 
@@ -202,7 +216,7 @@ is_statement * insert_return_statement(is_expression_list * iel){
 	irs->iel = iel;
 	is->type_state = d_return;
 	is->statement.u_return_state = irs;
-
+	print(iel);
 	return is;
 }
 
@@ -215,7 +229,7 @@ is_statement * insert_print_expr_statement(is_expression_list * iel){
 
 	is->type_state = d_print;
 	is->statement.u_print_state = ips;
-
+	print(iel);
 	return is;
 }
 
@@ -303,48 +317,49 @@ is_parse_arguments * insert_parse_args( char * id, is_expression_list * iel){
 
 	ipa->id = (char * )strdup(id);
 	ipa->iel = iel;
-
+	print(iel);
 	return ipa;
 }
 
-is_function_invocation * insert_func_inv(char * id, is_expression_list * iel, is_expression_list * head){
+is_function_invocation * insert_func_inv(char * id, is_expression_list * head, is_expression_list * iel){
 	is_function_invocation * ifi = (is_function_invocation * ) malloc(sizeof(is_function_invocation));
 	is_expression_list * aux ;
-	
-	if (iel!=NULL)
-		for (aux = iel; aux->next; aux= aux->next);
-	aux->next = head;
+
+	if (iel!=NULL){
+		for (aux = head; aux->next; aux= aux->next); 
+		aux->next = iel;
+	}
 
 	ifi->id = (char *) strdup(id);
-	ifi->iel = iel;
-
+	ifi->iel = head;
+	print(head);
 	return ifi;
 }
 
 is_expression_list * insert_expression(is_expression_list * head, is_expression_list * iel){
 	is_expression_list * aux;
 
-	if (head == NULL)
+	if (head == NULL){
 		return iel;
+	}
 
 	for (aux = head; aux->next; aux = aux->next);
 	aux->next = iel;
-
+	print(head);
 	return head;
 }
 
-is_expression_list * insert_first_expr(is_expression_list * head, is_operation * io, is_expression2_list * ie2l){
+is_expression_list * insert_first_expr(is_expression_list * head, operation_type type, is_expression2_list * ie2l){
 	is_expression_list * iel = malloc(sizeof(is_expression_list));
 	is_expression_list * aux;
-
+	
 	iel->next = NULL;
-	if (io == NULL)
-		iel->type_expr = d_expr;		
-	else{
-		iel->type_expr = d_operation;
-		iel->expr.io = io;
-	}
-	iel->expr.ie2l = ie2l;
+	if ((iel->op_type = type) == d_none)
+		iel->type_expr = d_operation;	
+	else
+		iel->type_expr = d_expr;
+
+	iel->ie2l = ie2l;
 
 	if (head == NULL)
 		return iel;
@@ -352,16 +367,17 @@ is_expression_list * insert_first_expr(is_expression_list * head, is_operation *
 	for(aux = head; aux->next; aux = aux->next);
 	aux->next = iel;
 
+	print(head);
 	return head;
 	
 }
 
-is_expression2_list * insert_second_oper(is_expression2_list * head, is_self_operation * iso){
+is_expression2_list * insert_second_oper(is_expression2_list * head, self_operation_type iso){
 	is_expression2_list * ie2l =(is_expression2_list*) malloc(sizeof(is_expression2_list));
 	is_expression2_list * aux;
 
 	ie2l->next = NULL;
-	ie2l->expr.iso = iso;
+	ie2l->iso = iso;
 	ie2l->type_expression = d_self_oper;
 
 	if( head == NULL )
@@ -376,8 +392,8 @@ is_expression2_list * insert_second_oper(is_expression2_list * head, is_self_ope
 is_expression2_list * insert_second_expr(is_final_expression * ife){
 	is_expression2_list * ie2l =(is_expression2_list*) malloc(sizeof(is_expression2_list));
 	ie2l->type_expression = d_expr_2;
-
-	ie2l->expr.ife = ife;
+	ie2l->iso = d_self_none;
+	ie2l->ife = ife;
 	ie2l->next = NULL;
 
 	return ie2l;
@@ -431,50 +447,48 @@ is_final_expression * insert_final_expr(is_expression_list*iel){
 	ife->type_final_expression = d_expr_final;
 	ife->expr.iel = iel;
 
+	print(iel);
 	return ife;
 }
 
-is_operation * insert_oper(char * oper){
-	is_operation * io = (is_operation * ) malloc(sizeof(is_operation));
+operation_type insert_oper(char * oper){
 	if( !strcmp(oper, "OR") )
-		io->type_operation = d_or;
+		return d_or;
 	else if( !strcmp(oper, "AND") )
-		io->type_operation = d_and;	
+		return d_and;	
 	else if( !strcmp(oper, "LT") )
-		io->type_operation = d_lt;
+		return d_lt;
 	else if( !strcmp(oper, "GT") )
-		io->type_operation = d_gt;
+		return d_gt;
 	else if( !strcmp(oper, "EQ") )
-		io->type_operation = d_eq;
+		return d_eq;
 	else if( !strcmp(oper, "NE") )
-		io->type_operation = d_ne;
+		return d_ne;
 	else if( !strcmp(oper, "GE") )
-		io->type_operation = d_ge;
+		return d_ge;
 	else if( !strcmp(oper, "LE") )
-		io->type_operation = d_le;
+		return d_le;
 	else if( !strcmp(oper, "PLUS") )
-		io->type_operation = d_plus;
+		return d_plus;
 	else if( !strcmp(oper, "MINUS") )
-		io->type_operation = d_minus;
+		return d_minus;
 	else if( !strcmp(oper, "STAR") )
-		io->type_operation = d_star;
+		return d_star;
 	else if( !strcmp(oper, "DIV") )
-		io->type_operation = d_div;
+		return d_div;
 	else if( !strcmp(oper, "MOD") )
-		io->type_operation = d_mod;
-	return io;
+		return d_mod;
+	return d_none;
 }
 
-is_self_operation * insert_self_oper(char * oper){
-	is_self_operation * iso = (is_self_operation *)malloc(sizeof(is_self_operation));
+self_operation_type insert_self_oper(char * oper){
 	if( !strcmp(oper, "PLUS") )
-		iso->type_operation = d_self_plus;
+		return d_self_plus;
 	else if( !strcmp(oper, "MINUS") )
-		iso->type_operation = d_self_minus;
+		return d_self_minus;
 	else if( !strcmp(oper, "NOT") )
-		iso->type_operation = d_self_not;
-	
-	return iso;
+		return d_self_not;
+	return d_self_none;
 }
 
 parameter_type insert_type(char * type){
