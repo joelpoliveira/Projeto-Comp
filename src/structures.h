@@ -107,7 +107,6 @@ typedef struct _s22{
 
 typedef struct _s21{
         operation_type type_operation;
-        is_expression2_list * ie2l;
 } is_operation;
 
 //se for d_expression is operation é null então só há expression_2

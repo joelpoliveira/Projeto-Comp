@@ -338,15 +338,14 @@ is_expression_list * insert_first_expr(is_expression_list * head, is_operation *
 	is_expression_list * aux;
 
 	iel->next = NULL;
-	if (io == NULL){
-		iel->type_expr = d_expr;
-		iel->expr.ie2l = ie2l;
-		
-	}else{
+	if (io == NULL)
+		iel->type_expr = d_expr;		
+	else{
 		iel->type_expr = d_operation;
 		iel->expr.io = io;
-		iel->expr.io->ie2l = ie2l;
 	}
+	iel->expr.ie2l = ie2l;
+
 	if (head == NULL)
 		return iel;
 
@@ -463,8 +462,6 @@ is_operation * insert_oper(char * oper){
 		io->type_operation = d_div;
 	else if( !strcmp(oper, "MOD") )
 		io->type_operation = d_mod;
-
-	io->ie2l = NULL;
 	return io;
 }
 
