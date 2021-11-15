@@ -5,6 +5,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
+    #include <stdbool.h>
     #include "functions.h"
     #include "print_ast.h"
     #include "y.tab.h"
@@ -13,6 +14,8 @@
     void yyerror (char *s);
 
     extern int flag_1, flag_2;
+    extern bool error_flag;
+
     //int yydebug = 1;
 
     is_program* program;
@@ -29,7 +32,6 @@
         G -> 0/35       :: AST - Statements
         H -> 0/40       :: AST - Full Programs 
     */
-
 %}
 
 %union{
@@ -99,7 +101,7 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON declarations { $$ = program = insert_program($4); print_ast(program);}
+program: PACKAGE ID SEMICOLON declarations { $$ = program = insert_program($4); if (!error_flag) print_ast(program);}
         ;
 
 declarations:    /*EMPTY*/                         {$$ = NULL;}  
@@ -123,10 +125,10 @@ type:   INT             {/* printf("int\n"); */$$ = insert_type("INT");}
     |   STRING          {/* printf("string\n"); */$$ = insert_type("STR");}
     ;
 
-func_dec:   FUNC ID LPAR parameters RPAR type func_body     {/* printf("f_dec1\n"); */insert_func_declaration($2, $4, $6, $7);}
-        |   FUNC ID LPAR RPAR type func_body                {/* printf("f_dec2\n"); */insert_func_declaration($2, NULL, $5, $6);}
-        |   FUNC ID LPAR parameters RPAR func_body          {/* printf("f_dec3\n"); */insert_func_declaration($2, $4, d_dummy, $6);}
-        |   FUNC ID LPAR RPAR func_body                     {/* printf("f_dec4\n"); */insert_func_declaration($2, NULL, d_dummy, $5);}
+func_dec:   FUNC ID LPAR parameters RPAR type func_body     {/* printf("f_dec1\n"); */$$=insert_func_declaration($2, $4, $6, $7);}
+        |   FUNC ID LPAR RPAR type func_body                {/* printf("f_dec2\n"); */$$=insert_func_declaration($2, NULL, $5, $6);}
+        |   FUNC ID LPAR parameters RPAR func_body          {/* printf("f_dec3\n"); */$$=insert_func_declaration($2, $4, d_dummy, $6);}
+        |   FUNC ID LPAR RPAR func_body                     {/* printf("f_dec4\n"); */$$=insert_func_declaration($2, NULL, d_dummy, $5);}
         ;
 
 parameters: ID type comma_id_type_rec               {  /* printf("parameters\n"); */$$ = insert_parameter($1, $2, $3);};
@@ -153,7 +155,7 @@ statements: IF expr states_in_brace                     { /* printf("state1\n") 
         |   ID ASSIGN expr                              { /* printf("state9\n") */;$$ = insert_assign_statement($1, $3); }
         |   states_in_brace                             { /* printf("state10\n"); */$$ = insert_statements_list($1); }
         |   final_states                                { /* printf("state11\n"); */$$ = insert_final_statement($1); }
-        |   error                                       { $$ = NULL;}
+        |   error                                       { $$ = NULL; error_flag = 1;}
         ;
 
 final_states:   func_invocation  {  /* printf("final_s1\n"); */ $$ = insert_final_state_func_inv($1);}
@@ -165,10 +167,10 @@ state_semic_rec: /*EMPTY*/                              { $$ = NULL ; }
                 | state_semic_rec statements SEMICOLON  {  /* printf("s_;_list\n"); */ $$ = insert_statement_in_list($1, $2);}
                 ;
 parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr RSQ RPAR {  /* printf("parse\n"); */ $$ = insert_parse_args($1, $9); }
-        |   ID COMMA BLANKID ASSIGN PARSEINT LPAR error RPAR                { $$ = NULL; }
+        |   ID COMMA BLANKID ASSIGN PARSEINT LPAR error RPAR                { $$ = NULL; error_flag = 1; }
         ;
 
-func_invocation: ID LPAR error RPAR                 { ; }
+func_invocation: ID LPAR error RPAR                 { error_flag = 1; }
             |   ID LPAR expr comma_expr_rec RPAR    { /* printf("f_iv1\n"); */ $$ = insert_func_inv($1, $3, $4);}
             |   ID LPAR RPAR                        { /* printf("f_inv2\n"); */ $$ = insert_func_inv($1, NULL, NULL);}
             ;
@@ -176,7 +178,7 @@ comma_expr_rec: /*EMPTY*/                   { $$ = NULL;}
             |   comma_expr_rec COMMA expr   { /* printf("expr_list\n"); */ $$ = insert_expression($1, $3);}
             ;
 
-expr:   LPAR error RPAR         {;}
+expr:   LPAR error RPAR         {error_flag = 1;}
     |   expr operators expr2    {  /* printf("expr1\n"); */ $$ = insert_first_expr($1, $2, $3); }
     |   expr2                   {  /* printf("expr1_2\n"); */ $$ = insert_first_expr(NULL, NULL, $1); }
     ;
