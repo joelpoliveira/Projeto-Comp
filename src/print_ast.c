@@ -189,15 +189,18 @@ void print_expression_list(is_expression_list* iel){
 
     is_expression_list* current = iel;
 
-    while(current != NULL){
+    while (current != NULL){
         expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
 
         switch(type){
             case d_operation:
                 print_is_operation(current->expr.io);
+                //print_expression_list(current->next);
+                //print_expression2_list(current->next->expr.ie2l);
                 break;
             case d_expr:
                 //current->expr.
+                //print_is_operation(current->expr.io);
                 print_expression2_list(current->expr.ie2l);
                 break;
             default:
@@ -206,8 +209,7 @@ void print_expression_list(is_expression_list* iel){
         }
 
         current = current->next;
-    }
-    
+    }  
 }
 
 
@@ -219,7 +221,6 @@ void print_expression2_list(is_expression2_list* ie2l){
         expression2_type type = current->type_expression;
         switch(current->type_expression){
             case d_expr_2:
-
                 print_final_expression(current->expr.ife);
                 break;
             case d_self_oper:
@@ -238,30 +239,77 @@ void print_expression2_list(is_expression2_list* ie2l){
 
 void print_is_operation(is_operation* io){
     if (io == NULL) return;
-    //TODO
+    //d_or, d_and, d_lt, d_gt, d_eq, d_ne, d_ge, d_le,
+    //d_plus, d_minus, d_star, d_div, d_mod
+    switch (io->type_operation){
+        case d_or:
+            printf("Or\n");
+            break;
+        case d_and:
+            printf("And\n");
+            break;
+        case d_lt:
+            printf("LT\n");
+            break;
+        case d_gt:
+            printf("Gt\n");
+            break;
+        case d_eq:
+            printf("Eq\n");
+            break;
+        case d_ne:
+            printf("Ne\n");
+            break;
+        case d_ge:
+            printf("Ge\n");
+            break;
+        case d_le:
+            printf("Eq\n");
+            break;
+        case d_plus:
+            printf("Le\n");
+            break;
+        case d_minus:
+            printf("Minus\n");
+            break;
+        case d_star:
+            printf("Star\n");
+            break;
+        case d_div:
+            printf("Div\n");
+            break;
+        case d_mod:
+            printf("Mod\n");
+            break;
+        default:
+            printf("Erro print_is_operation: %d\n", io->type_operation);
+            break;
+    }
 }
+
 
 void print_final_expression(is_final_expression * ife){
     if (ife == NULL) return;
 
-    switch (ife->type_final_expression)
-    {
+    switch (ife->type_final_expression){
     case d_intlit:
-        printf("..............%s\n", ife->expr.u_intlit->intlit);
+        printf("IntLit(%s)\n", ife->expr.u_intlit->intlit);
         break;
     case d_reallit:
-        printf("..............%s\n", ife->expr.u_reallit->reallit);
+        printf("RealLit(%s)\n", ife->expr.u_reallit->reallit);
         break;
     case d_id:
-        printf("..............%s\n", ife->expr.u_id->id);
+        printf("Id(%s)\n", ife->expr.u_id->id);
         break;
     case d_func_inv:
-        
+        printf("Call?\n");
+        //print()
         break;
     case d_expr_final:
         print_expression_list(ife->expr.iel); 
         break;
     default:
+        printf("Erro print_final_expression\n");
         break;
     }
 }
