@@ -192,7 +192,7 @@ is_statement * insert_if_statement(is_expression_list * iel, is_statements_list 
 	
 	is->type_state = d_if;
 	is->statement.u_if_state = iis;
-	print(iel);
+	//print(iel);
 	return is;
 }
 
@@ -205,7 +205,7 @@ is_statement * insert_for_statement(is_expression_list * iel, is_statements_list
 
 	is->type_state = d_for;
 	is->statement.u_for_state = ifs;
-	print(iel);
+	//print(iel);
 	return is;
 }
 
@@ -216,7 +216,7 @@ is_statement * insert_return_statement(is_expression_list * iel){
 	irs->iel = iel;
 	is->type_state = d_return;
 	is->statement.u_return_state = irs;
-	print(iel);
+	//print(iel);
 	return is;
 }
 
@@ -229,7 +229,7 @@ is_statement * insert_print_expr_statement(is_expression_list * iel){
 
 	is->type_state = d_print;
 	is->statement.u_print_state = ips;
-	print(iel);
+	//print(iel);
 	return is;
 }
 
@@ -317,7 +317,7 @@ is_parse_arguments * insert_parse_args( char * id, is_expression_list * iel){
 
 	ipa->id = (char * )strdup(id);
 	ipa->iel = iel;
-	print(iel);
+	//print(iel);
 	return ipa;
 }
 
@@ -332,8 +332,8 @@ is_function_invocation * insert_func_inv(char * id, is_expression_list * head, i
 
 	ifi->id = (char *) strdup(id);
 	ifi->iel = head;
-	printf("<< Func Inv >>\n");
-	print(head);
+	//printf("<< Func Inv >>\n");
+	//print(head);
 	return ifi;
 }
 
@@ -346,8 +346,8 @@ is_expression_list * insert_expression(is_expression_list * head, is_expression_
 
 	for (aux = head; aux->next; aux = aux->next);
 	aux->next = iel;
-	printf("<< Expr >>\n");
-	print(head);
+	//printf("<< Expr >>\n");
+	//print(head);
 	return head;
 }
 
@@ -360,8 +360,8 @@ is_expression_list * insert_first_oper(is_expression_list * head, operation_type
 	iel->op_type = type;
 	iel->ie2l = ie2l;
 
-	printf("<< First Oper >>\n");
-	print(iel);
+	//printf("<< First Oper >>\n");
+	//print(iel);
 	return iel;
 }
 
@@ -374,8 +374,8 @@ is_expression_list * insert_first_expr(is_expression2_list * ie2l){
 	head->op_type = d_none;
 	head->ie2l = ie2l;
 
-	printf("<< First Expr >>\n");
-	print(head);
+	//printf("<< First Expr >>\n");
+	//print(head);
 	return head;
 	
 }

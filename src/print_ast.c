@@ -49,6 +49,13 @@ void print_func_dec(is_func_dec* ifd){
 }
 
 
+void print_var_dec(is_var_dec* ivd){
+    if (ivd == NULL) return;
+
+    print_var_spec(ivd->ivs);
+}
+
+
 void print_parameter_type(parameter_type param){
     //types: d_integer, d_float32, d_string, d_bool, d_var, d_dummy
     printf("....");
@@ -153,20 +160,26 @@ void print_statement(is_statement* is) {
             break;
         case d_for:
             printf("For\n");
+            print_statement_for(is->statement.u_for_state);
             break;
         case d_return:
             printf("Return\n");
+            print_return_statement(is->statement.u_return_state);
             break;
         case d_print:
             printf("Print\n");
+            print_print_statement(is->statement.u_print_state);
             break;
         case d_assign:
             printf("Assign\n");
+            print_assign_statement(is->statement.u_assign);
             break;
         case d_statement_list:
             printf("StatementList\n");
+            print_statement_list(is->statement.isl);
             break;
         case d_final_statement:
+            print_final_statement(is->statement.u_state);
             printf("FinalStatement\n");
             break;
         default:
@@ -192,11 +205,11 @@ void print_expression_list(is_expression_list* iel){
     expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
     switch(type){
         case d_operation:
-            printf("...........");
+            printf(".........");
             print_is_operation(current->op_type);
-            printf("............");
+            printf("..........");
             print_expression_list(current->next);
-            printf("..............");
+            printf("............");
             print_expression2_list(current->ie2l);
             break;
         case d_expr:
@@ -368,6 +381,7 @@ void print_print_statement(is_print_statement* ips){
             break;
         case d_str:
             printf("Print-Str\n");
+            //?
             break;
         default:
             printf("Erro print_print_statement\n");
