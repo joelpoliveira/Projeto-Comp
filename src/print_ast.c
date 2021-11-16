@@ -272,7 +272,7 @@ void print_is_operation(operation_type io){
             printf("Minus\n");
             break;
         case d_star:
-            printf("Star\n");
+            printf("Mul\n");
             break;
         case d_div:
             printf("Div\n");
@@ -291,24 +291,107 @@ void print_final_expression(is_final_expression * ife){
     if (ife == NULL) return;
 
     switch (ife->type_final_expression){
-    case d_intlit:
-        printf("IntLit(%s)\n", ife->expr.u_intlit->intlit);
-        break;
-    case d_reallit:
-        printf("RealLit(%s)\n", ife->expr.u_reallit->reallit);
-        break;
-    case d_id:
-        printf("Id(%s)\n", ife->expr.u_id->id);
-        break;
-    case d_func_inv:
-        printf("Call?\n");
-        //print()
-        break;
-    case d_expr_final:
-        print_expression_list(ife->expr.iel); 
-        break;
-    default:
-        printf("Erro print_final_expression\n");
-        break;
+        case d_intlit:
+            printf("IntLit(%s)\n", ife->expr.u_intlit->intlit);
+            break;
+        case d_reallit:
+            printf("RealLit(%s)\n", ife->expr.u_reallit->reallit);
+            break;
+        case d_id:
+            printf("Id(%s)\n", ife->expr.u_id->id);
+            break;
+        case d_func_inv:
+            printf("Call\n");
+            // ife->expr.ifi->id
+            //print()
+            break;
+        case d_expr_final:
+            print_expression_list(ife->expr.iel); 
+            break;
+        default:
+            printf("Erro print_final_expression\n");
+            break;
+    }
+}
+
+void print_statement_list(is_statements_list* ist){
+    if (ist == NULL) return;
+    
+    printf("........Block\n");
+
+}
+
+
+void print_else_statement(is_else_statement* ies){
+    if (ies == NULL) return;
+
+    printf("........Else\n");
+
+}
+
+
+void print_statement_for(is_for_statement* ifs){
+    if (ifs == NULL) return;
+
+    print_expression_list(ifs->iel);
+    print_statement_list(ifs->isl);
+}
+
+
+void print_return_statement(is_return_statement* irs){
+    if (irs == NULL) return;
+
+    print_expression_list(irs->iel);
+}
+
+
+void print_print_statement(is_print_statement* ips){
+    if (ips == NULL) return;
+
+    print_type type = ips->type_print; // {d_expression, d_str}
+
+    switch (type){
+        case d_expression:
+            //printf("Print\n");
+            print_expression_list(ips->print.iel);
+            break;
+        case d_str:
+            printf("Print-Str\n");
+            break;
+        default:
+            printf("Erro print_print_statement\n");
+            break;
+    }
+
+}
+
+void print_assign_statement(is_assign_statement* ias){
+    if (ias == NULL) return;
+
+    print_expression_list(ias->iel);
+}
+
+
+void print_final_statement(is_final_statement* ifs) {
+    if (ifs == NULL) return;
+
+    final_state_type type = ifs->type_state; 
+    //d_function_invoc, d_arguments
+
+    switch (type){
+        case d_function_invoc:
+            printf("FuncInvocation\n");
+            printf("id = %s", ifs->statement.ifi->id);
+            print_expression_list(ifs->statement.ifi->iel);
+            break;
+        case d_arguments:
+            printf("Arguments\n");
+            //printf("id = %s\n", ifs->statement.ipa->id);
+            print_expression_list(ifs->statement.ipa->iel);
+            break;
+        
+        default:
+            printf("Erro print_final_statement\n");
+            break;
     }
 }
