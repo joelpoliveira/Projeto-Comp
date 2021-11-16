@@ -16,11 +16,11 @@ void print_ast(is_program* root){
 void print_declarations(is_declarations_list* idl){
     if (idl == NULL) return;
     
-    printf("FuncDecl\n");
-    printf("..");
+
 
     is_declarations_list* current = idl;
     while (current != NULL) {
+        printf("FuncDecl\n..");
         declaration_type type = current->val->type_dec;
         switch (type)
         {
@@ -180,7 +180,6 @@ void print_statement(is_statement* is) {
             break;
         case d_final_statement:
             print_final_statement(is->statement.u_state);
-            printf("FinalStatement\n");
             break;
         default:
             printf("erro print_statement\n");
@@ -193,6 +192,9 @@ void print_statement_if(is_if_statement* iifs){
     if (iifs == NULL) return;
 
     print_expression_list(iifs->iel);
+    print_statement_list(iifs->isl);
+    printf("Block\n");
+    print_else_statement(iifs->ies);
 
 }
 
@@ -286,13 +288,13 @@ void print_is_operation(operation_type io){
             printf("Ge\n");
             break;
         case d_le:
-            printf("Eq\n");
-            break;
-        case d_plus:
             printf("Le\n");
             break;
+        case d_plus:
+            printf("Plus\n");
+            break;
         case d_minus:
-            printf("Minus\n");
+            printf("Sub\n");
             break;
         case d_star:
             printf("Mul\n");
@@ -325,8 +327,7 @@ void print_final_expression(is_final_expression * ife){
             break;
         case d_func_inv:
             printf("Call\n");
-            // ife->expr.ifi->id
-            //print()
+            print_func_invocation(ife->expr.ifi);
             break;
         case d_expr_final:
             print_expression_list(ife->expr.iel); 
@@ -337,11 +338,16 @@ void print_final_expression(is_final_expression * ife){
     }
 }
 
-void print_statement_list(is_statements_list* ist){
-    if (ist == NULL) return;
+void print_statement_list(is_statements_list* isl){
+    if (isl == NULL) return;
 
     printf("........Block\n");
     //TODO LOOP para statements
+    is_statements_list * current = isl;
+    while( current != NULL){
+        print_statement(current->val);
+        current = current->next;
+    }
 
 }
 
@@ -420,4 +426,10 @@ void print_final_statement(is_final_statement* ifs) {
             printf("Erro print_final_statement\n");
             break;
     }
+}
+
+
+void print_func_invocation(is_function_invocation * ifi){
+    printf(".........................Id(%s)\n", ifi->id);
+    print_expression_list(ifi->iel);
 }
