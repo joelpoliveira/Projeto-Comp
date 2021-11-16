@@ -28,7 +28,7 @@ void print_declarations(is_declarations_list* idl){
             print_func_dec(current->val->dec.ifd);
             break;
         case d_var_declaration:
-            //print_var_dec(current->val->dec.ivd)
+            print_var_dec(current->val->dec.ivd);
         break;
 
         default:
@@ -39,20 +39,19 @@ void print_declarations(is_declarations_list* idl){
 
 }
 
+void print_var_dec(is_var_dec * ivd){
+    if (ivd == NULL) return;
+
+    printf("..VarDec\n..");
+    print_var_spec(ivd->ivs);
+}
 
 void print_func_dec(is_func_dec* ifd){
-    printf("..FuncHeader\n");
-    printf("....Id(%s)\n", ifd->id);
+    printf("..FuncHeader\n..");
+    printf("....Id(%s)\n..", ifd->id);
     print_parameter_type(ifd->type);
     print_func_params(ifd->ipl);
     print_func_body(ifd->ifb);
-}
-
-
-void print_var_dec(is_var_dec* ivd){
-    if (ivd == NULL) return;
-
-    print_var_spec(ivd->ivs);
 }
 
 
@@ -61,19 +60,19 @@ void print_parameter_type(parameter_type param){
     printf("....");
     switch(param){
         case d_integer:
-            printf("Int\n");
+            printf("Int\n..");
             break;
         case d_float32:
-            printf("Float\n");
+            printf("Float\n..");
             break;
         case d_string:
-            printf("String\n");
+            printf("String\n..");
             break;
         case d_bool:
-            printf("Bool\n");
+            printf("Bool\n..");
             break;
         case d_var:
-            printf("Var\n");
+            printf("Var\n..");
             break;
         default:
             break;
@@ -84,8 +83,8 @@ void print_parameter_type(parameter_type param){
 void print_func_params(is_parameter* ipl){
     if (ipl == NULL) return;
 
-    printf("....FuncParams\n");
-    printf("......ParamDecl\n");
+    printf("....FuncParams\n..");
+    printf("......ParamDecl\n..");
 
     is_id_type_list* current = ipl->val;
 
@@ -124,6 +123,7 @@ void print_var_or_statement(is_var_or_statement* val){
         break;
 
     case d_statement:
+        printf("..");
         print_statement(val->body.is);
         break;
     
@@ -141,7 +141,7 @@ void print_var_spec(is_var_spec* ivs){
     is_id_list* current = ivs->iil;
 
     while (current != NULL){
-        printf(".......Id(%s)\n", current->val);
+        printf("....Id(%s)\n", current->val);
         current = current->next;        
     }
 }
@@ -430,6 +430,6 @@ void print_final_statement(is_final_statement* ifs) {
 
 
 void print_func_invocation(is_function_invocation * ifi){
-    printf(".........................Id(%s)\n", ifi->id);
+    printf("Id(%s)\n", ifi->id);
     print_expression_list(ifi->iel);
 }
