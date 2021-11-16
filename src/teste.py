@@ -41,6 +41,7 @@ def run_tests():
     
     test_files = []
     failed = 0
+    passed = []
     flags = ['', '-l', '-t'] # used in flags[meta] to select flag
 
     # Create outputs dir
@@ -70,9 +71,15 @@ def run_tests():
         if os.stat(f"meta{meta}/outputs/{test}.txt").st_size != 0:
             failed += 1
             print(f"{test}.dgo -> Failed")
+        else:
+            passed.append(f"{test}.dgo")
         
     if failed == 0:
         print("No Fails!")
+    else:
+        # only print tests that passed if at least 1 fails
+        for i in passed:
+            print(f"{i} -> Passed")
 
 
 if __name__ == '__main__':
