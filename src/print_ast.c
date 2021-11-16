@@ -243,20 +243,19 @@ void print_expression2_list(is_expression2_list* ie2l){
 }
 
 void print_is_self_operation(self_operation_type sot){
-    switch (sot)
-    {
-    case d_self_minus:
-        printf("Minus\n");
-        break;
-    case d_self_plus:
-        printf("Plus\n");
-        break;
-    case d_self_not:
-        printf("Not\n");
-        break;
-    default:
-        printf("Erro self_operation\n");
-        break;
+    switch (sot){
+        case d_self_minus:
+            printf("Minus\n");
+            break;
+        case d_self_plus:
+            printf("Plus\n");
+            break;
+        case d_self_not:
+            printf("Not\n");
+            break;
+        default:
+            printf("Erro self_operation\n");
+            break;
     }
 }
 
@@ -340,8 +339,9 @@ void print_final_expression(is_final_expression * ife){
 
 void print_statement_list(is_statements_list* ist){
     if (ist == NULL) return;
-    
+
     printf("........Block\n");
+    //TODO LOOP para statements
 
 }
 
@@ -350,7 +350,7 @@ void print_else_statement(is_else_statement* ies){
     if (ies == NULL) return;
 
     printf("........Else\n");
-
+    print_statement_list(ies->isl);
 }
 
 
@@ -372,6 +372,7 @@ void print_return_statement(is_return_statement* irs){
 void print_print_statement(is_print_statement* ips){
     if (ips == NULL) return;
 
+
     print_type type = ips->type_print; // {d_expression, d_str}
 
     switch (type){
@@ -381,7 +382,7 @@ void print_print_statement(is_print_statement* ips){
             break;
         case d_str:
             printf("Print-Str\n");
-            //?
+            //printf("%s\n", ips->print.id);
             break;
         default:
             printf("Erro print_print_statement\n");
@@ -406,7 +407,7 @@ void print_final_statement(is_final_statement* ifs) {
     switch (type){
         case d_function_invoc:
             printf("FuncInvocation\n");
-            printf("id = %s", ifs->statement.ifi->id);
+            //printf("id = %s", ifs->statement.ifi->id);
             print_expression_list(ifs->statement.ifi->iel);
             break;
         case d_arguments:
