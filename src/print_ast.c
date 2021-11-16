@@ -189,26 +189,23 @@ void print_expression_list(is_expression_list* iel){
 
     is_expression_list* current = iel;
 
-    while (current != NULL){
-        expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
-        switch(type){
-            case d_operation:
-                printf("...........");
-                print_is_operation(current->op_type);
-                printf("................");
-                print_expression_list(current->next);
-                //print_expression_list(current->next)
-                break;
-            case d_expr:
-                print_expression2_list(current->ie2l);
-                break;
-            default:
-                printf("erro print_expression_list\n");
-                break;
-        }
-
-        current = current->next;
-    }  
+    expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
+    switch(type){
+        case d_operation:
+            printf("...........");
+            print_is_operation(current->op_type);
+            printf("............");
+            print_expression_list(current->next);
+            printf("..............");
+            print_expression2_list(current->ie2l);
+            break;
+        case d_expr:
+            print_expression2_list(current->ie2l);
+            break;
+        default:
+            printf("erro print_expression_list\n");
+            break;
+    }
 }
 
 
@@ -216,25 +213,39 @@ void print_expression2_list(is_expression2_list* ie2l){
     if (ie2l == NULL) return;
 
     is_expression2_list* current = ie2l;
-    while(current != NULL){
-        expression2_type type = current->type_expression;
-        switch(type){
-            case d_expr_2:
-                print_final_expression(current->ife);
-                break;
-            case d_self_oper:
-                printf("self_operator\n");
-                break;
-            default:
-                printf("erro print_expression2_list\n");
-                break;
-        }
-
-        current = current->next;
+        
+    expression2_type type = current->type_expression;
+    switch(type){
+        case d_expr_2:
+            print_final_expression(current->ife);
+            break;
+        case d_self_oper:
+            print_is_self_operation(current->iso);
+            print_expression2_list(current->next);
+            break;
+        default:
+            printf("erro print_expression2_list\n");
+            break;
     }
-
 }
 
+void print_is_self_operation(self_operation_type sot){
+    switch (sot)
+    {
+    case d_self_minus:
+        printf("Minus\n");
+        break;
+    case d_self_plus:
+        printf("Plus\n");
+        break;
+    case d_self_not:
+        printf("Not\n");
+        break;
+    default:
+        printf("Erro self_operation\n");
+        break;
+    }
+}
 
 void print_is_operation(operation_type io){
     if (io == d_none) return;
