@@ -25,7 +25,8 @@ is_statements_list * insert_statement_in_list(is_statements_list * head, is_stat
 is_parse_arguments * insert_parse_args( char * id, is_expression_list * iel);
 is_function_invocation * insert_func_inv(char * id, is_expression_list * iel, is_expression_list * head);
 is_expression_list * insert_expression(is_expression_list * head, is_expression_list * iel);
-is_expression_list * insert_first_expr(is_expression_list * head, operation_type, is_expression2_list * ie2l);
+is_expression_list * insert_first_oper(is_expression_list * head, operation_type type, is_expression2_list * ie2l);
+is_expression_list * insert_first_expr(is_expression2_list * ie2l);
 is_expression2_list * insert_second_oper(is_expression2_list * head, self_operation_type iso);
 is_expression2_list * insert_second_expr(is_final_expression * ife);
 is_final_expression * insert_intlit(char * id);
