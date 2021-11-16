@@ -203,6 +203,9 @@ void print_expression_list(is_expression_list* iel){
     while (current != NULL){
         expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
         //printf("Type = %d\n", type);
+
+        //TODO PROBLEMA AQUI! n pode ser um switch, a mesma node tem operation e expression
+
         switch(type){
             case d_operation:
                 print_is_operation(current->op_type);
