@@ -198,7 +198,7 @@ void print_expression_list(is_expression_list* iel){
 
     while (current != NULL){
         expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
-        printf("Type = %d\n", type);
+        //printf("Type = %d\n", type);
         switch(type){
             case d_operation:
                 print_is_operation(current->op_type);
@@ -229,10 +229,11 @@ void print_expression2_list(is_expression2_list* ie2l){
         switch(type){
             case d_expr_2:
                 printf("..........");
-                print_final_expression(current->expr.ife);
+                print_final_expression(current->ife);
                 break;
             case d_self_oper:
                 printf("self_operator\n");
+                print_is_self_operation(current->iso);
                 break;
             default:
                 printf("erro print_expression2_list\n");
@@ -244,13 +245,35 @@ void print_expression2_list(is_expression2_list* ie2l){
 
 }
 
+void print_is_self_operation(self_operation_type sot){
+    //d_self_plus, d_self_minus, d_self_not, d_self_none}          
+    switch (sot){
+    case d_self_plus:
+        printf("++\n");
+        break;
+    case d_self_minus:
+        printf("--\n");
+        break;
+    case d_self_not:
+        printf("\n");
+        break;
+    case d_self_none:
+        printf("\n");
+        break;
+    default:
+        printf("Erro print_is_self_operation_type\n");
+        break;
+    }
+
+}
+
 
 void print_is_operation(operation_type io){
     if (io == d_none) return;
     //d_or, d_and, d_lt, d_gt, d_eq, d_ne, d_ge, d_le,
     //d_plus, d_minus, d_star, d_div, d_mod
     printf("........");
-    switch (io->type_operation){
+    switch (io){
         case d_or:
             printf("Or\n");
             break;

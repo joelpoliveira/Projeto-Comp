@@ -21,4 +21,5 @@ void print_return_statement(is_return_statement* irs);
 void print_print_statement(is_print_statement* ips);
 void print_assign_statement(is_assign_statement* ias);
 void print_final_statement(is_final_statement* ifs);
-
+void print_is_self_operation(self_operation_type sot);
+    

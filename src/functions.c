@@ -205,7 +205,7 @@ is_statement * insert_for_statement(is_expression_list * iel, is_statements_list
 
 	is->type_state = d_for;
 	is->statement.u_for_state = ifs;
-	print(iel);
+	//print(iel);
 	return is;
 }
 
@@ -216,7 +216,7 @@ is_statement * insert_return_statement(is_expression_list * iel){
 	irs->iel = iel;
 	is->type_state = d_return;
 	is->statement.u_return_state = irs;
-	print(iel);
+	//print(iel);
 	return is;
 }
 
@@ -229,7 +229,7 @@ is_statement * insert_print_expr_statement(is_expression_list * iel){
 
 	is->type_state = d_print;
 	is->statement.u_print_state = ips;
-	print(iel);
+	//print(iel);
 	return is;
 }
 
@@ -317,7 +317,7 @@ is_parse_arguments * insert_parse_args( char * id, is_expression_list * iel){
 
 	ipa->id = (char * )strdup(id);
 	ipa->iel = iel;
-	print(iel);
+	//print(iel);
 	return ipa;
 }
 
@@ -332,7 +332,7 @@ is_function_invocation * insert_func_inv(char * id, is_expression_list * head, i
 
 	ifi->id = (char *) strdup(id);
 	ifi->iel = head;
-	print(head);
+	//print(head);
 	return ifi;
 }
 
@@ -345,7 +345,7 @@ is_expression_list * insert_expression(is_expression_list * head, is_expression_
 
 	for (aux = head; aux->next; aux = aux->next);
 	aux->next = iel;
-	print(head);
+	//print(head);
 	return head;
 }
 
@@ -367,7 +367,7 @@ is_expression_list * insert_first_expr(is_expression_list * head, operation_type
 	for(aux = head; aux->next; aux = aux->next);
 	aux->next = iel;
 
-	print(head);
+	//print(head);
 	return head;
 	
 }
@@ -447,7 +447,7 @@ is_final_expression * insert_final_expr(is_expression_list*iel){
 	ife->type_final_expression = d_expr_final;
 	ife->expr.iel = iel;
 
-	print(iel);
+	//print(iel);
 	return ife;
 }
 
