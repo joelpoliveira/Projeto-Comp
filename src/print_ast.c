@@ -112,16 +112,16 @@ void print_var_or_statement(is_var_or_statement* val){
 
     //d_var_dec, d_statement
     switch (val->type){
-    case d_var_dec:
-        print_var_spec(val->body.ivd->ivs);
-        break;
+        case d_var_dec:
+            print_var_spec(val->body.ivd->ivs);
+            break;
 
-    case d_statement:
-        print_statement(val->body.is);
-        break;
-    
-    default:
-        printf("erro d_var_dec / d_statement\n");
+        case d_statement:
+            print_statement(val->body.is);
+            break;
+        
+        default:
+            printf("erro print_var_or_statement\n");
     }
 }
 
@@ -248,21 +248,21 @@ void print_expression2_list(is_expression2_list* ie2l){
 void print_is_self_operation(self_operation_type sot){
     //d_self_plus, d_self_minus, d_self_not, d_self_none}          
     switch (sot){
-    case d_self_plus:
-        printf("++\n");
-        break;
-    case d_self_minus:
-        printf("--\n");
-        break;
-    case d_self_not:
-        printf("\n");
-        break;
-    case d_self_none:
-        printf("\n");
-        break;
-    default:
-        printf("Erro print_is_self_operation_type\n");
-        break;
+        case d_self_plus:
+            printf("++\n");
+            break;
+        case d_self_minus:
+            printf("--\n");
+            break;
+        case d_self_not:
+            printf("\n");
+            break;
+        case d_self_none:
+            printf("\n");
+            break;
+        default:
+            printf("Erro print_is_self_operation_type\n");
+            break;
     }
 
 }
@@ -324,26 +324,26 @@ void print_final_expression(is_final_expression * ife){
     if (ife == NULL) return;
 
     switch (ife->type_final_expression){
-    case d_intlit:
-        printf("IntLit(%s)\n", ife->expr.u_intlit->intlit);
-        break;
-    case d_reallit:
-        printf("RealLit(%s)\n", ife->expr.u_reallit->reallit);
-        break;
-    case d_id:
-        printf("Id(%s)\n", ife->expr.u_id->id);
-        break;
-    case d_func_inv:
-        printf("Call\n");
-        // ife->expr.ifi->id
-        //print()
-        break;
-    case d_expr_final:
-        print_expression_list(ife->expr.iel); 
-        break;
-    default:
-        printf("Erro print_final_expression\n");
-        break;
+        case d_intlit:
+            printf("IntLit(%s)\n", ife->expr.u_intlit->intlit);
+            break;
+        case d_reallit:
+            printf("RealLit(%s)\n", ife->expr.u_reallit->reallit);
+            break;
+        case d_id:
+            printf("Id(%s)\n", ife->expr.u_id->id);
+            break;
+        case d_func_inv:
+            printf("Call\n");
+            // ife->expr.ifi->id
+            //print()
+            break;
+        case d_expr_final:
+            print_expression_list(ife->expr.iel); 
+            break;
+        default:
+            printf("Erro print_final_expression\n");
+            break;
     }
 }
 
