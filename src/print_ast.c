@@ -313,7 +313,7 @@ void print_is_operation(operation_type io){
             printf("Minus\n");
             break;
         case d_star:
-            printf("Star\n");
+            printf("Mul\n");
             break;
         case d_div:
             printf("Div\n");
@@ -393,7 +393,8 @@ void print_print_statement(is_print_statement* ips){
 
     switch (type){
         case d_expression:
-            printf("Print-Expression\n");
+            //printf("Print\n");
+            print_expression_list(ips->print.iel);
             break;
         case d_str:
             printf("Print-Str\n");
