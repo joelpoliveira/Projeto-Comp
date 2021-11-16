@@ -27,17 +27,16 @@ void print_declarations(is_declarations_list* idl){
     while (current != NULL) {
         printf("..FuncDecl\n");
         declaration_type type = current->val->type_dec;
-        switch (type)
-        {
-        case d_func_dec:
-            print_func_dec(current->val->dec.ifd);
+        switch (type){
+            case d_func_dec:
+                print_func_dec(current->val->dec.ifd);
+                break;
+            case d_var_declaration:
+                print_var_dec(current->val->dec.ivd);
             break;
-        case d_var_declaration:
-            print_var_dec(current->val->dec.ivd);
-        break;
 
-        default:
-            printf("Erro func_dec / var_dec\n");
+            default:
+                printf("Erro func_dec / var_dec\n");
         }
         current = current->next;
     }
@@ -92,7 +91,6 @@ void print_parameter_type(parameter_type param, int depth){
 
 void print_func_params(is_parameter* ipl){
     if (ipl == NULL) return;
-
 
     printf("........ParamDecl\n");
 
