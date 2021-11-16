@@ -175,8 +175,8 @@ comma_expr_rec: /*EMPTY*/                   { $$ = NULL;}
             ;
 
 expr:   LPAR error RPAR         {error_flag = 1;}
-    |   expr operators expr2    {  /* printf("expr1\n"); */ $$ = insert_first_expr($1, $2, $3); }
-    |   expr2                   {  /* printf("expr1_2\n"); */ $$ = insert_first_expr(NULL, d_none, $1); }
+    |   expr operators expr2    {  /* printf("expr1\n"); */ $$ = insert_first_oper($1, $2, $3); }
+    |   expr2                   {  /* printf("expr1_2\n"); */ $$ = insert_first_expr($1); }
     ;
 
 expr2:  self_oper expr2 %prec UNARY { /* printf("expr2\n"); */$$ = insert_second_oper($2, $1); }

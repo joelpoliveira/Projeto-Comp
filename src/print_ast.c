@@ -32,7 +32,7 @@ void print_declarations(is_declarations_list* idl){
         break;
 
         default:
-            printf("Erro print_declarations\n");
+            printf("Erro func_dec / var_dec\n");
         }
         current = current->next;
     }
@@ -68,11 +68,7 @@ void print_parameter_type(parameter_type param){
         case d_var:
             printf("Var\n");
             break;
-        case d_dummy:
-            // Do nothing
-            break;
         default:
-            printf("Erro print_parameter_type\n");
             break;
     };
 }
@@ -116,16 +112,16 @@ void print_var_or_statement(is_var_or_statement* val){
 
     //d_var_dec, d_statement
     switch (val->type){
-        case d_var_dec:
-            print_var_spec(val->body.ivd->ivs);
-            break;
+    case d_var_dec:
+        print_var_spec(val->body.ivd->ivs);
+        break;
 
-        case d_statement:
-            print_statement(val->body.is);
-            break;
-        
-        default:
-            printf("erro print_var_or_statement\n");
+    case d_statement:
+        print_statement(val->body.is);
+        break;
+    
+    default:
+        printf("erro d_var_dec / d_statement\n");
     }
 }
 
@@ -157,30 +153,24 @@ void print_statement(is_statement* is) {
             break;
         case d_for:
             printf("For\n");
-            print_statement_for(is->statement.u_for_state);
             break;
         case d_return:
             printf("Return\n");
-            print_return_statement(is->statement.u_return_state);
             break;
         case d_print:
             printf("Print\n");
-            print_print_statement(is->statement.u_print_state);
             break;
         case d_assign:
             printf("Assign\n");
-            print_assign_statement(is->statement.u_assign);
             break;
         case d_statement_list:
             printf("StatementList\n");
-            print_statement_list(is->statement.isl);
             break;
         case d_final_statement:
             printf("FinalStatement\n");
-            print_final_statement(is->statement.u_state);
             break;
         default:
-            printf("Erro print_statement\n");
+            printf("erro print_statement\n");
             break;
     }
 }
@@ -190,8 +180,7 @@ void print_statement_if(is_if_statement* iifs){
     if (iifs == NULL) return;
 
     print_expression_list(iifs->iel);
-    print_statement_list(iifs->isl);
-    print_else_statement(iifs->ies);
+
 }
 
 
@@ -200,31 +189,23 @@ void print_expression_list(is_expression_list* iel){
 
     is_expression_list* current = iel;
 
-    while (current != NULL){
-        expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
-        //printf("Type = %d\n", type);
-        
-        //Função muito importante!!!!! muitas outras funçoes usam esta!!!!!
-        //TODO PROBLEMA AQUI! n pode ser um switch, a mesma node tem operation e expression
-
-        switch(type){
-            case d_operation:
-                print_is_operation(current->op_type);
-                //print_expression_list(current->next);
-                //print_expression2_list(current->next->ie2l);
-                break;
-            case d_expr:
-                //current->expr.
-                //print_is_operation(current->op_type);
-                print_expression2_list(current->ie2l);
-                break;
-            default:
-                printf("erro print_expression_list\n");
-                break;
-        }
-
-        current = current->next;
-    }  
+    expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
+    switch(type){
+        case d_operation:
+            printf("...........");
+            print_is_operation(current->op_type);
+            printf("............");
+            print_expression_list(current->next);
+            printf("..............");
+            print_expression2_list(current->ie2l);
+            break;
+        case d_expr:
+            print_expression2_list(current->ie2l);
+            break;
+        default:
+            printf("erro print_expression_list\n");
+            break;
+    }
 }
 
 
@@ -232,55 +213,44 @@ void print_expression2_list(is_expression2_list* ie2l){
     if (ie2l == NULL) return;
 
     is_expression2_list* current = ie2l;
-    while(current != NULL){
-        expression2_type type = current->type_expression;
-        switch(type){
-            case d_expr_2:
-                printf("..........");
-                print_final_expression(current->ife);
-                break;
-            case d_self_oper:
-                printf("self_operator\n");
-                print_is_self_operation(current->iso);
-                break;
-            default:
-                printf("erro print_expression2_list\n");
-                break;
-        }
-
-        current = current->next;
+        
+    expression2_type type = current->type_expression;
+    switch(type){
+        case d_expr_2:
+            print_final_expression(current->ife);
+            break;
+        case d_self_oper:
+            print_is_self_operation(current->iso);
+            print_expression2_list(current->next);
+            break;
+        default:
+            printf("erro print_expression2_list\n");
+            break;
     }
-
 }
 
 void print_is_self_operation(self_operation_type sot){
-    //d_self_plus, d_self_minus, d_self_not, d_self_none}          
-    switch (sot){
-        case d_self_plus:
-            printf("++\n");
-            break;
-        case d_self_minus:
-            printf("--\n");
-            break;
-        case d_self_not:
-            printf("\n");
-            break;
-        case d_self_none:
-            printf("\n");
-            break;
-        default:
-            printf("Erro print_is_self_operation_type\n");
-            break;
+    switch (sot)
+    {
+    case d_self_minus:
+        printf("Minus\n");
+        break;
+    case d_self_plus:
+        printf("Plus\n");
+        break;
+    case d_self_not:
+        printf("Not\n");
+        break;
+    default:
+        printf("Erro self_operation\n");
+        break;
     }
-
 }
-
 
 void print_is_operation(operation_type io){
     if (io == d_none) return;
     //d_or, d_and, d_lt, d_gt, d_eq, d_ne, d_ge, d_le,
     //d_plus, d_minus, d_star, d_div, d_mod
-    printf("........");
     switch (io){
         case d_or:
             printf("Or\n");
@@ -304,10 +274,10 @@ void print_is_operation(operation_type io){
             printf("Ge\n");
             break;
         case d_le:
-            printf("Le\n");
+            printf("Eq\n");
             break;
         case d_plus:
-            printf("Plus\n");
+            printf("Le\n");
             break;
         case d_minus:
             printf("Minus\n");
@@ -435,5 +405,4 @@ void print_final_statement(is_final_statement* ifs) {
             printf("Erro print_final_statement\n");
             break;
     }
-
 }
