@@ -32,7 +32,7 @@ void print_declarations(is_declarations_list* idl){
         break;
 
         default:
-            printf("Erro func_dec / var_dec\n");
+            printf("Erro print_declarations\n");
         }
         current = current->next;
     }
@@ -68,7 +68,11 @@ void print_parameter_type(parameter_type param){
         case d_var:
             printf("Var\n");
             break;
+        case d_dummy:
+            // Do nothing
+            break;
         default:
+            printf("Erro print_parameter_type\n");
             break;
     };
 }
@@ -400,9 +404,7 @@ void print_print_statement(is_print_statement* ips){
 void print_assign_statement(is_assign_statement* ias){
     if (ias == NULL) return;
 
-    printf("id = %s\n", ias->id);
     print_expression_list(ias->iel);
-
 }
 
 
@@ -420,7 +422,7 @@ void print_final_statement(is_final_statement* ifs) {
             break;
         case d_arguments:
             printf("Arguments\n");
-            printf("id = %s\n", ifs->statement.ipa->id);
+            //printf("id = %s\n", ifs->statement.ipa->id);
             print_expression_list(ifs->statement.ipa->iel);
             break;
         
