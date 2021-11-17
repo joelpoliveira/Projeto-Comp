@@ -22,14 +22,14 @@
 
     /*  
         Submissão no Mooshak:
-        A -> 66/250     :: Global
-        B -> 33/35      :: Syntax errors - Variable and function declarations/definitions
-        C -> 7/35       :: Syntax errors -Expressions
-        D -> 26/35      :: Syntax errors - Statements
+        A -> 91/250     :: Global
+        B -> 25(33)/35  :: Syntax errors - Variable and function declarations/definitions
+        C -> 28/35      :: Syntax errors -Expressions
+        D -> 30/35      :: Syntax errors - Statements
         E -> 0/35       :: AST - Variable and function declarations/definitions
         F -> 0/35       :: AST - Expressions
         G -> 0/35       :: AST - Statements
-        H -> 0/40       :: AST - Full Programs 
+        H -> 8/40       :: AST - Full Programs 
     */
 %}
 
@@ -89,11 +89,11 @@
 %right ASSIGN //'+=' '-='
 %left  OR
 %left  AND
-%left  EQ NE
+%left  EQ NE LE GE LT GT
 %left  PLUS MINUS
 %left  STAR DIV
 %nonassoc UNARY
-%left  LPAR RSQ
+%left  LPAR LSQ LBRACE
 
 %%
 
@@ -193,6 +193,7 @@ final_expr:   INTLIT               { /* printf("intlit\n"); */$$ = insert_intlit
 operators:  OR                  {/* printf("or\n"); */ $$ = insert_oper("OR"); }
         |   AND                 {/* printf("and\n"); */ $$ = insert_oper("AND"); }
         |   LT                  { /* printf("lt\n"); */$$ = insert_oper("LT");}
+        |   LE                  { /* printf("le\n"); */$$ = insert_oper("LE");}
         |   GT                  {/* printf("gt\n"); */ $$ = insert_oper("GT"); }
         |   EQ                  {/* printf("eq\n"); */ $$ = insert_oper("EQ"); }
         |   NE                  { /* printf("ne\n"); */ $$ = insert_oper("NE"); }
@@ -203,6 +204,7 @@ operators:  OR                  {/* printf("or\n"); */ $$ = insert_oper("OR"); }
         |   DIV                 {/*  printf("div\n"); */$$ = insert_oper("DIV"); }
         |   MOD                 {/* printf("mod\n"); */ $$ = insert_oper("MOD"); }
         ;
+
 self_oper:  PLUS                { /* printf("self_plus\n"); */$$ = insert_self_oper("PLUS"); }
         |   MINUS               {/* printf("self_minus\n"); */ $$ = insert_self_oper("MINUS"); }
         |   NOT                 {/* printf("self_not\n"); */ $$ = insert_self_oper("NOT"); }

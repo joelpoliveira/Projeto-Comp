@@ -22,7 +22,6 @@ void print_declarations(is_declarations_list* idl){
     if (idl == NULL) return;
     
 
-
     is_declarations_list* current = idl;
     while (current != NULL) {
         printf("..FuncDecl\n");

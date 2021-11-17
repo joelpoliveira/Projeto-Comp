@@ -346,7 +346,7 @@ is_expression_list * insert_expression(is_expression_list * head, is_expression_
 
 is_expression_list * insert_first_oper(is_expression_list * head, operation_type type, is_expression2_list * ie2l){
 	is_expression_list * iel = malloc(sizeof(is_expression_list));
-	is_expression_list * aux;
+	//is_expression_list * aux;
 
 	iel->next = head;
 	iel->type_expr = d_operation;
@@ -360,7 +360,7 @@ is_expression_list * insert_first_oper(is_expression_list * head, operation_type
 
 is_expression_list * insert_first_expr(is_expression2_list * ie2l){
 	is_expression_list * head = malloc(sizeof(is_expression_list));
-	is_expression_list * aux;
+	//is_expression_list * aux;
 
 	head->next = NULL;
 	head->type_expr = d_expr;	
