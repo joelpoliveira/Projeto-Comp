@@ -151,11 +151,11 @@ statements: IF expr states_in_brace                     { /* printf("state1\n") 
         |   ID ASSIGN expr                              { /* printf("state9\n") */;$$ = insert_assign_statement($1, $3); }
         |   states_in_brace                             { /* printf("state10\n"); */$$ = insert_statements_list($1); }
         |   final_states                                { /* printf("state11\n"); */$$ = insert_final_statement($1); }
-        |   error                                       { $$ = NULL; error_flag = 1;}
         ;
 
 final_states:   func_invocation  {  /* printf("final_s1\n"); */ $$ = insert_final_state_func_inv($1);}
             |   parse_args       { /* printf("final_s2\n"); */$$ = insert_final_state_args($1);  }
+            |   error                                       { $$ = NULL; error_flag = 1;}
             ;
 
 states_in_brace: LBRACE state_semic_rec RBRACE          {/* printf("in_brace\n"); */ $$ = $2; };
@@ -174,8 +174,7 @@ comma_expr_rec: /*EMPTY*/                   { $$ = NULL;}
             |   comma_expr_rec COMMA expr   { /* printf("expr_list\n"); */ $$ = insert_expression($1, $3);}
             ;
 
-expr:   LPAR error RPAR         {error_flag = 1;}
-    |   expr operators expr2    {  /* printf("expr1\n"); */ $$ = insert_first_oper($1, $2, $3); }
+expr:   expr operators expr2    {  /* printf("expr1\n"); */ $$ = insert_first_oper($1, $2, $3); }
     |   expr2                   {  /* printf("expr1_2\n"); */ $$ = insert_first_expr($1); }
     ;
 
@@ -188,11 +187,13 @@ final_expr:   INTLIT               { /* printf("intlit\n"); */$$ = insert_intlit
           |   ID                    { /* printf("id\n"); */$$ = insert_id($1); } 
           |   func_invocation       { /* printf("fun_inv\n"); */$$ = insert_final_func_inv($1); } 
           |   LPAR expr RPAR        {   /* printf("final_expr_5\n"); */$$ = insert_final_expr($2);} 
+          |   LPAR error RPAR         {error_flag = 1;}
           ;
 
 operators:  OR                  {/* printf("or\n"); */ $$ = insert_oper("OR"); }
         |   AND                 {/* printf("and\n"); */ $$ = insert_oper("AND"); }
         |   LT                  { /* printf("lt\n"); */$$ = insert_oper("LT");}
+        |   LE                  {$$ = insert_oper("LE"); }
         |   GT                  {/* printf("gt\n"); */ $$ = insert_oper("GT"); }
         |   EQ                  {/* printf("eq\n"); */ $$ = insert_oper("EQ"); }
         |   NE                  { /* printf("ne\n"); */ $$ = insert_oper("NE"); }

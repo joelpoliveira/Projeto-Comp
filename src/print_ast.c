@@ -3,60 +3,73 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
+#include <stdbool.h>
 
 void print_dots(int depth){
     for (int i = 0; i < depth; i++)
         printf("..");
 }
 
+bool more_than_2_elements( is_vars_and_statements_list * head){
+    int i;
+    for (head; head; head = head->next, i+=1);
+    return i>=2;
+}
+
 void print_ast(is_program* root){
     if (root == NULL) return;
 
     printf("Program\n");
-    print_declarations(root->idlist);
+    print_declarations(root->idlist, 1);
 }
 
 
-void print_declarations(is_declarations_list* idl){
+void print_declarations(is_declarations_list* idl, int depth){
     if (idl == NULL) return;
-    
-
 
     is_declarations_list* current = idl;
     while (current != NULL) {
-        printf("..FuncDecl\n");
+        print_dots(depth);
+        printf("FuncDecl\n");
         declaration_type type = current->val->type_dec;
         switch (type){
             case d_func_dec:
-                print_func_dec(current->val->dec.ifd);
+                print_func_dec(current->val->dec.ifd, depth + 1);
                 break;
             case d_var_declaration:
-                print_var_dec(current->val->dec.ivd);
+                print_var_dec(current->val->dec.ivd, depth + 1);
             break;
-
             default:
                 printf("Erro func_dec / var_dec\n");
+                break;
         }
         current = current->next;
     }
 
 }
 
-void print_var_dec(is_var_dec * ivd){
+void print_var_dec(is_var_dec * ivd, int depth){
     if (ivd == NULL) return;
 
-    printf("....VarDecl\n");
-    print_var_spec(ivd->ivs, 3);
+    print_dots(depth);
+    printf("VarDecl\n");
+    print_var_spec(ivd->ivs, depth + 1);
 }
 
-void print_func_dec(is_func_dec* ifd){
-    printf("....FuncHeader\n");
-    printf("......Id(%s)\n", ifd->id);
-    print_parameter_type(ifd->type, 3);
-    printf("......FuncParams\n");
-    print_func_params(ifd->ipl);
-    print_func_body(ifd->ifb);
+void print_func_dec(is_func_dec* ifd, int depth){
+    print_dots(depth);
+    printf("FuncHeader\n");
+
+    print_dots(depth + 1);
+    printf("Id(%s)\n", ifd->id);
+    print_parameter_type(ifd->type, depth);
+
+    print_dots(depth + 1);
+    printf("FuncParams\n");
+    print_func_params(ifd->ipl, depth + 2);
+
+
+    print_func_body(ifd->ifb, depth);
 }
 
 
@@ -69,7 +82,7 @@ void print_parameter_type(parameter_type param, int depth){
             break;
         case d_float32:
             print_dots(depth);
-            printf("Float\n");
+            printf("Float32\n");
             break;
         case d_string:
             print_dots(depth);
@@ -89,31 +102,37 @@ void print_parameter_type(parameter_type param, int depth){
 }
 
 
-void print_func_params(is_parameter* ipl){
+void print_func_params(is_parameter* ipl, int depth){
     if (ipl == NULL) return;
 
-    printf("........ParamDecl\n");
+    print_dots(depth);
+    printf("ParamDecl\n");
 
     is_id_type_list* current = ipl->val;
 
     while (current != NULL) {
-        print_parameter_type(current->val->type_param, 5);
-        print_dots(5);
+        print_parameter_type(current->val->type_param, depth + 1);
+
+        print_dots(depth + 1);
         printf("Id(%s)\n", current->val->id);
+
         current = current->next;
     }
 }
 
 
-void print_func_body(is_func_body* ifb){
+void print_func_body(is_func_body* ifb, int depth){
     if (ifb == NULL) return;
 
     is_vars_and_statements_list* current = ifb->ivsl;
 
-    printf("....FuncBody\n");
+    bool block_flag = more_than_2_elements(current);
+
+    print_dots(depth);
+    printf("FuncBody\n");
 
     while (current != NULL) {
-        print_var_or_statement(current->val, 2);
+        print_var_or_statement(current->val, depth);
         current = current->next;
     }
 }
@@ -125,15 +144,16 @@ void print_var_or_statement(is_var_or_statement* val, int depth){
     //d_var_dec, d_statement
     switch (val->type){
     case d_var_dec:
-        print_dots(depth + 1);
+        print_dots(depth - 1);
         printf("VarDecl\n");
-        print_var_spec(val->body.ivd->ivs, depth+2);
+
+        print_var_spec(val->body.ivd->ivs, depth );
         break;
 
     case d_statement:
-        print_statement(val->body.is, depth+1);
+        print_statement(val->body.is, depth - 1);
         break;
-    
+
     default:
         printf("erro d_var_dec / d_statement\n");
     }
@@ -163,34 +183,38 @@ void print_statement(is_statement* is, int depth) {
     
     switch (type) {
         case d_if:
-            print_dots(depth);
+            print_dots(depth+2);
             printf("If\n");
-            print_statement_if(is->statement.u_if_state, depth);
+
+            print_statement_if(is->statement.u_if_state, depth + 2);
             break;
         case d_for:
-            print_dots(depth);
+            print_dots(depth+2);
             printf("For\n");
-            print_statement_for(is->statement.u_for_state, depth);
+
+            print_statement_for(is->statement.u_for_state, depth + 2);
             break;
         case d_return:
             print_dots(depth);
             printf("Return\n");
-            print_return_statement(is->statement.u_return_state, depth + 1);
+
+            print_return_statement(is->statement.u_return_state, depth);
             break;
         case d_print:
             print_dots(depth);
             printf("Print\n");
-            print_print_statement(is->statement.u_print_state, depth + 1);
+
+            print_print_statement(is->statement.u_print_state, depth + 2);
             break;
         case d_assign:
             print_dots(depth);
             printf("Assign\n");
-            print_assign_statement(is->statement.u_assign, depth);
+
+            print_assign_statement(is->statement.u_assign, depth + 1);
             break;
         case d_statement_list:
-            print_dots(depth);
-            printf("StatementList\n");
-            print_statement_list(is->statement.isl, depth);
+//            printf("StatementList\n");
+            print_statement_list(is->statement.isl, depth+1);
             break;
         case d_final_statement:
             print_final_statement(is->statement.u_state, depth);
@@ -312,7 +336,7 @@ void print_is_operation(operation_type io, int depth){
             printf("Le\n");
             break;
         case d_plus:
-            printf("Plus\n");
+            printf("Add\n");
             break;
         case d_minus:
             printf("Sub\n");
@@ -362,10 +386,9 @@ void print_final_expression(is_final_expression * ife, int depth){
 void print_statement_list(is_statements_list* isl, int depth){
     if (isl == NULL) return;
 
-    //TODO LOOP para statements
     is_statements_list * current = isl;
     while( current != NULL){
-        print_statement(current->val, depth+1);
+        print_statement(current->val, depth + 1);
         current = current->next;
     }
 
@@ -374,13 +397,15 @@ void print_statement_list(is_statements_list* isl, int depth){
 
 void print_else_statement(is_else_statement* ies, int depth){
     if (ies == NULL) return;
-    print_dots(depth - 1);
+    print_dots(depth);
     printf("Else\n");
 
-    print_dots(depth);
+    print_dots(depth + 1);
     printf("Block\n");
+
     print_statement_list(ies->isl, depth);
-    print_dots(depth);
+
+    print_dots(depth + 1);
     printf("Block\n");
 }
 
@@ -410,8 +435,8 @@ void print_print_statement(is_print_statement* ips, int depth){
             print_expression_list(ips->print.iel, depth);
             break;
         case d_str:
-            printf("Print-Str\n");
-            //printf("%s\n", ips->print.id);
+            print_dots(depth);
+            printf("StrLit(%s)\n", ips->print.id);
             break;
         default:
             printf("Erro print_print_statement\n");
@@ -422,6 +447,8 @@ void print_print_statement(is_print_statement* ips, int depth){
 
 void print_assign_statement(is_assign_statement* ias, int depth){
     if (ias == NULL) return;
+    print_dots(depth);
+    printf("Id(%s)\n", ias->id);
     print_expression_list(ias->iel, depth);
 }
 
