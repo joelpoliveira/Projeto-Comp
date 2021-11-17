@@ -1,0 +1,15 @@
+"1234567890'+!#$%&/()=qwertyuiopasdfghjklçzxcvbnm<,.-;:_~^|´`\n\t\"\r\\"
+" Normal "
+" Normal esc /n /t"
+123 "test\"" hello
+And " Error 
+" Hello | 123 "
+" Hello [ 123 "
+" Erro \n \t asd
+" Erro \n \a asd "
+" Erro \t \b Asda
+" Erro \"
+" Erro \a asd
+" Erro \ asd
+" Erro \n \
+" Erro EOF \

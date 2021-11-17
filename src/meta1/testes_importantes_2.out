@@ -1,0 +1,30 @@
+ID(adw)
+SEMICOLON
+REALLIT(.3e-9)
+REALLIT(1e+7)
+Line 2, column 12: illegal character (.)
+ID(e1)
+INTLIT(0)
+ID(xz)
+NOT
+RBRACE
+Line 5, column 14: illegal character (@)
+SEMICOLON
+INTLIT(0xab78)
+Line 6, column 30: invalid escape sequence (\o)
+SEMICOLON
+FUNC
+STRLIT("os.Args dw a func")
+SEMICOLON
+STAR
+Line 9, column 7: illegal character (\)
+STAR
+DIV
+Line 10, column 1: invalid octal constant (012934856)
+Line 10, column 11: illegal character (#)
+INTLIT(00475)
+SEMICOLON
+ID(abc)
+Line 13, column 20: invalid escape sequence (\ )
+Line 13, column 35: invalid escape sequence (\p)
+Line 13, column 5: unterminated string literal

@@ -67,6 +67,7 @@ STRLIT("")
 STRLIT("dawdwa")
 STRLIT("")
 Line 5, column 22: unterminated string literal
+SEMICOLON
 ID(I)
 Line 7, column 2: illegal character (')
 Line 7, column 3: illegal character (\)
@@ -100,3 +101,4 @@ Line 12, column 50: illegal character (\)
 STRLIT("")
 INTLIT(2)
 Line 12, column 54: unterminated string literal
+SEMICOLON

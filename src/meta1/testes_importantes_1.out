@@ -1,0 +1,30 @@
+ID(en)
+ID(l)
+Line 3, column 5: illegal character (@)
+ID(D1CO)
+Line 3, column 14: invalid escape sequence (\C)
+SEMICOLON
+Line 4, column 1: unterminated string literal
+Line 5, column 3: invalid escape sequence (\b)
+Line 5, column 1: unterminated string literal
+Line 6, column 14: invalid escape sequence (\p)
+Line 7, column 1: invalid octal constant (01245699900011111123123)
+Line 8, column 2: invalid escape sequence (\a)
+Line 8, column 1: unterminated string literal
+ID(lalalalala)
+SEMICOLON
+REALLIT(1.23232312)
+REALLIT(1.2e-1)
+Line 10, column 19: illegal character (.)
+ID(e)
+MINUS
+INTLIT(1)
+REALLIT(1.2e-123)
+SEMICOLON
+NOT
+STRLIT("#!#")
+ID(asd)
+STRLIT("asdasdla")
+SEMICOLON
+Line 13, column 19: invalid escape sequence (\a)
+Line 13, column 1: unterminated string literal

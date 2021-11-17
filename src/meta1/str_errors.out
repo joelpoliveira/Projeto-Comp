@@ -1,0 +1,29 @@
+STRLIT("1234567890'+!#$%&/()=qwertyuiopasdfghjklçzxcvbnm<,.-;:_~^|´`\n\t\"\r\\")
+SEMICOLON
+STRLIT(" Normal ")
+SEMICOLON
+STRLIT(" Normal esc /n /t")
+SEMICOLON
+INTLIT(123)
+STRLIT("test\"")
+ID(hello)
+SEMICOLON
+ID(And)
+Line 5, column 5: unterminated string literal
+STRLIT(" Hello | 123 ")
+SEMICOLON
+STRLIT(" Hello [ 123 ")
+SEMICOLON
+Line 8, column 1: unterminated string literal
+Line 9, column 11: invalid escape sequence (\a)
+Line 10, column 11: invalid escape sequence (\b)
+Line 10, column 1: unterminated string literal
+Line 11, column 1: unterminated string literal
+Line 12, column 8: invalid escape sequence (\a)
+Line 12, column 1: unterminated string literal
+Line 13, column 8: invalid escape sequence (\ )
+Line 13, column 1: unterminated string literal
+Line 14, column 11: invalid escape sequence (\)
+Line 14, column 1: unterminated string literal
+Line 15, column 12: invalid escape sequence (\)
+Line 15, column 1: unterminated string literal

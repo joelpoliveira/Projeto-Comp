@@ -1,0 +1,157 @@
+MINUS
+ID(ID)
+MINUS
+ID(ola)
+ID(_gosto)
+ID(de)
+ID(PaNdAs)
+SEMICOLON
+BLANKID
+ID(n0p3)
+SEMICOLON
+INTLIT(0)
+ID(zb)
+SEMICOLON
+MINUS
+ID(INTLIT)
+MINUS
+INTLIT(0)
+INTLIT(10)
+INTLIT(322412412312312312412412424)
+SEMICOLON
+INTLIT(0x1231)
+INTLIT(0x1231faca)
+INTLIT(0xFACA)
+INTLIT(0xFACA)
+ID(O)
+SEMICOLON
+INTLIT(012312)
+INTLIT(00000003)
+Line 9, column 17: invalid octal constant (0123129)
+Line 9, column 25: invalid octal constant (0131329123)
+SEMICOLON
+MINUS
+ID(REALLIT)
+MINUS
+REALLIT(1.3)
+REALLIT(1312313.123123)
+REALLIT(0021323.123123)
+REALLIT(0.32312)
+SEMICOLON
+REALLIT(.213123)
+REALLIT(123.)
+SEMICOLON
+REALLIT(12e2)
+REALLIT(0.123e12)
+REALLIT(1.234e-12)
+REALLIT(1.234e+12)
+SEMICOLON
+REALLIT(123.0123)
+ID(e)
+Line 15, column 11: illegal character (.)
+ID(e123)
+SEMICOLON
+MINUS
+ID(STRLIT)
+MINUS
+STRLIT("abc")
+STRLIT("abc \n \r")
+STRLIT("gosto de pandas :) ")
+SEMICOLON
+STRLIT(" OL\"A ")
+STRLIT("")
+STRLIT("//\t\t")
+SEMICOLON
+Line 20, column 26: invalid escape sequence (\y)
+Line 20, column 40: invalid escape sequence (\e)
+Line 21, column 1: unterminated string literal
+ID(mas)
+ID(acaba)
+ID(aqui)
+Line 22, column 15: illegal character (?)
+Line 22, column 16: unterminated string literal
+SEMICOLON
+MINUS
+ID(ILLEGAL)
+MINUS
+Line 25, column 1: illegal character (.)
+Line 25, column 3: illegal character (@)
+Line 25, column 5: illegal character (#)
+Line 25, column 7: illegal character (?)
+Line 25, column 9: illegal character (.)
+Line 25, column 10: illegal character (.)
+Line 25, column 11: illegal character (.)
+Line 26, column 1: invalid octal constant (01238)
+Line 26, column 7: invalid octal constant (01239)
+INTLIT(0123)
+ID(ab)
+SEMICOLON
+MINUS
+ID(OPERADORES)
+DIV
+ID(KEYWORDS)
+MINUS
+OR
+NOT
+COMMA
+BLANKID
+ASSIGN
+STAR
+DIV
+MINUS
+PLUS
+GT
+LT
+MOD
+LBRACE
+LPAR
+LSQ
+RSQ
+RPAR
+RBRACE
+SEMICOLON
+EQ
+NE
+GE
+AND
+ASSIGN
+PACKAGE
+RETURN
+ELSE
+FOR
+IF
+VAR
+INT
+FLOAT32
+BOOL
+STRING
+PRINT
+PARSEINT
+FUNC
+CMDARGS
+RESERVED(import)
+RESERVED(interface)
+RESERVED(case)
+RESERVED(defer)
+RESERVED(go)
+RESERVED(map)
+RESERVED(select)
+RESERVED(struct)
+RESERVED(chan)
+RESERVED(goto)
+RESERVED(switch)
+RESERVED(const)
+RESERVED(fallthrough)
+RESERVED(range)
+RESERVED(type)
+RESERVED(continue)
+RESERVED(import)
+RESERVED(++)
+RESERVED(--)
+SEMICOLON
+ID(_break)
+SEMICOLON
+MINUS
+ID(COMENTARIOS)
+MINUS
+Line 40, column 1: unterminated comment

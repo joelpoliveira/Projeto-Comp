@@ -1,0 +1,19 @@
+INTLIT(012)
+SEMICOLON
+INTLIT(0)
+ID(xz)
+SEMICOLON
+Line 3, column 1: invalid octal constant (08123)
+ID(entrega)
+SEMICOLON
+STRLIT("ab[cda1v|ma")
+SEMICOLON
+STRLIT("as()\\")
+SEMICOLON
+REALLIT(.1)
+SEMICOLON
+Line 7, column 1: illegal character (.)
+REALLIT(1E-6)
+SEMICOLON
+ID(_AB)
+SEMICOLON
