@@ -85,15 +85,15 @@
 %type<io> operators
 %type<iso> self_oper
 
-%left  COMMA
+//%left  COMMA
 %right ASSIGN //'+=' '-='
 %left  OR
 %left  AND
-%left  EQ NE LE GE LT GT
+%right  EQ NE LE GE LT GT
 %left  PLUS MINUS
 %left  STAR DIV
 %nonassoc UNARY
-%left  LPAR LSQ LBRACE
+//%nonassoc  LPAR LSQ LBRACE
 
 %%
 

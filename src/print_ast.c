@@ -13,8 +13,8 @@ void print_dots(int depth){
 
 
 bool more_than_2_elements( is_statements_list * head){
-    int i = 0;
-    for (head; head; head = head->next, i+=1);
+    int i;
+    for (i=0; head; head = head->next, i+=1);
     return i >= 2;
 }
 
