@@ -12,8 +12,8 @@ void print_dots(int depth){
 }
 
 
-bool more_than_2_elements( is_vars_and_statements_list * head){
-    int i;
+bool more_than_2_elements( is_statements_list * head){
+    int i = 0;
     for (head; head; head = head->next, i+=1);
     return i >= 2;
 }
@@ -134,7 +134,6 @@ void print_func_body(is_func_body* ifb, int depth){
     is_vars_and_statements_list* current = ifb->ivsl;
 
     //aqui temos de verificar se tem {} para n dar print sempre que o statement tenha >2 linhas
-    bool block_flag = more_than_2_elements(current);
 
     print_dots(depth);
     printf("FuncBody\n");
@@ -218,6 +217,10 @@ void print_statement(is_statement* is, int depth) {
             print_assign_statement(is->statement.u_assign, depth + 1);
             break;
         case d_statement_list:
+            if (more_than_2_elements(is->statement.isl)){
+                print_dots(depth);
+                printf("Block\n");
+            }
             print_statement_list(is->statement.isl, depth+1);
             break;
         case d_final_statement:
@@ -237,7 +240,10 @@ void print_statement_if(is_if_statement* iifs, int depth){
     print_dots(depth + 1);
     printf("Block\n");
 
-    print_statement_list(iifs->isl, depth + 1);
+    print_statement_list(iifs->isl, depth + 2);
+
+    //print_dots(depth + 1);
+    //printf("Block\n");
 
     print_else_statement(iifs->ies, depth);
 
@@ -320,7 +326,7 @@ void print_is_operation(operation_type io, int depth){
             printf("And\n");
             break;
         case d_lt:
-            printf("LT\n");
+            printf("Lt\n");
             break;
         case d_gt:
             printf("Gt\n");
@@ -390,8 +396,14 @@ void print_statement_list(is_statements_list* isl, int depth){
     if (isl == NULL) return;
 
     is_statements_list * current = isl;
+    
+    //if (current->next->val->type_state == )
+
+    //print_dots(depth+1);
+    //printf("Block\n");
+
     while( current != NULL){
-        print_statement(current->val, depth + 1);
+        print_statement(current->val, depth);
         current = current->next;
     }
 
@@ -405,19 +417,17 @@ void print_else_statement(is_else_statement* ies, int depth){
     if (ies == NULL) return;
 
     print_statement_list(ies->isl, depth+1); // adicionado +1
-
-    // print_dots(depth + 1);
-    // printf("Block\n");
 }
 
 
 void print_statement_for(is_for_statement* ifs, int depth){
     if (ifs == NULL) return;
+    
+    print_expression_list(ifs->iel, depth+1);
 
     print_dots(depth+1);
     printf("Block\n");  
 
-    print_expression_list(ifs->iel, depth);
     print_statement_list(ifs->isl, depth);
 }
 
@@ -439,7 +449,7 @@ void print_print_statement(is_print_statement* ips, int depth){
             print_expression_list(ips->print.iel, depth);
             break;
         case d_str:
-            print_dots(depth);
+            print_dots(depth-1);
             printf("StrLit(%s)\n", ips->print.id);
             break;
         default:
