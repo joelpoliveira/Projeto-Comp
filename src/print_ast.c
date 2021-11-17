@@ -51,8 +51,6 @@ void print_declarations(is_declarations_list* idl, int depth){
 void print_var_dec(is_var_dec * ivd, int depth){
     if (ivd == NULL) return;
 
-    print_dots(depth);
-    printf("VarDecl\n");
     print_var_spec(ivd->ivs, depth + 1);
 }
 
@@ -62,7 +60,7 @@ void print_func_dec(is_func_dec* ifd, int depth){
 
     print_dots(depth + 1);
     printf("Id(%s)\n", ifd->id);
-    print_parameter_type(ifd->type, depth);
+    print_parameter_type(ifd->type, depth + 1);
 
     print_dots(depth + 1);
     printf("FuncParams\n");
@@ -113,7 +111,7 @@ void print_func_params(is_parameter* ipl, int depth){
     while (current != NULL) {
         print_dots(depth);
         printf("ParamDecl\n");
-        
+
         print_parameter_type(current->val->type_param, depth + 1);
 
         print_dots(depth + 1);
@@ -146,19 +144,18 @@ void print_var_or_statement(is_var_or_statement* val, int depth){
 
     //d_var_dec, d_statement
     switch (val->type){
-    case d_var_dec:
-        print_dots(depth - 1);
-        printf("VarDecl\n");
+        case d_var_dec:
+            //print_dots(depth - 1);
+            //printf("VarDecl\n");
+            print_var_spec(val->body.ivd->ivs, depth );
+            break;
 
-        print_var_spec(val->body.ivd->ivs, depth );
-        break;
+        case d_statement:
+            print_statement(val->body.is, depth - 1);
+            break;
 
-    case d_statement:
-        print_statement(val->body.is, depth - 1);
-        break;
-
-    default:
-        printf("erro d_var_dec / d_statement\n");
+        default:
+            printf("Erro print_var_or_statement\n");
     }
 }
 
@@ -166,11 +163,12 @@ void print_var_or_statement(is_var_or_statement* val, int depth){
 void print_var_spec(is_var_spec* ivs, int depth){
     if (ivs == NULL) return;
     
-
-    print_parameter_type(ivs->type, depth);
-
     is_id_list* current = ivs->iil;
+
     while (current != NULL){
+        print_dots(depth-1);
+        printf("VarDecl\n");
+        print_parameter_type(ivs->type, depth);
         print_dots(depth);
         printf("Id(%s)\n", current->val);
         current = current->next;        
