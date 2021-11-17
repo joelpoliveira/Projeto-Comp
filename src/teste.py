@@ -21,16 +21,16 @@ import sys
 def run_tests():
     try:
         if (sys.argv[1] == '1'):
-            print("---Meta 1---")
+            print("--------- Meta 1 ---------")
             meta = 1
         elif (sys.argv[1] == '2'):
-            print("---Meta 2---")
+            print("--------- Meta 2 ---------")
             meta = 2
         elif (sys.argv[1] == '3'):
-            print("---Meta 3---")
+            print("--------- Meta 3 ---------")
             meta = 3
         elif (sys.argv[1] == '4'):
-            print("---Meta 4---")
+            print("--------- Meta 4 ---------")
             meta = 4
         else:
             print('Invalid Argument. Usage: test.py <num_meta>')
@@ -56,7 +56,7 @@ def run_tests():
                 
     #check if makefile exists and use it
     if os.path.isfile("makefile"):
-        print('Using makefile')
+        #print('Using makefile')
         os.system(f'make')
         
     else: # Don't compile if no makefile is found
@@ -78,6 +78,7 @@ def run_tests():
         print("No Fails!")
     else:
         # only print tests that passed if at least 1 fails
+        print(f"--------- Passed = {len(passed)} ---------")
         for i in passed:
             print(f"{i} -> Passed")
     

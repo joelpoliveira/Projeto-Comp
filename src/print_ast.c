@@ -197,7 +197,7 @@ void print_statement(is_statement* is, int depth) {
             print_statement_if(is->statement.u_if_state, depth );
             break;
         case d_for:
-            print_dots(depth+2);
+            print_dots(depth);
             printf("For\n");
             print_statement_for(is->statement.u_for_state, depth + 2);
             break;
@@ -209,7 +209,7 @@ void print_statement(is_statement* is, int depth) {
         case d_print:
             print_dots(depth);
             printf("Print\n");
-            print_print_statement(is->statement.u_print_state, depth + 2);
+            print_print_statement(is->statement.u_print_state, depth + 1);
             break;
         case d_assign:
             print_dots(depth);
@@ -380,7 +380,7 @@ void print_final_expression(is_final_expression * ife, int depth){
             break;
         case d_func_inv:
             printf("Call\n");
-            print_func_invocation(ife->expr.ifi, depth + 1);
+            print_func_invocation(ife->expr.ifi, depth);
             break;
         case d_expr_final:
             print_expression_list(ife->expr.iel, depth); 
@@ -441,7 +441,6 @@ void print_return_statement(is_return_statement* irs, int depth){
 void print_print_statement(is_print_statement* ips, int depth){
     if (ips == NULL) return;
 
-
     print_type type = ips->type_print; // {d_expression, d_str}
 
     switch (type){
@@ -449,7 +448,7 @@ void print_print_statement(is_print_statement* ips, int depth){
             print_expression_list(ips->print.iel, depth);
             break;
         case d_str:
-            print_dots(depth-1);
+            print_dots(depth);
             printf("StrLit(%s)\n", ips->print.id);
             break;
         default:
@@ -498,7 +497,7 @@ void print_final_statement(is_final_statement* ifs, int depth) {
 
 
 void print_func_invocation(is_function_invocation * ifi, int depth){
-    print_dots(depth);
+    print_dots(depth+1);
     printf("Id(%s)\n", ifi->id);
-    print_expression_list(ifi->iel, depth);
+    print_expression_list(ifi->iel, depth+1);
 }
