@@ -2,6 +2,7 @@ STRLIT(" ")
 ID(you)
 ID(wanna)
 Line 1, column 13: illegal character (?)
+SEMICOLON
 STRLIT("you wanna?")
 SEMICOLON
 Line 4, column 1: illegal character (\)
@@ -76,5 +77,4 @@ ID(better)
 ID(work)
 COMMA
 ID(b)
-SEMICOLON
 Line 15, column 22: unterminated comment

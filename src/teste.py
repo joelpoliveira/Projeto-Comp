@@ -80,6 +80,11 @@ def run_tests():
         # only print tests that passed if at least 1 fails
         for i in passed:
             print(f"{i} -> Passed")
+    
+    #Delete empty output files
+    for output in os.listdir(f'./meta{meta}/outputs'):
+        if os.stat(f"./meta{meta}/outputs/{output}").st_size == 0:
+            os.system(f"rm -f meta{meta}/outputs/{output}")
 
 
 if __name__ == '__main__':

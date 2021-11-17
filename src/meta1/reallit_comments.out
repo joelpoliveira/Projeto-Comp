@@ -25,4 +25,4 @@ REALLIT(.25)
 SEMICOLON
 REALLIT(.12345E+5)
 SEMICOLON
-Line 21, column 9: unterminated comment
+Line 15, column 9: unterminated comment

@@ -52,8 +52,9 @@ dkms.conf
 
 #Random stuff
 src/gocompiler
+src/gocompiler.zip
 src/lex.yy.c
 **/y.*
-src/meta1/outputs
-src/meta2/outputs
+src/meta1/outputs/
+src/meta2/outputs/
 **/makefile

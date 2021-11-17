@@ -1,0 +1,12 @@
+STRLIT("Isto e um teste de strlit")
+SEMICOLON
+ID(isto_nao_e_1_strlit)
+SEMICOLON
+STRLIT("")
+SEMICOLON
+Line 4, column 31: invalid escape sequence (\q)
+Line 4, column 1: unterminated string literal
+Line 5, column 1: unterminated string literal
+ID(mas_1isto_ja_e_um_id_again)
+SEMICOLON
+Line 9, column 1: unterminated string literal
