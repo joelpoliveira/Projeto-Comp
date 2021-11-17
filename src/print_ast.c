@@ -11,14 +11,13 @@ void print_dots(int depth){
         printf("..");
 }
 
-//acho que isto não é preciso
-/* 
+
 bool more_than_2_elements( is_vars_and_statements_list * head){
     int i;
     for (head; head; head = head->next, i+=1);
     return i >= 2;
 }
-*/
+
 
 void print_ast(is_program* root){
     if (root == NULL) return;
@@ -134,14 +133,15 @@ void print_func_body(is_func_body* ifb, int depth){
 
     is_vars_and_statements_list* current = ifb->ivsl;
 
-    //bool block_flag = more_than_2_elements(current);
+    //aqui temos de verificar se tem {} para n dar print sempre que o statement tenha >2 linhas
+    bool block_flag = more_than_2_elements(current);
 
     print_dots(depth);
     printf("FuncBody\n");
 
     while (current != NULL) {
-        //é preciso alterar aqui qq coisa. n pode ser sempre +2 aqui
-        print_var_or_statement(current->val, depth + 2);
+        //é preciso alterar aqui qq coisa. n pode ser sempre +2
+        print_var_or_statement(current->val, depth+2);
         current = current->next;
     }
 }
@@ -159,7 +159,7 @@ void print_var_or_statement(is_var_or_statement* val, int depth){
             break;
 
         case d_statement:
-            print_statement(val->body.is, depth - 1);
+            print_statement(val->body.is, depth -1);
             break;
 
         default:
@@ -218,7 +218,6 @@ void print_statement(is_statement* is, int depth) {
             print_assign_statement(is->statement.u_assign, depth + 1);
             break;
         case d_statement_list:
-            //printf("StatementList\n");
             print_statement_list(is->statement.isl, depth+1);
             break;
         case d_final_statement:
