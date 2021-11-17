@@ -10,12 +10,13 @@ void print_dots(int depth){
         printf("..");
 }
 
-bool more_than_2_elements( is_vars_and_statements_list * head){
+//acho que isto não é preciso
+/* bool more_than_2_elements( is_vars_and_statements_list * head){
     int i;
     for (head; head; head = head->next, i+=1);
-    return i>=2;
+    return i >= 2;
 }
-
+ */
 void print_ast(is_program* root){
     if (root == NULL) return;
 
@@ -29,18 +30,19 @@ void print_declarations(is_declarations_list* idl, int depth){
 
     is_declarations_list* current = idl;
     while (current != NULL) {
-        print_dots(depth);
-        printf("FuncDecl\n");
         declaration_type type = current->val->type_dec;
         switch (type){
             case d_func_dec:
+                print_dots(depth);
+                printf("FuncDecl\n");
                 print_func_dec(current->val->dec.ifd, depth + 1);
                 break;
             case d_var_declaration:
-                print_var_dec(current->val->dec.ivd, depth + 1);
+                // if depth == 1, depth = 1 ??? parece-me q vai ser preciso
+                print_var_dec(current->val->dec.ivd, depth /* + 1 */);
             break;
             default:
-                printf("Erro func_dec / var_dec\n");
+                printf("Erro print_declarations\n");
                 break;
         }
         current = current->next;
@@ -53,6 +55,7 @@ void print_var_dec(is_var_dec * ivd, int depth){
 
     print_var_spec(ivd->ivs, depth + 1);
 }
+
 
 void print_func_dec(is_func_dec* ifd, int depth){
     print_dots(depth);
@@ -127,13 +130,14 @@ void print_func_body(is_func_body* ifb, int depth){
 
     is_vars_and_statements_list* current = ifb->ivsl;
 
-    bool block_flag = more_than_2_elements(current);
+    //bool block_flag = more_than_2_elements(current);
 
     print_dots(depth);
     printf("FuncBody\n");
 
     while (current != NULL) {
-        print_var_or_statement(current->val, depth);
+        //é preciso alterar aqui qq coisa. n pode ser sempre +2 aqui
+        print_var_or_statement(current->val, depth + 2);
         current = current->next;
     }
 }
@@ -168,6 +172,7 @@ void print_var_spec(is_var_spec* ivs, int depth){
     while (current != NULL){
         print_dots(depth-1);
         printf("VarDecl\n");
+        
         print_parameter_type(ivs->type, depth);
         print_dots(depth);
         printf("Id(%s)\n", current->val);
@@ -184,37 +189,32 @@ void print_statement(is_statement* is, int depth) {
     
     switch (type) {
         case d_if:
-            print_dots(depth+2);
+            print_dots(depth);
             printf("If\n");
-
-            print_statement_if(is->statement.u_if_state, depth + 2);
+            print_statement_if(is->statement.u_if_state, depth );
             break;
         case d_for:
             print_dots(depth+2);
             printf("For\n");
-
             print_statement_for(is->statement.u_for_state, depth + 2);
             break;
         case d_return:
             print_dots(depth);
             printf("Return\n");
-
-            print_return_statement(is->statement.u_return_state, depth);
+            print_return_statement(is->statement.u_return_state, depth+1);
             break;
         case d_print:
             print_dots(depth);
             printf("Print\n");
-
             print_print_statement(is->statement.u_print_state, depth + 2);
             break;
         case d_assign:
             print_dots(depth);
             printf("Assign\n");
-
             print_assign_statement(is->statement.u_assign, depth + 1);
             break;
         case d_statement_list:
-//            printf("StatementList\n");
+            //printf("StatementList\n");
             print_statement_list(is->statement.isl, depth+1);
             break;
         case d_final_statement:
@@ -231,14 +231,10 @@ void print_statement_if(is_if_statement* iifs, int depth){
     if (iifs == NULL) return;
     print_expression_list(iifs->iel, depth + 1);
 
-
     print_dots(depth + 1);
     printf("Block\n");
 
     print_statement_list(iifs->isl, depth + 1);
-
-    print_dots(depth + 1);
-    printf("Block\n");
 
     print_else_statement(iifs->ies, depth);
 
@@ -397,22 +393,23 @@ void print_statement_list(is_statements_list* isl, int depth){
 
 
 void print_else_statement(is_else_statement* ies, int depth){
+    print_dots(depth + 1);
+    printf("Block\n");
+
     if (ies == NULL) return;
-    print_dots(depth);
-    printf("Else\n");
 
-    print_dots(depth + 1);
-    printf("Block\n");
+    print_statement_list(ies->isl, depth+1); // adicionado +1
 
-    print_statement_list(ies->isl, depth);
-
-    print_dots(depth + 1);
-    printf("Block\n");
+    // print_dots(depth + 1);
+    // printf("Block\n");
 }
 
 
 void print_statement_for(is_for_statement* ifs, int depth){
     if (ifs == NULL) return;
+
+    print_dots(depth+1);
+    printf("Block\n");  
 
     print_expression_list(ifs->iel, depth);
     print_statement_list(ifs->isl, depth);
@@ -463,8 +460,8 @@ void print_final_statement(is_final_statement* ifs, int depth) {
     switch (type){
         case d_function_invoc:
             print_dots(depth);
-            printf("FuncInvocation\n");
-            print_expression_list(ifs->statement.ifi->iel, depth);
+            printf("Call\n");
+            print_expression_list(ifs->statement.ifi->iel, depth+1); //alterado +1 antes 0
             break;
         case d_arguments:
             print_dots(depth);
