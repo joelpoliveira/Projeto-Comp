@@ -13,7 +13,7 @@ void print_dots(int depth){
 bool more_than_2_elements( is_vars_and_statements_list * head){
     int i;
     for (head; head; head = head->next, i+=1);
-    return i>=2;
+    return i>=2; 
 }
 
 void print_ast(is_program* root){
@@ -132,13 +132,13 @@ void print_func_body(is_func_body* ifb, int depth){
     printf("FuncBody\n");
 
     while (current != NULL) {
-        print_var_or_statement(current->val, depth);
+        print_var_or_statement(current->val, depth, block_flag);
         current = current->next;
     }
 }
 
 
-void print_var_or_statement(is_var_or_statement* val, int depth){
+void print_var_or_statement(is_var_or_statement* val, int depth, bool block){
     if (val == NULL) return;
 
     //d_var_dec, d_statement
@@ -151,7 +151,7 @@ void print_var_or_statement(is_var_or_statement* val, int depth){
         break;
 
     case d_statement:
-        print_statement(val->body.is, depth - 1);
+        print_statement(val->body.is, depth - 1, block);
         break;
 
     default:
@@ -175,7 +175,7 @@ void print_var_spec(is_var_spec* ivs, int depth){
 }
 
 
-void print_statement(is_statement* is, int depth) {
+void print_statement(is_statement* is, int depth, bool block) {
     if (is == NULL) return;
 
     statement_type type = is->type_state;
