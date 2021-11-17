@@ -5,18 +5,21 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+
 void print_dots(int depth){
     for (int i = 0; i < depth; i++)
         printf("..");
 }
 
 //acho que isto não é preciso
-/* bool more_than_2_elements( is_vars_and_statements_list * head){
+/* 
+bool more_than_2_elements( is_vars_and_statements_list * head){
     int i;
     for (head; head; head = head->next, i+=1);
     return i >= 2;
 }
- */
+*/
+
 void print_ast(is_program* root){
     if (root == NULL) return;
 
@@ -49,6 +52,7 @@ void print_declarations(is_declarations_list* idl, int depth){
     }
 
 }
+
 
 void print_var_dec(is_var_dec * ivd, int depth){
     if (ivd == NULL) return;
@@ -172,7 +176,7 @@ void print_var_spec(is_var_spec* ivs, int depth){
     while (current != NULL){
         print_dots(depth-1);
         printf("VarDecl\n");
-        
+
         print_parameter_type(ivs->type, depth);
         print_dots(depth);
         printf("Id(%s)\n", current->val);
@@ -285,6 +289,7 @@ void print_expression2_list(is_expression2_list* ie2l, int depth){
     }
 }
 
+
 void print_is_self_operation(self_operation_type sot){
     switch (sot){
         case d_self_minus:
@@ -301,6 +306,7 @@ void print_is_self_operation(self_operation_type sot){
             break;
     }
 }
+
 
 void print_is_operation(operation_type io, int depth){
     if (io == d_none) return;
@@ -380,6 +386,7 @@ void print_final_expression(is_final_expression * ife, int depth){
     }
 }
 
+
 void print_statement_list(is_statements_list* isl, int depth){
     if (isl == NULL) return;
 
@@ -442,6 +449,7 @@ void print_print_statement(is_print_statement* ips, int depth){
     }
 
 }
+
 
 void print_assign_statement(is_assign_statement* ias, int depth){
     if (ias == NULL) return;
