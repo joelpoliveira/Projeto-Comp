@@ -105,12 +105,15 @@ void print_parameter_type(parameter_type param, int depth){
 void print_func_params(is_parameter* ipl, int depth){
     if (ipl == NULL) return;
 
-    print_dots(depth);
-    printf("ParamDecl\n");
+    //print_dots(depth);
+    //printf("ParamDecl\n");
 
     is_id_type_list* current = ipl->val;
 
     while (current != NULL) {
+        print_dots(depth);
+        printf("ParamDecl\n");
+        
         print_parameter_type(current->val->type_param, depth + 1);
 
         print_dots(depth + 1);
