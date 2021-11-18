@@ -254,11 +254,10 @@ void print_expression_list(is_expression_list* iel, int depth){
 
     is_expression_list* current = iel;
 
-    expression_type type = current->type_expr; //expression_type = d_operation, d_expr
+    expression_type type = iel->type_expr; //expression_type = d_operation, d_expr
     
     switch(type){
         case d_operation:
-        //current.
             print_is_operation(current->op_type, depth);
             print_expression_list(current->next, depth+1);
             print_expression2_list(current->ie2l, depth + 1);
@@ -282,8 +281,6 @@ void print_expression2_list(is_expression2_list* ie2l, int depth){
     print_dots(depth);
     switch(type){
         case d_expr_2:
-            //print_is_self_operation(current->iso);
-            print_expression2_list(current->next, depth);
             print_final_expression(current->ife, depth);
             break;
         case d_self_oper:
@@ -308,11 +305,8 @@ void print_is_self_operation(self_operation_type sot){
         case d_self_not:
             printf("Not\n");
             break;
-        case d_self_none:
-            //printf("None\n");
-            break;
         default:
-            printf("Erro self_operation: %d\n", sot);
+            printf("Erro self_operation\n");
             break;
     }
 }
@@ -384,6 +378,7 @@ void print_final_expression(is_final_expression * ife, int depth){
             printf("Id(%s)\n", ife->expr.u_id->id);
             break;
         case d_func_inv:
+            printf("Call\n");
             print_func_invocation(ife->expr.ifi, depth);
             break;
         case d_expr_final:
@@ -400,6 +395,8 @@ void print_statement_list(is_statements_list* isl, int depth){
     if (isl == NULL) return;
 
     is_statements_list * current = isl;
+    
+    //if (current->next->val->type_state == )
 
     //print_dots(depth+1);
     //printf("Block\n");
@@ -478,8 +475,8 @@ void print_final_statement(is_final_statement* ifs, int depth) {
     switch (type){
         case d_function_invoc:
             print_dots(depth);
-            print_func_invocation(ifs->statement.ifi, depth);
-            //print_expression_list(ifs->statement.ifi->iel, depth+1); //alterado +1 antes 0
+            printf("Call\n");
+            print_expression_list(ifs->statement.ifi->iel, depth+1); //alterado +1 antes 0
             break;
         case d_arguments:
             print_dots(depth);
@@ -499,7 +496,6 @@ void print_final_statement(is_final_statement* ifs, int depth) {
 
 
 void print_func_invocation(is_function_invocation * ifi, int depth){
-    printf("Call\n");
     print_dots(depth+1);
     printf("Id(%s)\n", ifi->id);
     print_expression_list(ifi->iel, depth+1);

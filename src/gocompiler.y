@@ -22,14 +22,14 @@
 
     /*  
         Submissão no Mooshak:
-        A -> 132/250    :: Global
+        A -> 125/250    :: Global
         B -> 25/35      :: Syntax errors - Variable and function declarations/definitions
         C -> 35/35      :: Syntax errors - Expressions
         D -> 30/35      :: Syntax errors - Statements
         E -> 26/35      :: AST - Variable and function declarations/definitions
         F -> 0/35       :: AST - Expressions
         G -> 5/35       :: AST - Statements
-        H -> 16/40       :: AST - Full Programs 
+        H -> 4/40       :: AST - Full Programs 
     */
 %}
 
@@ -86,11 +86,11 @@
 %type<iso> self_oper
 
 //%left  COMMA
-//%right ASSIGN //'+=' '-='
+%right ASSIGN //'+=' '-='
 %left  OR
 %left  AND
 %right  EQ NE LE GE LT GT
-//%left  PLUS MINUS
+%left  PLUS MINUS
 %left  STAR DIV
 %nonassoc UNARY
 //%nonassoc  LPAR LSQ LBRACE
