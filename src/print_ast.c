@@ -416,8 +416,10 @@ void print_expression_comp_list(is_expression_comp_list * iecl, int depth){
         print_expression_comp_list(current->next_left, depth + 1);
         print_expression_sum_like_list(current->next_right, depth + 1);
     }else{
+
         print_expression_sum_like_list(current->next_right, depth);
         print_expression_comp_list(current->next_left, depth);
+
     }
 }
 
@@ -588,6 +590,9 @@ void print_self_operation_type(self_operation_type sot){
             break;
         case d_self_minus:
             printf("Minus\n");
+            break;
+        case d_self_not:
+            printf("Not\n");
             break;
         default:
             printf("Erro print_self_operation_type\n");

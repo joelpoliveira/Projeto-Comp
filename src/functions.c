@@ -332,96 +332,61 @@ is_expression_or_list * insert_expression(is_expression_or_list * head, is_expre
 is_expression_or_list * insert_or(is_expression_or_list * ieol, is_expression_and_list * ieal){
 	is_expression_or_list * new = (is_expression_or_list *) malloc(sizeof(is_expression_or_list));
 	
-	new->next_left = NULL;
+	new->next_left = ieol;
 	new->next_right = ieal;
-	
-	if (ieol == NULL){
-		new->is_operation = 0;
-		return new;
-	}else
-		new->is_operation = 1;
+	new->is_operation = (ieol != NULL);
 
-	is_expression_or_list * aux;
-	for (aux = ieol; aux->next_left; aux = aux->next_left);
-	aux->next_left = new;
-
-	return ieol;
+	return new;
 }
 
 is_expression_and_list * insert_and(is_expression_and_list * ieal, is_expression_comp_list * iecl){
 	is_expression_and_list * new = (is_expression_and_list*)malloc(sizeof(is_expression_and_list));
 	
-	new->next_left = NULL;
+	new->next_left = ieal;
 	new->next_right = iecl;
+	new->is_operation = (ieal != NULL);
 
-	if (ieal == NULL){
-		new->is_operation = 0;
-		return new;
-	}else
-		new->is_operation = 1;
-
-	is_expression_and_list * aux;
-	for(aux = ieal; aux->next_left; aux = aux->next_left);
-	aux->next_left = new;
-
-	return ieal;
+	return new;
 }
 
 is_expression_comp_list * insert_comp(is_expression_comp_list * iecl, comp_type type , is_expression_sum_like_list * iesl){
 	is_expression_comp_list * new = (is_expression_comp_list*)malloc(sizeof(is_expression_comp_list));
 	
 	new->oper_comp = type;
-	new->next_left = NULL;
+	new->next_left = iecl;
 	new->next_right = iesl;
-	
-	if (iecl == NULL)
-		return new;
-	
-	is_expression_comp_list * aux;
-	for(aux = iecl; aux->next_left; aux = aux->next_left);
-	aux->next_left = new;
 
-	return iecl;
+	return new;
 }
 
 is_expression_sum_like_list * insert_sum_like(is_expression_sum_like_list * iesl, sum_like_type type, is_expression_star_like_list * iestl){
 	is_expression_sum_like_list * new = (is_expression_sum_like_list*)malloc(sizeof(is_expression_sum_like_list));
 	
 	new->oper_sum_like = type;
-	new->next_left = NULL;
+	new->next_left = iesl;
 	new->next_right = iestl;
-	
-	if (iesl == NULL)
-		return new;
 
-	is_expression_sum_like_list * aux;
-	for(aux = iesl; aux->next_left; aux = aux->next_left);
-	aux->next_left = new;
-
-	return iesl;
+	return new;
 }
 
 is_expression_star_like_list * insert_star_like(is_expression_star_like_list * iestl, star_like_type type, is_self_expression_list * isel){
 	is_expression_star_like_list * new = (is_expression_star_like_list*)malloc(sizeof(is_expression_star_like_list));
 	
 	new->oper_star_like = type;
-	new->next_left = NULL;
+	new->next_left = iestl;
 	new->next_right = isel;
 
-	if (iestl == NULL)
-		return new;
-
-	is_expression_star_like_list * aux;
-	for(aux = iestl; aux->next_left; aux = aux->next_left);
-	aux->next_left = new;
-
-	return iestl;
+	return new;
 }
 
 is_self_expression_list * insert_self(is_self_expression_list * isel, self_operation_type type, is_final_expression * ife){
 	is_self_expression_list * new = (is_self_expression_list*)malloc(sizeof(is_self_expression_list));
 	
 	new->self_oper_type = type;
+	new->next_same = isel;
+	new->next_final = ife;
+
+	/* new->self_oper_type = type;
 	new->next_same = NULL;
 	new->next_final = ife;
 	
@@ -430,9 +395,9 @@ is_self_expression_list * insert_self(is_self_expression_list * isel, self_opera
 	
 	is_self_expression_list * aux;
 	for(aux = isel; aux->next_same; aux = aux->next_same);
-	aux->next_same = new;
+	aux->next_same = new; */
 
-	return isel;
+	return new;
 }
 
 is_final_expression * insert_intlit(char * id){
@@ -539,3 +504,4 @@ parameter_type insert_type(char * type){
 		return d_bool;
 	return d_string;
 }
+
