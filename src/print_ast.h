@@ -24,3 +24,7 @@ void print_final_statement(is_final_statement* ifs, int);
 void print_is_self_operation(self_operation_type sot);
 void print_func_invocation(is_function_invocation * ifi, int);
 void print_var_dec(is_var_dec * , int);
+void print_comp_type(comp_type ct);
+void print_sum_like(sum_like_type slt);
+void print_star_like(star_like_type slt);
+void print_self_operation_type(self_operation_type sot);
