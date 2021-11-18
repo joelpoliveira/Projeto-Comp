@@ -332,12 +332,14 @@ is_expression_or_list * insert_expression(is_expression_or_list * head, is_expre
 is_expression_or_list * insert_or(is_expression_or_list * ieol, is_expression_and_list * ieal){
 	is_expression_or_list * new = (is_expression_or_list *) malloc(sizeof(is_expression_or_list));
 	
-	new->is_operation = 0;
 	new->next_left = NULL;
 	new->next_right = ieal;
 	
-	if (ieol == NULL)
+	if (ieol == NULL){
+		new->is_operation = 0;
 		return new;
+	}else
+		new->is_operation = 1;
 
 	is_expression_or_list * aux;
 	for (aux = ieol; aux->next_left; aux = aux->next_left);
@@ -349,13 +351,15 @@ is_expression_or_list * insert_or(is_expression_or_list * ieol, is_expression_an
 is_expression_and_list * insert_and(is_expression_and_list * ieal, is_expression_comp_list * iecl){
 	is_expression_and_list * new = (is_expression_and_list*)malloc(sizeof(is_expression_and_list));
 	
-	new->is_operation = 1;
 	new->next_left = NULL;
 	new->next_right = iecl;
 
-	if (ieal == NULL)
+	if (ieal == NULL){
+		new->is_operation = 0;
 		return new;
-	
+	}else
+		new->is_operation = 1;
+
 	is_expression_and_list * aux;
 	for(aux = ieal; aux->next_left; aux = aux->next_left);
 	aux->next_left = new;
