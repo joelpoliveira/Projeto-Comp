@@ -20,60 +20,62 @@ import sys
 
 def run_tests():
     try:
-        if (sys.argv[1] == '1'):
+        if sys.argv[1] == "1":
             print("--------- Meta 1 ---------")
             meta = 1
-        elif (sys.argv[1] == '2'):
+        elif sys.argv[1] == "2":
             print("--------- Meta 2 ---------")
             meta = 2
-        elif (sys.argv[1] == '3'):
+        elif sys.argv[1] == "3":
             print("--------- Meta 3 ---------")
             meta = 3
-        elif (sys.argv[1] == '4'):
+        elif sys.argv[1] == "4":
             print("--------- Meta 4 ---------")
             meta = 4
         else:
-            print('Invalid Argument. Usage: test.py <num_meta>')
+            print("Invalid Argument. Usage: test.py <num_meta>")
             return
     except:
-        print('No Argument was passed. Usage: test.py <num_meta>')
+        print("No Argument was passed. Usage: test.py <num_meta>")
         return
-    
+
     test_files = []
     failed = 0
     passed = []
-    flags = ['', '-l', '-t'] # used in flags[meta] to select flag
+    flags = ["", "-l", "-t"]  # used in flags[meta] to select flag
 
     # Create outputs dir
     if not os.path.exists(f"meta{meta}/outputs"):
         print(f"Created path meta{meta}/outputs")
         os.system(f"mkdir meta{meta}/outputs")
 
-    #load all files in meta[num_meta] folder
-    for test in os.listdir(f'./meta{meta}'):
-        if '.dgo' in test:
+    # load all files in meta[num_meta] folder
+    for test in os.listdir(f"./meta{meta}"):
+        if ".dgo" in test:
             test_files.append(test[:-4])
-                
-    #check if makefile exists and use it
+
+    # check if makefile exists and use it
     if os.path.isfile("makefile"):
-        #print('Using makefile')
-        os.system(f'make')
-        
-    else: # Don't compile if no makefile is found
-        print('No makefile found. Please use a makefile')
+        # print('Using makefile')
+        os.system(f"make")
+
+    else:  # Don't compile if no makefile is found
+        print("No makefile found. Please use a makefile")
         return
 
-    #run tests
+    # run tests
     for test in test_files:
-        os.system(f"./gocompiler {flags[meta]} < meta{meta}/{test}.dgo | diff meta{meta}/{test}.out - > meta{meta}/outputs/{test}.txt")
-        
-        #output result
+        os.system(
+            f"./gocompiler {flags[meta]} < meta{meta}/{test}.dgo | diff meta{meta}/{test}.out - > meta{meta}/outputs/{test}.txt"
+        )
+
+        # output result
         if os.stat(f"meta{meta}/outputs/{test}.txt").st_size != 0:
             failed += 1
             print(f"{test}.dgo -> Failed")
         else:
             passed.append(f"{test}.dgo")
-        
+
     if failed == 0:
         print("No Fails!")
     else:
@@ -81,12 +83,12 @@ def run_tests():
         print(f"--------- Passed = {len(passed)} ---------")
         for i in passed:
             print(f"{i} -> Passed")
-    
-    #Delete empty output files
-    for output in os.listdir(f'./meta{meta}/outputs'):
+
+    # Delete empty output files
+    for output in os.listdir(f"./meta{meta}/outputs"):
         if os.stat(f"./meta{meta}/outputs/{output}").st_size == 0:
             os.system(f"rm -f meta{meta}/outputs/{output}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_tests()
