@@ -376,10 +376,11 @@ void print_expression_list(is_expression_list* iel, int depth){
         case d_operation:
             print_is_operation(current->op_type, depth);
             print_expression_list(current->next, depth+1);
-            print_expression2_list(current->ie2l, depth);
+            print_expression2_list(current->ie2l, depth+1);
             break;
         case d_expr:
-            print_expression2_list(current->ie2l, depth - 1);
+            print_expression2_list(current->ie2l, depth);
+            print_expression_list(current->next, depth);
             break;
         default:
             printf("erro print_expression_list\n");
@@ -397,7 +398,7 @@ void print_expression2_list(is_expression2_list* ie2l, int depth){
     switch(type){
         case d_expr_2:
             print_expression2_list(current->next, depth);
-            print_final_expression(current->ife, depth + 1);
+            print_final_expression(current->ife, depth);
             break;
         case d_self_oper:
             print_dots(depth);
@@ -427,6 +428,7 @@ void print_is_self_operation(self_operation_type sot){
             printf("Erro self_operation\n");
             break;
     }
+    print_dots(1);
 }
 
 void print_is_operation(operation_type io, int depth){
@@ -485,19 +487,22 @@ void print_is_operation(operation_type io, int depth){
 
 void print_final_expression(is_final_expression * ife, int depth){
     if (ife == NULL) return;
-    print_dots(depth);
 
     switch (ife->type_final_expression){
         case d_intlit:
+            print_dots(depth);
             printf("IntLit(%s)\n", ife->expr.u_intlit->intlit);
             break;
         case d_reallit:
+            print_dots(depth);
             printf("RealLit(%s)\n", ife->expr.u_reallit->reallit);
             break;
         case d_id:
+            print_dots(depth);
             printf("Id(%s)\n", ife->expr.u_id->id);
             break;
         case d_func_inv:
+            print_dots(depth);
             printf("Call\n");
             print_func_invocation(ife->expr.ifi, depth);
             break;
