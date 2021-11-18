@@ -336,7 +336,11 @@ void print_final_statement(is_final_statement* ifs, int depth) {
         case d_function_invoc:
             print_dots(depth);
             printf("Call\n");
-            print_expression_list(ifs->statement.ifi->iel, depth); //alterado +1 antes 0
+
+            print_dots(depth + 1);
+            printf("Id(%s)\n", ifs->statement.ifi->id);
+
+            print_expression_list(ifs->statement.ifi->iel, depth + 1); //alterado +1 antes 0
             break;
         case d_arguments:
             print_dots(depth);
