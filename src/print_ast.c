@@ -10,7 +10,6 @@ void print_dots(int depth){
     for (int i = 0; i < depth; i++)
         printf("..");
 }
-
 bool check_statement( is_statements_list * head){
     int i = 0;
     for (;head; head = head->next ){
@@ -162,7 +161,8 @@ void print_func_body(is_func_body* ifb, int depth){
     printf("FuncBody\n");
 
     while (current != NULL) {
-        print_var_or_statement(current->val, depth);
+        //é preciso alterar aqui qq coisa. n pode ser sempre +2
+        print_var_or_statement(current->val, depth + 1);
         current = current->next;
     }
 }
@@ -177,9 +177,9 @@ void print_var_or_statement(is_var_or_statement* val, int depth){
             print_var_spec(val->body.ivd->ivs, depth);
             break;
 
-    case d_statement:
-        print_statement(val->body.is, depth - 1);
-        break;
+        case d_statement:
+            print_statement(val->body.is, depth);
+            break;
 
         default:
             printf("Erro print_var_or_statement\n");

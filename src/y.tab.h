@@ -166,8 +166,8 @@ union YYSTYPE
     is_expression_list * iel;
     is_expression2_list * ie2l;
     is_final_expression * ife;
-    is_operation * io;
-    is_self_operation * iso;
+    operation_type io;
+    self_operation_type iso;
     is_func_dec * ifd;
 
 #line 174 "y.tab.h"
