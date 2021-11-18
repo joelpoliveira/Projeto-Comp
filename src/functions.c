@@ -527,7 +527,7 @@ self_operation_type insert_self_oper(char * oper){
 		return d_self_minus;
 	else if( !strcmp(oper, "NOT") )
 		return d_self_not;
-	return d_final_statement;
+	return d_final;
 }
 
 parameter_type insert_type(char * type){

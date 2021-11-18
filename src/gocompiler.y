@@ -234,9 +234,9 @@ oper_star_like: STAR                {  $$ = insert_star_like_oper("STAR"); }
                 |   MOD                 {$$ = insert_star_like_oper("MOD"); }
         ;
 
-self_oper:  PLUS                { $$ = self_oper_type("PLUS"); }
-        |   MINUS               { $$ = self_oper_type("MINUS"); }
-        |   NOT                 { $$ = self_oper_type("NOT"); }
+self_oper:  PLUS                { $$ = insert_self_oper("PLUS"); }
+        |   MINUS               { $$ = insert_self_oper("MINUS"); }
+        |   NOT                 { $$ = insert_self_oper("NOT"); }
         ;
 
 

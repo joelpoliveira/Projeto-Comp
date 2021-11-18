@@ -39,5 +39,5 @@ is_final_expression * insert_final_expr(is_expression_or_list*iel);
 comp_type insert_comp_oper(char * oper);
 sum_like_type insert_sum_like_oper(char * oper);
 star_like_type insert_star_like_oper(char * oper);
-self_operation_type self_oper_type(char * oper);
+self_operation_type insert_self_oper(char * oper);
 parameter_type insert_type(char * type);

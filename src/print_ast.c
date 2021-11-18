@@ -373,14 +373,14 @@ void print_expression_or_list(is_expression_or_list* ieol, int depth){
     bool type = ieol->is_operation; //expression_type = d_operation, d_expr
     
     if (type){
-            print_dots(depth);
-            printf("Or\n");
+        print_dots(depth);
+        printf("Or\n");
 
-            print_expression_or_list(current->next_left, depth+1);
-            print_expression_and_list(current->next_right, depth+1);
+        print_expression_or_list(current->next_left, depth+1);
+        print_expression_and_list(current->next_right, depth+1);
     }else{
-            print_expression_and_list(current->next_right, depth);
-            print_expression_or_list(current->next_left, depth);
+        print_expression_and_list(current->next_right, depth);
+        print_expression_or_list(current->next_left, depth);
     }
 }
 
@@ -392,14 +392,14 @@ void print_expression_and_list(is_expression_and_list* ieal, int depth){
     bool type = current->is_operation;
     
     if(type){
-            print_dots(depth);
-            printf("And\n");
-            
-            print_expression_and_list(current->next_left, depth + 1);
-            print_expression_comp_list(current->next_right, depth + 1);
+        print_dots(depth);
+        printf("And\n");
+        
+        print_expression_and_list(current->next_left, depth + 1);
+        print_expression_comp_list(current->next_right, depth + 1);
     }else{
-            print_expression_comp_list(current->next_right, depth);
-            print_expression_and_list(current->next_left, depth);
+        print_expression_comp_list(current->next_right, depth);
+        print_expression_and_list(current->next_left, depth);
     }
 }
 
@@ -420,8 +420,61 @@ void print_expression_comp_list(is_expression_comp_list * iecl, int depth){
         print_expression_comp_list(current->next_left, depth);
     }
 }
-void print_final_expression(is_final_expression * ife, int depth){
-    if (ife == NULL) return;
+
+void print_expression_sum_like_list(is_expression_sum_like_list * iesl, int depth){
+    if (iesl == NULL) return;
+
+    is_expression_sum_like_list * current = iesl;
+    sum_like_type type = current->oper_sum_like;
+
+    if (type != d_star_like){
+        print_dots(depth);
+        print_sum_like(type);
+
+        print_expression_sum_like_list(current->next_left, depth + 1);
+        print_expression_star_like_list(current->next_right, depth + 1);
+    }else{
+        print_expression_star_like_list(current->next_right, depth);
+        print_expression_sum_like_list(current->next_left, depth);
+    }
+}
+
+void print_expression_star_like_list(is_expression_star_like_list * iestl, int depth){
+    if (iestl == NULL) return;
+
+    is_expression_star_like_list * current = iestl;
+    star_like_type type = current->oper_star_like;
+
+    if (type != d_self){
+        print_dots(depth);
+        print_star_like(type);
+
+        print_expression_star_like_list(current->next_left, depth + 1);
+        print_self_expression_list(current->next_right, depth + 1);
+    }else{
+        print_self_expression_list(current->next_right, depth);
+        print_expression_star_like_list(current->next_left, depth);
+    }
+}
+
+void print_self_expression_list(is_self_expression_list * isel, int depth){
+    if (isel == NULL) return;
+
+    is_self_expression_list * current = isel;
+    self_operation_type type = current->self_oper_type;
+
+    if (type != d_final){
+        print_dots(depth);
+        print_self_operation_type(type);
+
+        print_self_expression_list(current->next_same, depth + 1);
+       // print_final_expression(current->next_right, depth + 1);
+    }else{
+        print_final_expression(current->next_final, depth);
+        //print_self_expression_list(current->next_left, depth);
+    }
+}
+
 
 void print_final_expression(is_final_expression * ife, int depth){
     if (ife == NULL) return;
@@ -445,7 +498,7 @@ void print_final_expression(is_final_expression * ife, int depth){
             print_func_invocation(ife->expr.ifi, depth);
             break;
         case d_expr_final:
-            print_expression_list(ife->expr.iel, depth); 
+            print_expression_or_list(ife->expr.ieol, depth); 
             break;
         default:
             printf("Erro print_final_expression\n");
@@ -456,7 +509,7 @@ void print_final_expression(is_final_expression * ife, int depth){
 void print_func_invocation(is_function_invocation * ifi, int depth){
     print_dots(depth+1);
     printf("Id(%s)\n", ifi->id);
-    print_expression_list(ifi->iel, depth+1);
+    print_expression_or_list(ifi->iel, depth+1);
 }
 
 
@@ -535,9 +588,6 @@ void print_self_operation_type(self_operation_type sot){
             break;
         case d_self_minus:
             printf("Minus\n");
-            break;
-        case d_expr_final:
-            print_expression_or_list(ife->expr.iel, depth); 
             break;
         default:
             printf("Erro print_self_operation_type\n");
