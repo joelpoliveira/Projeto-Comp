@@ -419,13 +419,13 @@ is_self_expression_list * insert_self(is_self_expression_list * isel, self_opera
 	
 	new->self_oper_type = type;
 	new->next_same = NULL;
-	new->next_final = isel;
+	new->next_final = ife;
 	
-	if (ieal == NULL)
+	if (isel == NULL)
 		return new;
 	
 	is_self_expression_list * aux;
-	for(aux = isel; aux->next_left; aux = aux->next_left);
+	for(aux = isel; aux->next_same; aux = aux->next_same);
 	aux->next_same = new;
 
 	return isel;
@@ -473,11 +473,11 @@ is_final_expression * insert_final_func_inv(is_function_invocation * ifi){
 	return ife;
 }
 
-is_final_expression * insert_final_expr(is_expression_or_list*iel){
+is_final_expression * insert_final_expr(is_expression_or_list*ieol){
 	is_final_expression * ife = (is_final_expression *)malloc(sizeof(is_final_expression));
 
 	ife->type_final_expression = d_expr_final;
-	ife->expr.iel = iel;
+	ife->expr.ieol = ieol;
 
 	//print(iel);
 	return ife;
