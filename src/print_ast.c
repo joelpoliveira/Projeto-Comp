@@ -340,7 +340,7 @@ void print_final_statement(is_final_statement* ifs, int depth) {
             print_dots(depth + 1);
             printf("Id(%s)\n", ifs->statement.ifi->id);
 
-            print_expression_list(ifs->statement.ifi->iel, depth + 1); //alterado +1 antes 0
+            print_expression_list(ifs->statement.ifi->iel, depth + 1);
             break;
         case d_arguments:
             print_dots(depth);
@@ -411,79 +411,6 @@ void print_expression2_list(is_expression2_list* ie2l, int depth){
     }
 }
 
-void print_is_self_operation(self_operation_type sot){
-    switch (sot){
-        case d_self_minus:
-            printf("Minus\n");
-            break;
-        case d_self_plus:
-            printf("Plus\n");
-            break;
-        case d_self_not:
-            printf("Not\n");
-            break;
-        case d_self_none:
-            break;
-        default:
-            printf("Erro self_operation\n");
-            break;
-    }
-    print_dots(1);
-}
-
-void print_is_operation(operation_type io, int depth){
-    if (io == d_none) return;
-    //d_or, d_and, d_lt, d_gt, d_eq, d_ne, d_ge, d_le,
-    //d_plus, d_minus, d_star, d_div, d_mod
-    print_dots(depth);
-    switch (io){
-        case d_or:
-            printf("Or\n");
-            break;
-        case d_and:
-            printf("And\n");
-            break;
-        case d_lt:
-            printf("Lt\n");
-            break;
-        case d_gt:
-            printf("Gt\n");
-            break;
-        case d_eq:
-            printf("Eq\n");
-            break;
-        case d_ne:
-            printf("Ne\n");
-            break;
-        case d_ge:
-            printf("Ge\n");
-            break;
-        case d_le:
-            printf("Le\n");
-            break;
-        case d_plus:
-            printf("Add\n");
-            break;
-        case d_minus:
-            printf("Sub\n");
-            break;
-        case d_star:
-            printf("Mul\n");
-            break;
-        case d_div:
-            printf("Div\n");
-            break;
-        case d_mod:
-            printf("Mod\n");
-            break;
-        case d_none:
-            break;
-        default:
-            printf("Erro print_is_operation: %d\n", io);
-            break;
-    }
-}
-
 
 void print_final_expression(is_final_expression * ife, int depth){
     if (ife == NULL) return;
@@ -515,12 +442,95 @@ void print_final_expression(is_final_expression * ife, int depth){
     }
 }
 
-
-
-
-
 void print_func_invocation(is_function_invocation * ifi, int depth){
     print_dots(depth+1);
     printf("Id(%s)\n", ifi->id);
     print_expression_list(ifi->iel, depth+1);
 }
+
+
+void print_comp_type(comp_type ct){
+    //{d_lt, d_gt, d_eq, d_ne, d_ge, d_le, d_sum_like}
+    switch (ct){
+        case d_lt:
+            printf("Lt\n");
+            break;
+        case d_gt:
+            printf("Gt\n");
+            break;
+        case d_eq:
+            printf("Eq\n");
+            break;
+        case d_ne:
+            printf("Ne\n");
+            break;
+        case d_ge:
+            printf("Ge\n");
+            break;
+        case d_le:
+            printf("Le\n");
+            break;
+        default:
+            printf("Erro print_comp_type");
+            break;
+    }
+
+}
+
+
+void print_sum_like(sum_like_type slt) {
+    //{d_plus, d_minus, d_star_like}                             sum_like_type
+
+    switch (slt){
+        case d_plus:
+            printf("Add\n");
+            break;
+        case d_minus:
+            printf("Sub\n");
+            break;
+        default:
+            printf("Erro print_sum_type");
+            break;
+    }
+}
+
+
+void print_star_like(star_like_type slt) {
+    //d_star, d_div, d_mod, d_self   star_like_type
+
+    switch (slt){
+        case d_star:
+            printf("Mul\n");
+            break;
+        case d_div:
+            printf("Div\n");
+            break;
+        case d_mod:
+            printf("Mod\n");
+            break;
+        default:
+            printf("Erro print_star_like\n");
+            break;
+    }
+
+}
+
+void print_self_operation_type(self_operation_type sot){
+    // d_self_plus, d_self_minus, d_self_not, d_final    self_operation_type;
+
+    switch (sot){
+        case d_self_plus:
+            printf("Plus\n");
+            break;
+        case d_self_minus:
+            printf("Minus\n");
+            break;
+        case d_self_not:
+            printf("Not\n");
+            break;
+        default:
+            printf("Erro print_self_operation_type\n");
+            break;
+    }
+}
+
