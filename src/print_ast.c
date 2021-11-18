@@ -274,7 +274,7 @@ void print_else_statement(is_else_statement* ies, int depth){
 
     if (ies == NULL) return;
 
-    print_statement_list(ies->isl, depth+1); // adicionado +1
+    print_statement_list(ies->isl, depth+2); // adicionado +1
 }
 
 void print_print_statement(is_print_statement* ips, int depth){
