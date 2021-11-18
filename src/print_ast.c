@@ -139,13 +139,13 @@ void print_func_body(is_func_body* ifb, int depth){
     printf("FuncBody\n");
 
     while (current != NULL) {
-        print_var_or_statement(current->val, depth, block_flag);
+        print_var_or_statement(current->val, depth);
         current = current->next;
     }
 }
 
 
-void print_var_or_statement(is_var_or_statement* val, int depth, bool block){
+void print_var_or_statement(is_var_or_statement* val, int depth){
     if (val == NULL) return;
 
     //d_var_dec, d_statement
@@ -157,7 +157,7 @@ void print_var_or_statement(is_var_or_statement* val, int depth, bool block){
             break;
 
     case d_statement:
-        print_statement(val->body.is, depth - 1, block);
+        print_statement(val->body.is, depth - 1);
         break;
 
         default:
@@ -183,7 +183,7 @@ void print_var_spec(is_var_spec* ivs, int depth){
 }
 
 
-void print_statement(is_statement* is, int depth, bool block) {
+void print_statement(is_statement* is, int depth) {
     if (is == NULL) return;
 
     statement_type type = is->type_state;
