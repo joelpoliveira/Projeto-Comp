@@ -15,21 +15,20 @@
 
     extern bool flag_1, flag_2, error_flag;
 
-    int yydebug = 1;
+    //int yydebug = 1;
 
     is_program* program;
-    //error_node* error_list;
 
     /*  
         Submissão no Mooshak:
-        A -> 125/250    :: Global
-        B -> 25/35      :: Syntax errors - Variable and function declarations/definitions
+        A -> 202/250    :: Global
+        B -> 27/35      :: Syntax errors - Variable and function declarations/definitions
         C -> 35/35      :: Syntax errors - Expressions
-        D -> 30/35      :: Syntax errors - Statements
-        E -> 26/35      :: AST - Variable and function declarations/definitions
-        F -> 0/35       :: AST - Expressions
-        G -> 5/35       :: AST - Statements
-        H -> 4/40       :: AST - Full Programs 
+        D -> 34/35      :: Syntax errors - Statements
+        E -> 35/35      :: AST - Variable and function declarations/definitions
+        F -> 6/35       :: AST - Expressions
+        G -> 29/35      :: AST - Statements
+        H -> 36/40      :: AST - Full Programs 
     */
 %}
 
