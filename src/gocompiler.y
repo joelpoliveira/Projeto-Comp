@@ -15,7 +15,7 @@
 
     extern bool flag_1, flag_2, error_flag;
 
-    //int yydebug = 1;
+    int yydebug = 1;
 
     is_program* program;
     //error_node* error_list;
@@ -90,8 +90,7 @@
 %left  OR
 %left  AND
 %right  EQ NE LE GE LT GT
-%left  PLUS MINUS
-%left  STAR DIV
+%left  STAR DIV 
 %nonassoc UNARY
 //%nonassoc  LPAR LSQ LBRACE
 
@@ -135,7 +134,7 @@ comma_id_type_rec:   /*EMPTY*/                     { $$ = NULL; }
 func_body: LBRACE vars_and_statements RBRACE    {/* printf("func_body\n"); */$$ = insert_func_body($2);}
         ;
 vars_and_statements: /*EMPTY*/                                      { $$ = NULL; }
-                    |   vars_and_statements SEMICOLON               { $$ = NULL;}
+                    |   vars_and_statements SEMICOLON               { ;}
                     |   vars_and_statements var_dec SEMICOLON       { /* printf("vars_states1\n"); */$$ = insert_var_dec($1, ($2)->dec.ivd);}
                     |   vars_and_statements statements SEMICOLON    {/* printf("vars_states2\n"); */ $$ = insert_statements($1, $2); }
                     ;
