@@ -215,26 +215,31 @@ void print_statement(is_statement* is, int depth) {
         case d_if:
             print_dots(depth);
             printf("If\n");
+
             print_statement_if(is->statement.u_if_state, depth + 1);
             break;
         case d_for:
             print_dots(depth);
             printf("For\n");
+
             print_statement_for(is->statement.u_for_state, depth + 1);
             break;
         case d_return:
             print_dots(depth);
             printf("Return\n");
+
             print_return_statement(is->statement.u_return_state, depth + 1);
             break;
         case d_print:
             print_dots(depth);
             printf("Print\n");
+
             print_print_statement(is->statement.u_print_state, depth + 1);
             break;
         case d_assign:
             print_dots(depth);
             printf("Assign\n");
+
             print_assign_statement(is->statement.u_assign, depth + 1);
             break;
         case d_statement_list:
@@ -246,7 +251,7 @@ void print_statement(is_statement* is, int depth) {
             print_statement_list(is->statement.isl, depth+(int) is_block);
             break;
         case d_final_statement:
-            print_final_statement(is->statement.u_state, depth);
+            print_final_statement(is->statement.u_state, depth );
             break;
         default:
             printf("erro print_statement\n");
@@ -264,17 +269,17 @@ void print_statement_if(is_if_statement* iifs, int depth){
 
     print_statement_list(iifs->isl, depth + 1);
     
-    print_else_statement(iifs->ies, depth - 1);
+    print_else_statement(iifs->ies, depth);
 
 }
 
 void print_else_statement(is_else_statement* ies, int depth){
-    print_dots(depth + 1);
+    print_dots(depth);
     printf("Block\n");
 
     if (ies == NULL) return;
 
-    print_statement_list(ies->isl, depth+2); // adicionado +1
+    print_statement_list(ies->isl, depth+1); // adicionado +1
 }
 
 void print_print_statement(is_print_statement* ips, int depth){
@@ -470,10 +475,10 @@ void print_self_expression_list(is_self_expression_list * isel, int depth){
         print_self_operation_type(type);
 
         print_self_expression_list(current->next_same, depth + 1);
-       // print_final_expression(current->next_right, depth + 1);
+        print_final_expression(current->next_final, depth + 1);
     }else{
         print_final_expression(current->next_final, depth);
-        //print_self_expression_list(current->next_left, depth);
+        print_self_expression_list(current->next_same, depth);
     }
 }
 
@@ -497,7 +502,7 @@ void print_final_expression(is_final_expression * ife, int depth){
         case d_func_inv:
             print_dots(depth);
             printf("Call\n");
-            print_func_invocation(ife->expr.ifi, depth);
+            print_func_invocation(ife->expr.ifi, depth + 1);
             break;
         case d_expr_final:
             print_expression_or_list(ife->expr.ieol, depth); 
@@ -509,9 +514,9 @@ void print_final_expression(is_final_expression * ife, int depth){
 }
 
 void print_func_invocation(is_function_invocation * ifi, int depth){
-    print_dots(depth+1);
+    print_dots(depth);
     printf("Id(%s)\n", ifi->id);
-    print_expression_or_list(ifi->iel, depth+1);
+    print_expression_or_list(ifi->iel, depth);
 }
 
 

@@ -154,7 +154,7 @@ whispace (" "|\t)
 <OCTAL>.                                   {yyless(0); error_line=0; BEGIN 0;}
 
 <CHECK_EOF><<EOF>>                         {yyterminate();}
-<CHECK_EOF>.                               {BEGIN 0;}
+<CHECK_EOF>.                               {col++; BEGIN 0;}
 
 %%
 

@@ -15,7 +15,7 @@
 
     extern bool flag_1, flag_2, error_flag;
 
-    //int yydebug = 1;
+    int yydebug = 1;
 
     is_program* program;
 
@@ -108,81 +108,82 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON declarations { $$ = program = insert_program($4); if (!error_flag && flag_2) print_ast(program);}
+program: PACKAGE ID SEMICOLON declarations { $$ = program = insert_program($4); if (!error_flag && flag_2) {print_ast(program); /* printf("\n --%d--%d--\n", !error_flag,flag_2); */}}
         ;
 
-declarations:    /*EMPTY*/                         {$$ = NULL;}  
-                |  declarations var_dec SEMICOLON  {/*printf("Decs1\n");*/$$ = insert_declaration($1, $2); }
-                |  declarations func_dec SEMICOLON {/* printf("Decs2\n"); */$$ = insert_declaration($1, $2); }
+declarations:    /*EMPTY*/                         { $$ = NULL;}  
+                |  declarations var_dec SEMICOLON  { $$ = insert_declaration($1, $2); }
+                |  declarations func_dec SEMICOLON { $$ = insert_declaration($1, $2); }
+                |  declarations error SEMICOLON         {error_flag = 1;}
                 ;
 
-var_dec:    VAR var_spec                         {/* printf("vdec1\n"); */$$ = insert_var_declaration($2);}
-        |   VAR LPAR var_spec SEMICOLON RPAR     {/* printf("vdec2\n"); */$$ = insert_var_declaration($3);}
+var_dec:    VAR var_spec                         { $$ = insert_var_declaration($2);}
+        |   VAR LPAR var_spec SEMICOLON RPAR     { $$ = insert_var_declaration($3);}
         ;
 
-var_spec: ID comma_id_rec type   {/* printf("vspec\n"); */$$ = insert_var_specifications($1, $2, $3);}
+var_spec: ID comma_id_rec type   { $$ = insert_var_specifications($1, $2, $3);}
         ;
-comma_id_rec:   /*EMPTY*/               {$$ = NULL;}
-            |   comma_id_rec COMMA ID   {/* printf(", id_list\n"); */$$ = insert_var_id($1, $3);}
+comma_id_rec:   /*EMPTY*/               { $$ = NULL;}
+            |   comma_id_rec COMMA ID   { $$ = insert_var_id($1, $3);}
             ;
 
-type:   INT             {/* printf("int\n"); */$$ = insert_type("INT");}
-    |   FLOAT32         {/* printf("float\n"); */$$ = insert_type("FLOAT");}
-    |   BOOL            {/* printf("bool\n"); */$$ = insert_type("BOOL");}
-    |   STRING          {/* printf("string\n"); */$$ = insert_type("STR");}
+type:   INT             { $$ = insert_type("INT");}
+    |   FLOAT32         { $$ = insert_type("FLOAT");}
+    |   BOOL            { $$ = insert_type("BOOL");}
+    |   STRING          { $$ = insert_type("STR");}
     ;
 
-func_dec:   FUNC ID LPAR parameters RPAR type func_body     {/* printf("f_dec1\n"); */$$=insert_func_declaration($2, $4, $6, $7);}
-        |   FUNC ID LPAR RPAR type func_body                {/* printf("f_dec2\n"); */$$=insert_func_declaration($2, NULL, $5, $6);}
-        |   FUNC ID LPAR parameters RPAR func_body          {/* printf("f_dec3\n"); */$$=insert_func_declaration($2, $4, d_dummy, $6);}
-        |   FUNC ID LPAR RPAR func_body                     {/* printf("f_dec4\n"); */$$=insert_func_declaration($2, NULL, d_dummy, $5);}
+func_dec:   FUNC ID LPAR parameters RPAR type func_body     { $$=insert_func_declaration($2, $4, $6, $7);}
+        |   FUNC ID LPAR RPAR type func_body                { $$=insert_func_declaration($2, NULL, $5, $6);}
+        |   FUNC ID LPAR parameters RPAR func_body          { $$=insert_func_declaration($2, $4, d_dummy, $6);}
+        |   FUNC ID LPAR RPAR func_body                     { $$=insert_func_declaration($2, NULL, d_dummy, $5);}
         ;
 
-parameters: ID type comma_id_type_rec               {  /* printf("parameters\n"); */$$ = insert_parameter($1, $2, $3);};
+parameters: ID type comma_id_type_rec               {  $$ = insert_parameter($1, $2, $3);};
 comma_id_type_rec:   /*EMPTY*/                     { $$ = NULL; }
-                | comma_id_type_rec COMMA ID type   { /* printf(", id_type_list\n"); */ $$ = insert_id_type($1, $3, $4);}
+                | comma_id_type_rec COMMA ID type   {   $$ = insert_id_type($1, $3, $4);}
                 ;
 
-func_body: LBRACE vars_and_statements RBRACE    {/* printf("func_body\n"); */$$ = insert_func_body($2);}
+func_body: LBRACE vars_and_statements RBRACE    { $$ = insert_func_body($2);}
         ;
 vars_and_statements: /*EMPTY*/                                      { $$ = NULL; }
                     |   vars_and_statements SEMICOLON               { ;}
-                    |   vars_and_statements var_dec SEMICOLON       { /* printf("vars_states1\n"); */$$ = insert_var_dec($1, ($2)->dec.ivd);}
-                    |   vars_and_statements statements SEMICOLON    {/* printf("vars_states2\n"); */ $$ = insert_statements($1, $2); }
+                    |   vars_and_statements var_dec SEMICOLON       { $$ = insert_var_dec($1, ($2)->dec.ivd);}
+                    |   vars_and_statements statements SEMICOLON    { $$ = insert_statements($1, $2); }
                     ;
 
-statements: IF expr_or states_in_brace                     { /* printf("state1\n") */;$$ = insert_if_statement($2, $3, NULL);  }
-        |   IF expr_or states_in_brace ELSE states_in_brace{ /* printf("state2\n"); */$$ = insert_if_statement($2, $3, $5); }
-        |   FOR expr_or states_in_brace                    { /* printf("state3\n"); */$$ = insert_for_statement($2, $3); }
-        |   FOR states_in_brace                         { /* printf("state4\n"); */$$ = insert_for_statement(NULL, $2); }
-        |   RETURN expr_or                                 { /* printf("state5\n"); */$$ = insert_return_statement($2);    }
-        |   RETURN                                      { /* printf("state6\n"); */ $$ = insert_return_statement(NULL);  }
-        |   PRINT LPAR expr_or RPAR                        { /* printf("state7\n"); */$$ = insert_print_expr_statement($3); }    
-        |   PRINT LPAR STRLIT RPAR                      { /* printf("state8\n"); */$$ = insert_print_str_statement($3);  }
-        |   ID ASSIGN expr_or                              { /* printf("state9\n") */;$$ = insert_assign_statement($1, $3); }
-        |   states_in_brace                             { /* printf("state10\n"); */$$ = insert_statements_list($1); }
-        |   final_states                                { /* printf("state11\n"); */$$ = insert_final_statement($1); }
+statements: IF expr_or states_in_brace                     { $$ = insert_if_statement($2, $3, NULL);  }
+        |   IF expr_or states_in_brace ELSE states_in_brace{ $$ = insert_if_statement($2, $3, $5); }
+        |   FOR expr_or states_in_brace                    { $$ = insert_for_statement($2, $3); }
+        |   FOR states_in_brace                         { $$ = insert_for_statement(NULL, $2); }
+        |   RETURN expr_or                                 { $$ = insert_return_statement($2);    }
+        |   RETURN                                      { $$ = insert_return_statement(NULL);  }
+        |   PRINT LPAR expr_or RPAR                        { $$ = insert_print_expr_statement($3); }    
+        |   PRINT LPAR STRLIT RPAR                      { $$ = insert_print_str_statement($3);  }
+        |   ID ASSIGN expr_or                              { $$ = insert_assign_statement($1, $3); }
+        |   states_in_brace                             { $$ = insert_statements_list($1); }
+        |   final_states                                { $$ = insert_final_statement($1); }
+        |   error                                       { $$ = NULL; error_flag = 1;}
         ;
 
-final_states:   func_invocation  {  /* printf("final_s1\n"); */ $$ = insert_final_state_func_inv($1);}
-            |   parse_args       { /* printf("final_s2\n"); */$$ = insert_final_state_args($1);  }
-            |   error                                       { $$ = NULL; error_flag = 1;}
+final_states:   func_invocation  {  $$ = insert_final_state_func_inv($1);}
+            |   parse_args       { $$ = insert_final_state_args($1);  }
             ;
 
-states_in_brace: LBRACE state_semic_rec RBRACE          {/* printf("in_brace\n"); */ $$ = $2; };
+states_in_brace: LBRACE state_semic_rec RBRACE          { $$ = $2; };
 state_semic_rec: /*EMPTY*/                              { $$ = NULL ; }
-                | state_semic_rec statements SEMICOLON  {  /* printf("s_;_list\n"); */ $$ = insert_statement_in_list($1, $2);}
+                | state_semic_rec statements SEMICOLON  {   $$ = insert_statement_in_list($1, $2);}
                 ;
-parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr_or RSQ RPAR {  /* printf("parse\n"); */ $$ = insert_parse_args($1, $9); }
+parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr_or RSQ RPAR {$$ = insert_parse_args($1, $9); }
         |   ID COMMA BLANKID ASSIGN PARSEINT LPAR error RPAR                { $$ = NULL; error_flag = 1; }
         ;
 
 func_invocation: ID LPAR error RPAR                 { error_flag = 1; }
-            |   ID LPAR expr_or comma_expr_rec RPAR    { /* printf("f_iv1\n"); */ $$ = insert_func_inv($1, $3, $4);}
-            |   ID LPAR RPAR                        { /* printf("f_inv2\n"); */ $$ = insert_func_inv($1, NULL, NULL);}
+            |   ID LPAR expr_or comma_expr_rec RPAR    {$$ = insert_func_inv($1, $3, $4);}
+            |   ID LPAR RPAR                        {  $$ = insert_func_inv($1, NULL, NULL);}
             ;
 comma_expr_rec: /*EMPTY*/                   { $$ = NULL;}
-            |   comma_expr_rec COMMA expr_or   { /* printf("expr_list\n"); */ $$ = insert_expression($1, $3);}
+            |   comma_expr_rec COMMA expr_or   { $$ = insert_expression($1, $3);}
             ;
 
 expr_or: expr_or OR expr_and    {$$ = insert_or($1, $3); }
@@ -230,8 +231,8 @@ oper_sum_like: PLUS             {  $$ = insert_sum_like_oper("PLUS"); }
         ;
 
 oper_star_like: STAR                {  $$ = insert_star_like_oper("STAR"); }
-                |   DIV                 {$$ = insert_star_like_oper("DIV"); }
-                |   MOD                 {$$ = insert_star_like_oper("MOD"); }
+                |   DIV             {$$ = insert_star_like_oper("DIV"); }
+                |   MOD             {$$ = insert_star_like_oper("MOD"); }
         ;
 
 self_oper:  PLUS                { $$ = insert_self_oper("PLUS"); }
