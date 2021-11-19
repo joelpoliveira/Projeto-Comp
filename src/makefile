@@ -1,4 +1,4 @@
-.SILENT:
+#.SILENT:
 main:
 	flex gocompiler.l
 	yacc gocompiler.y -d #--debug --verbose

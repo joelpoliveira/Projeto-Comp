@@ -145,7 +145,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 36 "gocompiler.y"
+#line 35 "gocompiler.y"
 
     char *id;
     parameter_type pt;
@@ -163,14 +163,20 @@ union YYSTYPE
     is_statements_list * isl;
     is_parse_arguments * ipa;
     is_function_invocation * ifi;
-    is_expression_list * iel;
-    is_expression2_list * ie2l;
+    is_expression_or_list * ieol;
+    is_expression_and_list * ieal;
+    is_expression_comp_list * iecl;
+    is_expression_sum_like_list * iesl;
+    is_expression_star_like_list * iestl;
+    is_self_expression_list * isel;
     is_final_expression * ife;
-    operation_type io;
-    self_operation_type iso;
+    comp_type ct;
+    sum_like_type slt;
+    star_like_type stlt;
+    self_operation_type sot;
     is_func_dec * ifd;
 
-#line 174 "y.tab.h"
+#line 180 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
