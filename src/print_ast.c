@@ -10,6 +10,7 @@ void print_dots(int depth){
     for (int i = 0; i < depth; i++)
         printf("..");
 }
+
 bool check_statement( is_statements_list * head){
     int i = 0;
     for (;head; head = head->next ){
@@ -24,6 +25,7 @@ bool check_statement( is_statements_list * head){
     }
     return i>=1;
 }
+
 bool check_block( is_statements_list * head){
     int i=0;
     for (;head; head = head->next ){
@@ -64,7 +66,7 @@ void print_declarations(is_declarations_list* idl, int depth){
                 print_func_dec(current->val->dec.ifd, depth + 1);
                 break;
             case d_var_declaration:
-                print_var_dec(current->val->dec.ivd, depth + 1);
+                print_var_dec(current->val->dec.ivd, depth);
             break;
             default:
                 printf("Erro print_declarations\n");
@@ -78,7 +80,7 @@ void print_declarations(is_declarations_list* idl, int depth){
 
 void print_var_dec(is_var_dec * ivd, int depth){
     if (ivd == NULL) return;    
-    print_var_spec(ivd->ivs, depth - 1);
+    print_var_spec(ivd->ivs, depth);
 }
 
 
@@ -94,10 +96,8 @@ void print_func_dec(is_func_dec* ifd, int depth){
     printf("FuncParams\n");
     print_func_params(ifd->ipl, depth + 2);
 
-
     print_func_body(ifd->ifb, depth);
 }
-
 
 void print_parameter_type(parameter_type param, int depth){
     //types: d_integer, d_float32, d_string, d_bool, d_var, d_dummy
@@ -126,7 +126,6 @@ void print_parameter_type(parameter_type param, int depth){
             break;
     };
 }
-
 
 void print_func_params(is_parameter* ipl, int depth){
     if (ipl == NULL) return;
@@ -248,7 +247,7 @@ void print_statement(is_statement* is, int depth) {
                 print_dots(depth);
                 printf("Block\n");
             }
-            print_statement_list(is->statement.isl, depth+(int) is_block);
+            print_statement_list(is->statement.isl, depth + (int) is_block);
             break;
         case d_final_statement:
             print_final_statement(is->statement.u_state, depth );
