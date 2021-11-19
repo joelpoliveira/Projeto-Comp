@@ -14,7 +14,6 @@
         error_line = 0,
         error_flag = 0;
 
-    bool teste = 0;
 
     int line = 1,
         comment_lines = 1,
@@ -123,7 +122,7 @@ whispace (" "|\t)
 <_SEMICOLON>"/*"                           {previous_col = col++; comment_lines = 0; comment_cols = 0; swaped_line = 0; error_line=0; BEGIN SEMIBCOMMENT;}
 <_SEMICOLON>"//"                           {error_line=0; BEGIN SEMILCOMMENT;}
 <_SEMICOLON>.                              {error_line=0; yyless(0); BEGIN 0;}
-<_SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n");  error_line=0; teste = 1; BEGIN CHECK_EOF; return SEMICOLON;}
+<_SEMICOLON><<EOF>>                        {if (flag_1) fprintf(yyout, "SEMICOLON\n");  error_line=0; BEGIN CHECK_EOF; return SEMICOLON;}
 
 <SEMIBCOMMENT>"*/" 	        			  {previous_line = line; line+=comment_lines; if (swaped_line) {previous_col = col;col = 0; error_line=1;} else previous_col = col++; previous_col = col;col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); BEGIN 0; return SEMICOLON; } else BEGIN _SEMICOLON;}
 <SEMIBCOMMENT>{newline}        	          {comment_lines++; comment_cols = 0; swaped_line=1; error_line=0;}
@@ -150,20 +149,21 @@ whispace (" "|\t)
 <INVALID_STRING>.                          {comment_cols+=yyleng; error_line=0;}
 
 <OCTAL>0[0-7]*                             {if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); yylval.id = strdup(yytext); previous_col = col; col+=yyleng; error_line=0; BEGIN _SEMICOLON; return INTLIT;}
-<OCTAL>[0-9]+                              {previous_col = col++; fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); previous_col = col; col+=yyleng-1; error_line=0; BEGIN 0;}
+<OCTAL>[0-9]+                              {previous_col = col++; fprintf(yyout, "Line %d, column %d: invalid octal constant (%s)\n", line, col, yytext); previous_col = col; col+=yyleng-1; error_line=0; BEGIN _SEMICOLON; BEGIN 0;}
 <OCTAL>.                                   {yyless(0); error_line=0; BEGIN 0;}
 
 <CHECK_EOF><<EOF>>                         {yyterminate();}
-<CHECK_EOF>.                               {BEGIN 0;}
+<CHECK_EOF>.                               {yyless(0); BEGIN 0;}
 
 %%
 
 int main(int argc, char *argv[]){
     if(argv[1] != 0 && !strcmp(argv[1], "-l"))
         flag_1 = 1;
-
+    
     if(argv[1] != 0 && !strcmp(argv[1], "-t"))
         flag_2 = 1;
+    
 
     if (!flag_1)
         yyparse();
