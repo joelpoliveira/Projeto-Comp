@@ -52,6 +52,10 @@ typedef struct _s32 is_var_spec;
 typedef struct _s33 is_id_list;
 
 
+typedef struct _s34{
+        is_expression_or_list * val;
+        struct _s34 * next;
+} is_func_inv_expr_list;
 
 typedef struct _s33{
         char * val;
@@ -132,7 +136,7 @@ typedef struct _s20 {
 
 typedef struct _s19{
         char * id;
-        is_expression_or_list * iel;
+        is_func_inv_expr_list * iel;
 } is_function_invocation;
 
 typedef struct _s18{

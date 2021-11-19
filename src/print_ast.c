@@ -17,6 +17,8 @@ bool check_statement( is_statements_list * head){
         switch (head->val->type_state)
         {
         case d_statement_list:
+            if(check_statement(head->val->statement.isl))
+                i++;
             break;
         default:
             i++;
@@ -335,7 +337,7 @@ void print_final_statement(is_final_statement* ifs, int depth) {
 
     final_state_type type = ifs->type_state; 
     //d_function_invoc, d_arguments
-
+    is_func_inv_expr_list * current;
     switch (type){
         case d_function_invoc:
             print_dots(depth);
@@ -343,8 +345,12 @@ void print_final_statement(is_final_statement* ifs, int depth) {
 
             print_dots(depth + 1);
             printf("Id(%s)\n", ifs->statement.ifi->id);
-
-            print_expression_or_list(ifs->statement.ifi->iel, depth + 1); //alterado +1 antes 0
+            
+            current = ifs->statement.ifi->iel;
+            while ( current ){
+                print_expression_or_list(current->val, depth + 1); //alterado +1 antes 0
+                current = current->next;
+            }
             break;
         case d_arguments:
             print_dots(depth);
@@ -515,7 +521,12 @@ void print_final_expression(is_final_expression * ife, int depth){
 void print_func_invocation(is_function_invocation * ifi, int depth){
     print_dots(depth);
     printf("Id(%s)\n", ifi->id);
-    print_expression_or_list(ifi->iel, depth);
+
+    is_func_inv_expr_list * current = ifi->iel;
+    while ( current ){
+        print_expression_or_list(current->val, depth);
+        current = current->next;
+    }
 }
 
 

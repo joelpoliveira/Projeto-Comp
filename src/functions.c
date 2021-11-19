@@ -303,28 +303,29 @@ is_parse_arguments * insert_parse_args( char * id, is_expression_or_list * iel){
 	return ipa;
 }
 
-is_function_invocation * insert_func_inv(char * id, is_expression_or_list * head, is_expression_or_list * iel){
+is_function_invocation * insert_func_inv(char * id, is_expression_or_list * head, is_func_inv_expr_list * iel){
 	is_function_invocation * ifi = (is_function_invocation * ) malloc(sizeof(is_function_invocation));
-	is_expression_or_list * aux ;
+	is_func_inv_expr_list * ifie = (is_func_inv_expr_list *) malloc(sizeof(is_func_inv_expr_list));
 
-	if (iel!=NULL){
-		for (aux = head; aux->next_left; aux= aux->next_left); 
-		aux->next_left = iel;
-	}
+	ifie->next = iel;
+	ifie->val = head;
 
 	ifi->id = (char *) strdup(id);
-	ifi->iel = head;
+	ifi->iel = ifie;
 
 	return ifi;
 }
 
-is_expression_or_list * insert_expression(is_expression_or_list * head, is_expression_or_list * ieol){
+is_func_inv_expr_list * insert_expression(is_func_inv_expr_list * head, is_expression_or_list * ieol){
+	is_func_inv_expr_list * ifiel = (is_func_inv_expr_list*) malloc(sizeof(is_func_inv_expr_list)), *aux;
+	ifiel->next = NULL;
+	ifiel->val = ieol;
+
 	if (head == NULL)
-		return ieol;
-	
-	is_expression_or_list * aux;
-	for(aux = head; aux->next_left; aux = aux->next_left);
-	aux->next_left=ieol;
+		return ifiel;
+
+	for(aux = head; aux->next; aux = aux->next);
+	aux->next = ifiel;
 
 	return head;
 }

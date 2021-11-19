@@ -61,6 +61,7 @@
     star_like_type stlt;
     self_operation_type sot;
     is_func_dec * ifd;
+    is_func_inv_expr_list * ifiel;
 }
 
 %token SEMICOLON COMMA BLANKID ASSIGN STAR DIV MINUS PLUS EQ GE GT LBRACE   //linhas 28-39
@@ -84,7 +85,8 @@
 %type<isl> states_in_brace state_semic_rec
 %type<ipa> parse_args
 %type<ifi> func_invocation
-%type<ieol> comma_expr_rec expr_or
+%type<ieol>  expr_or
+%type<ifiel> comma_expr_rec
 %type<ieal> expr_and
 %type<iecl> expr_comp
 %type<iesl> expr_sum_like
