@@ -18,7 +18,7 @@ make && ./gocompiler [-l | -t] < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out 
 
 ### TODO
 
-- [x] Meta 1
+- [x] Meta 1 - Tokens
     - [x] Tokens
         - [x] Reserved words
         - [x] Literals (decimal, hexadecimal, octal)
@@ -27,10 +27,10 @@ make && ./gocompiler [-l | -t] < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out 
         - [x] linha e coluna do erro
         - [x] motivo do erro
 
-- [ ] Meta 2
+- [x] Meta 2 - Abstract Syntax Tree
     - [x] Gramática
-    - [ ] Erros
-    - [ ] AST 
+    - [x] Erros
+    - [x] AST 
 
 - [ ] Meta 3
 
