@@ -126,11 +126,11 @@ whispace (" "|\t)
 
 <SEMIBCOMMENT>"*/" 	        			  {previous_line = line; line+=comment_lines; if (swaped_line) {previous_col = col;col = 0; error_line=1;} else previous_col = col++; previous_col = col;col+=comment_cols+yyleng; if (swaped_line) {fprintf(yyout, "SEMICOLON\n"); BEGIN 0; return SEMICOLON; } else BEGIN _SEMICOLON;}
 <SEMIBCOMMENT>{newline}        	          {comment_lines++; comment_cols = 0; swaped_line=1; error_line=0;}
-<SEMIBCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); error_line=0; BEGIN CHECK_EOF; return SEMICOLON;}
+<SEMIBCOMMENT><<EOF>>                     {if (flag_1) fprintf(yyout, "SEMICOLON\n"); fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col); error_line=0; BEGIN CHECK_EOF; return SEMICOLON;}
 <SEMIBCOMMENT>.     	        	      {comment_cols+=yyleng;error_line=0;}
 
 <SEMILCOMMENT>{newline} 	              {yyless(0); BEGIN _SEMICOLON;}
-<SEMILCOMMENT><<EOF>>                     {fprintf(yyout, "SEMICOLON\n"); error_line=0; BEGIN CHECK_EOF; return SEMICOLON;}
+<SEMILCOMMENT><<EOF>>                     {if (flag_1) fprintf(yyout, "SEMICOLON\n"); error_line=0; BEGIN CHECK_EOF; return SEMICOLON;}
 <SEMILCOMMENT>. 	        		      {error_line=0;}
 
 <_STRING>{newline}                                   {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col); previous_line = line++; error_line=1; previous_col = col; col = 0; BEGIN 0;}
@@ -153,7 +153,7 @@ whispace (" "|\t)
 <OCTAL>.                                   {yyless(0); error_line=0; BEGIN 0;}
 
 <CHECK_EOF><<EOF>>                         {yyterminate();}
-<CHECK_EOF>.                               {yyless(0); BEGIN 0;}
+<CHECK_EOF>.                               {BEGIN 0;}
 
 %%
 
