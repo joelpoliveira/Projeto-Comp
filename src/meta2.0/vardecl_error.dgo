@@ -4,5 +4,5 @@ var x, y, z int;
 c 
 
 func main() {
-    
+    fmt.Println("no AST")
 }

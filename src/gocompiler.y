@@ -21,13 +21,13 @@
 
     /*  
         Submissão no Mooshak:
-        A -> 244/250    :: Global
+        A -> 250/250    :: Global
         B -> 35/35      :: Syntax errors - Variable and function declarations/definitions
         C -> 35/35      :: Syntax errors - Expressions
         D -> 35/35      :: Syntax errors - Statements
         E -> 35/35      :: AST - Variable and function declarations/definitions
         F -> 35/35      :: AST - Expressions
-        G -> 29/35      :: AST - Statements
+        G -> 35/35      :: AST - Statements
         H -> 40/40      :: AST - Full Programs 
     */
 %}
