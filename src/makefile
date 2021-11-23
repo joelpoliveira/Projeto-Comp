@@ -1,8 +1,12 @@
-#.SILENT:
+.SILENT:
+
+Y_FLAGS = -d #--debug --verbose
+C_FLAGS = -g # -Wall 
+
 main:
 	flex gocompiler.l
-	yacc gocompiler.y -d #--debug --verbose
-	clang-7 -Wall -o gocompiler y.tab.c lex.yy.c functions.c print_ast.c
+	yacc gocompiler.y $(Y_FLAGS)
+	gcc $(C_FLAGS) -o gocompiler y.tab.c lex.yy.c functions.c print_ast.c
 
 .PHONY: clean
 clean:

@@ -33,7 +33,7 @@
 %}
 
 %union{
-    char *id;
+    id_token* id;
     parameter_type pt;
     is_program* ip;
     is_declarations_list* idl;
@@ -98,7 +98,7 @@
 %type<isel> self_expr
 %type<ife> final_expr
 
-%right ASSIGN //'+=' '-='
+%right ASSIGN
 %left  OR
 %left  AND
 %right  EQ NE LE GE LT GT

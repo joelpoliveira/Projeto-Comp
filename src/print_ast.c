@@ -91,7 +91,7 @@ void print_func_dec(is_func_dec* ifd, int depth){
     printf("FuncHeader\n");
 
     print_dots(depth + 1);
-    printf("Id(%s)\n", ifd->id);
+    printf("Id(%s)\n", ifd->id->id);
     print_parameter_type(ifd->type, depth + 1);
 
     print_dots(depth + 1);
@@ -144,7 +144,7 @@ void print_func_params(is_parameter* ipl, int depth){
         print_parameter_type(current->val->type_param, depth + 1);
 
         print_dots(depth + 1);
-        printf("Id(%s)\n", current->val->id);
+        printf("Id(%s)\n", current->val->id->id);
 
         current = current->next;
     }
@@ -200,7 +200,7 @@ void print_var_spec(is_var_spec* ivs, int depth){
         print_parameter_type(ivs->type, depth + 1);
 
         print_dots(depth + 1);
-        printf("Id(%s)\n", current->val);
+        printf("Id(%s)\n", current->val->id);
         current = current->next;        
     }
 }
@@ -294,7 +294,7 @@ void print_print_statement(is_print_statement* ips, int depth){
             break;
         case d_str:
             print_dots(depth);
-            printf("StrLit(%s)\n", ips->print.id);
+            printf("StrLit(%s)\n", ips->print.id->id);
             break;
         default:
             printf("Erro print_print_statement\n");
@@ -344,7 +344,7 @@ void print_final_statement(is_final_statement* ifs, int depth) {
             printf("Call\n");
 
             print_dots(depth + 1);
-            printf("Id(%s)\n", ifs->statement.ifi->id);
+            printf("Id(%s)\n", ifs->statement.ifi->id->id);
             
             current = ifs->statement.ifi->iel;
             while ( current ){
@@ -357,7 +357,7 @@ void print_final_statement(is_final_statement* ifs, int depth) {
             printf("ParseArgs\n");
 
             print_dots(depth+1);
-            printf("Id(%s)\n", ifs->statement.ipa->id);
+            printf("Id(%s)\n", ifs->statement.ipa->id->id);
 
             print_expression_or_list(ifs->statement.ipa->iel, depth+1);
             break;
@@ -371,7 +371,7 @@ void print_final_statement(is_final_statement* ifs, int depth) {
 void print_assign_statement(is_assign_statement* ias, int depth){
     if (ias == NULL) return;
     print_dots(depth);
-    printf("Id(%s)\n", ias->id);
+    printf("Id(%s)\n", ias->id->id);
     print_expression_or_list(ias->iel, depth);
 }
 
@@ -494,15 +494,15 @@ void print_final_expression(is_final_expression * ife, int depth){
     switch (ife->type_final_expression){
         case d_intlit:
             print_dots(depth);
-            printf("IntLit(%s)\n", ife->expr.u_intlit->intlit);
+            printf("IntLit(%s)\n", ife->expr.u_intlit->intlit->id);
             break;
         case d_reallit:
             print_dots(depth);
-            printf("RealLit(%s)\n", ife->expr.u_reallit->reallit);
+            printf("RealLit(%s)\n", ife->expr.u_reallit->reallit->id);
             break;
         case d_id:
             print_dots(depth);
-            printf("Id(%s)\n", ife->expr.u_id->id);
+            printf("Id(%s)\n", ife->expr.u_id->id->id);
             break;
         case d_func_inv:
             print_dots(depth);
@@ -520,7 +520,7 @@ void print_final_expression(is_final_expression * ife, int depth){
 
 void print_func_invocation(is_function_invocation * ifi, int depth){
     print_dots(depth);
-    printf("Id(%s)\n", ifi->id);
+    printf("Id(%s)\n", ifi->id->id);
 
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){
