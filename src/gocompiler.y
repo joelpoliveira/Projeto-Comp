@@ -13,7 +13,7 @@
     int yylex(void);
     void yyerror (char *s);
 
-    extern bool flag_1, flag_2, error_flag;
+    extern bool flag_1, flag_2, flag_3, error_flag;
 
     int yydebug = 1;
 

@@ -10,7 +10,8 @@
     void yyerror (char *s);
 
     bool flag_1 = 0, 
-        flag_2 = 0, 
+        flag_2 = 0,
+        flag_3 = 0,
         swaped_line = 0,
         error_line = 0,
         error_flag = 0;
@@ -162,6 +163,9 @@ int main(int argc, char *argv[]){
     
     if(argv[1] != 0 && !strcmp(argv[1], "-t"))
         flag_2 = 1;
+
+    if(argv[1] != 0 && !strcmp(argv[1], "-s"))
+        flag_3 = 1;
     
 
     if (!flag_1)
