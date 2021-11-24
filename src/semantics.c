@@ -65,5 +65,5 @@ void check_var_spec(table_element** symtab, is_var_spec* ivs){
             print_already_defined(current->val->id, current->val->line, current->val->col);
         }
     }
-
 }
+

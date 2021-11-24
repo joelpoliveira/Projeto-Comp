@@ -285,6 +285,7 @@ typedef struct _t1 {
         char *name;
         table_element_params* params; //lista de parametros
         parameter_type type; //return type
+        declaration_type dec;
         struct _t1 *next;
 } table_element;
 

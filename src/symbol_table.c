@@ -6,32 +6,6 @@
 //extern table_element *symtab;
 
 
-// Insere um novo identificador na cauda de uma lista ligada de simbolo
-/* table_element *insert_var(table_element **symtab, char *str, parameter_type type) {
-    table_element *new_symbol = (table_element *)malloc(sizeof(table_element));
-    table_element *aux;
-    table_element *previous;
-
-    new_symbol->name = strdup(str);
-    new_symbol->type = type;
-    new_symbol->next = NULL;
-
-    if (*symtab) {
-        for (aux = *symtab; aux; previous = aux, aux = aux->next) {
-            if (strcmp(aux->name, str) == 0) {
-                free(new_symbol->name);
-                free(new_symbol);
-                return NULL;
-            }
-        }
-        previous->next = new_symbol;
-    } else {
-        *symtab = new_symbol;
-    }
-
-    return new_symbol;
-} */
-
 table_element* insert_symbol(table_element **symtab, char* str, table_element* new_symbol){
     table_element *aux;
     table_element *previous;
@@ -55,12 +29,13 @@ table_element* insert_symbol(table_element **symtab, char* str, table_element* n
 table_element *insert_func(table_element **symtab, char* str, is_parameter * ip, parameter_type return_type) {
     table_element *new_symbol = (table_element *)malloc(sizeof(table_element));
 
-
+    //{d_func_dec, d_var_declaration} declaration_type;
     is_id_type_list* current;
     table_element_params* last_param = (table_element_params*)malloc(sizeof(table_element_params));
  
     new_symbol->name = strdup(str);
     new_symbol->type = return_type;
+    new_symbol->dec = d_func_dec;
     new_symbol->next = NULL;
 
     //insert params (linked list)
@@ -96,6 +71,7 @@ table_element *insert_var(table_element **symtab, char* str, parameter_type retu
  
     new_symbol->name = strdup(str);
     new_symbol->type = return_type;
+    new_symbol->dec = d_var_declaration;
     new_symbol->next = NULL;
 
     return insert_symbol(symtab, str, new_symbol);
@@ -149,21 +125,33 @@ void show_table(table_element *symtab) {
     printf("\n===== Global Symbol Table =====\n");
 
     for (aux = symtab; aux != NULL; aux = aux->next){
-        printf("%s\t(", aux->name);
-
-        if (aux->params != NULL){
-             for (param_list = aux->params; param_list != NULL; param_list = param_list->next) {
-                symbol_print_type(param_list->type);
-                if (param_list->next != NULL)
-                    printf(", ");
-            }
-
+        printf("%s\t", aux->name);
+        
+        switch (aux->dec){
+            case d_func_dec:
+                printf("(");
+                if (aux->params != NULL){
+                    for (param_list = aux->params; param_list != NULL; param_list = param_list->next) {
+                        symbol_print_type(param_list->type);
+                        if (param_list->next != NULL)
+                            printf(", ");
+                    }
+                }
+                printf(")\t");
+                break;
+            case d_var_declaration:
+                //nao era preciso um switch mas n me apetece apagar :D
+                break;
+            default:
+            printf("Erro print aux->dec\n");
+                break;
         }
         
-        printf(")\t");
         symbol_print_type(aux->type);
         printf("\n");
     }
+
+    printf("\n===== Function <function>(type) Symbol Table =====\n");
     
 }
 
