@@ -19,6 +19,7 @@ id_token *create_token(char *id, int line, int col) {
 is_program * insert_program(is_declarations_list * idl){
     is_program * ip = (is_program*) malloc(sizeof(is_program));
     ip->idlist = idl;
+    ip->symtab = NULL;
 
     return ip;
 }

@@ -48,6 +48,7 @@ table_element *search_symbol(table_element *symtab, char *str) {
 void show_table(table_element *symtab) {
     table_element *aux;
     printf("\n");
+    printf("===== Global Symbol Table =====\n");
 
     for (aux = symtab; aux; aux = aux->next)
         printf("symbol %s, type %d\n", aux->name, aux->type);

@@ -2,6 +2,8 @@
 #define STRUCTURES_H
 
 #include <stdbool.h>
+#include "symbols.h"
+
 
 typedef enum {d_intlit, d_reallit, d_id, d_func_inv, d_expr_final}      final_expression_type;
 typedef enum {d_self_plus, d_self_minus, d_self_not, d_final}           self_operation_type;
@@ -52,6 +54,9 @@ typedef struct _s32 is_var_spec;
 typedef struct _s33 is_id_list;
 typedef struct _s34 is_func_inv_expr_list;
 typedef struct _s35 id_token;
+
+
+typedef struct _t1 table_element;
 
 
 
@@ -261,7 +266,17 @@ typedef struct _s1 {
 } is_declarations_list;
 
 typedef struct _s0{
+        table_element *symtab;
         is_declarations_list * idlist;
 } is_program;
+
+
+//=================== SYMBOL TABLE=================== 
+typedef struct _t1 {
+    parameter_type type;
+    char *name;
+    struct _t1 *next;
+} table_element;
+
 #endif
 

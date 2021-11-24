@@ -3,12 +3,4 @@
 
 #include "structures.h"
 
-
-typedef struct _t1 {
-    char *name;
-    parameter_type type;
-    struct _t1 *next;
-} table_element;
-
-
 #endif

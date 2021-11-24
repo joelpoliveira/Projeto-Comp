@@ -17,10 +17,12 @@
 
     int yydebug = 1;
 
-    is_program* program;
+    is_program * program = NULL;
+    table_element* symtab = NULL;
 
     /*  
         Submissão no Mooshak:
+        ====Meta 2====
         A -> 250/250    :: Global
         B -> 35/35      :: Syntax errors - Variable and function declarations/definitions
         C -> 35/35      :: Syntax errors - Expressions
@@ -28,7 +30,9 @@
         E -> 35/35      :: AST - Variable and function declarations/definitions
         F -> 35/35      :: AST - Expressions
         G -> 35/35      :: AST - Statements
-        H -> 40/40      :: AST - Full Programs 
+        H -> 40/40      :: AST - Full Programs
+        
+        ====Meta 3====
     */
 %}
 

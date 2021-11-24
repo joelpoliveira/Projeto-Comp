@@ -3,6 +3,7 @@
     // Joel Oliveira - 2019227468
     #include "structures.h"
     #include "functions.h"
+    #include "semantics.h"
     #include "y.tab.h"
     #include <string.h>
     #include <stdbool.h>
@@ -23,6 +24,24 @@
         comment_cols = 0;
 
     extern is_program * program;
+    //extern table_element* symtab;
+
+    /*
+        Submissão no Mooshak:
+        ====Meta 1====
+        A -> 190/190    :: Global
+        B ->       :: 
+        C ->       :: 
+        D ->       :: 
+        E ->       :: 
+        F ->       :: 
+        G ->       :: 
+        H ->       ::
+        I ->
+        J ->
+        K ->
+        L ->
+    */
 %}
 
 letter  [a-zA-Z_]
@@ -62,7 +81,7 @@ whispace (" "|\t)
 "}"				{if (flag_1) fprintf(yyout, "RBRACE\n");  col+=yyleng;error_line=0;  BEGIN _SEMICOLON; return RBRACE;}
 ")"				{if (flag_1) fprintf(yyout, "RPAR\n");  col+=yyleng; error_line=0; BEGIN _SEMICOLON; return RPAR;}
 "]"				{if (flag_1) fprintf(yyout, "RSQ\n");  col+=yyleng;error_line=0; BEGIN _SEMICOLON; return RSQ;}
-"package"		{if (flag_1) fprintf(yyout, "PACKAGE\n");  col+=yyleng; error_line=0;return PACKAGE;}
+"package"		{if (flag_1) fprintf(yyout, "PACKAGE\n");  col+=yyleng; error_line=0; return PACKAGE;}
 "return"		{if (flag_1) fprintf(yyout, "RETURN\n");  col+=yyleng;error_line=0; BEGIN _SEMICOLON; return RETURN;}
 "else"			{if (flag_1) fprintf(yyout, "ELSE\n");  col+=yyleng; error_line=0;return ELSE; }
 "for"			{if (flag_1) fprintf(yyout, "FOR\n");  col+=yyleng; error_line=0;return FOR; }
@@ -79,33 +98,33 @@ whispace (" "|\t)
 "/*"			{; comment_lines = 0; comment_cols = 0; swaped_line = 0;error_line=0; BEGIN BCOMMENT;}
 "//"			{; error_line=0;BEGIN LCOMMENT;}
 
-"++"|"--"		{if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  col+=yyleng; create_token(strdup(yytext), line, col);error_line=0; return RESERVED; }
-"break"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  col+=yyleng; create_token(strdup(yytext), line, col);error_line=0; return RESERVED; }
-"case"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED; }
-"chan"          {if  (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED; }
-"const"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col);error_line=0; return RESERVED; }
-"continue"      {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED; }
-"default"       {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED; }
-"defer"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED; }
-"fallthrough"   {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED; }
-"go"            {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col);error_line=0; return RESERVED;}
-"import"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED;}
-"goto"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED;}
-"interface"     {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED;}
-"map"           {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col);error_line=0; return RESERVED;}
-"range"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col);error_line=0; return RESERVED;}
-"select"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED;}
-"struct"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED;}
-"switch"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col);error_line=0; return RESERVED;}
-"type"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; create_token(strdup(yytext), line, col); error_line=0;return RESERVED;}
+"++"|"--"		{if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0; return RESERVED; }
+"break"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED; }
+"case"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
+"chan"          {if  (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
+"const"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED; }
+"continue"      {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
+"default"       {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
+"defer"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
+"fallthrough"   {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
+"go"            {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED;}
+"import"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
+"goto"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
+"interface"     {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
+"map"           {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED;}
+"range"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED;}
+"select"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
+"struct"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
+"switch"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED;}
+"type"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
 
 0                               {error_line=0;yyless(0); BEGIN OCTAL;}
-[1-9]{number}*|{hexa}          	{if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext); col+=yyleng;  yylval.id = create_token(strdup(yytext), line, col); error_line=0;  BEGIN _SEMICOLON; return INTLIT; }
-({float}{exp}?|{number}+{exp})  {if (flag_1) fprintf(yyout, "REALLIT(%s)\n", yytext); col+=yyleng; yylval.id = create_token(strdup(yytext), line, col); error_line=0; BEGIN _SEMICOLON; return REALLIT;}
-{letter}[a-zA-Z0-9_]*			{if (flag_1) fprintf(yyout, "ID(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0; BEGIN _SEMICOLON; return ID;}
+[1-9]{number}*|{hexa}          	{if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;  BEGIN _SEMICOLON; return INTLIT; }
+({float}{exp}?|{number}+{exp})  {if (flag_1) fprintf(yyout, "REALLIT(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0; BEGIN _SEMICOLON; return REALLIT;}
+{letter}[a-zA-Z0-9_]*			{if (flag_1) fprintf(yyout, "ID(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col);  col+=yyleng; error_line=0; BEGIN _SEMICOLON; return ID;}
 \"                              {error_line=0;yyless(0); BEGIN _STRING;}
 
-{newline}				    			  { col = 0; error_line=1;}
+{newline}				    			  {line++; col = 0; error_line=1;}
 {whispace}                                {col+=yyleng;error_line=0;}
 .				        				  {col+=1; fprintf(yyout, "Line %d, column %d: illegal character (%s)\n", line, col, yytext);col+=yyleng-1;error_line=0;}
 
@@ -114,11 +133,11 @@ whispace (" "|\t)
 <BCOMMENT><<EOF>>                         {fprintf(yyout, "Line %d, column %d: unterminated comment\n", line, col);error_line=0; BEGIN CHECK_EOF;}
 <BCOMMENT>.     	        	          {comment_cols+=yyleng;error_line=0;}
 
-<LCOMMENT>{newline} 	        		  { col = 0; error_line=0; BEGIN 0;}
+<LCOMMENT>{newline} 	        		  { line++; col = 0; error_line=0; BEGIN 0;}
 <LCOMMENT>. 	        				  {;}
 
 <_SEMICOLON>{newline}                      {if (flag_1) fprintf(yyout, "SEMICOLON\n");    col = 0; error_line=1; BEGIN 0;  return SEMICOLON;    }
-<_SEMICOLON>{whispace}	                   { col+=yyleng;error_line=0;}
+<_SEMICOLON>{whispace}	                   {line++; col+=yyleng;error_line=0;}
 <_SEMICOLON>"/*"                           {; comment_lines = 0; comment_cols = 0; swaped_line = 0; error_line=0; BEGIN SEMIBCOMMENT;}
 <_SEMICOLON>"//"                           {error_line=0; BEGIN SEMILCOMMENT;}
 <_SEMICOLON>.                              {error_line=0; yyless(0); BEGIN 0;}
@@ -138,7 +157,7 @@ whispace (" "|\t)
 <_STRING>\"[^\"\r\n]*\\[^\\\"nrtf][^\"\r\n]*\"       {yyless(0); BEGIN DUMMY_QUOTE;}
 <_STRING>\"[^\"\r\n]*{newline}?                      {yyless(0); BEGIN DUMMY_QUOTE;}
 
-<DUMMY_QUOTE>\"                            {; comment_cols = 1; BEGIN INVALID_STRING;}
+<DUMMY_QUOTE>\"                            {comment_cols = 1; BEGIN INVALID_STRING;}
 
 <INVALID_STRING>\"                         { col+=comment_cols; BEGIN 0;}
 <INVALID_STRING>{newline}                  {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col);  error_line=1;  col = 0; BEGIN 0;}
@@ -168,8 +187,11 @@ int main(int argc, char *argv[]){
         flag_3 = 1;
     
 
-    if (!flag_1)
+    if (!flag_1){
         yyparse();
+        check_program(program);
+        show_table(program->symtab);
+    }
     else
         while(yylex());
 
