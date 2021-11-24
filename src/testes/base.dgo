@@ -1,7 +1,10 @@
 package main;
 
-func teste(){}
+var x int;
 
-func teste() {}
+func teste(a bool) int {}
 
-func ola(){}
+func abc(){}
+
+func main() {}
+

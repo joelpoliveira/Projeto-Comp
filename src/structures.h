@@ -272,11 +272,23 @@ typedef struct _s0{
 
 
 //=================== SYMBOL TABLE=================== 
+
+
+
+typedef struct _t2 {
+        char* name;
+        parameter_type type;
+        struct _t2* next;
+} table_element_params;
+
 typedef struct _t1 {
-    parameter_type type;
-    char *name;
-    struct _t1 *next;
+        char *name;
+        table_element_params* params; //lista de parametros
+        parameter_type type; //return type
+        struct _t1 *next;
 } table_element;
+
+
 
 #endif
 
