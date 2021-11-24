@@ -136,8 +136,8 @@ whispace (" "|\t)
 <LCOMMENT>{newline} 	        		  { line++; col = 0; error_line=0; BEGIN 0;}
 <LCOMMENT>. 	        				  {;}
 
-<_SEMICOLON>{newline}                      {if (flag_1) fprintf(yyout, "SEMICOLON\n");    col = 0; error_line=1; BEGIN 0;  return SEMICOLON;    }
-<_SEMICOLON>{whispace}	                   {line++; col+=yyleng;error_line=0;}
+<_SEMICOLON>{newline}                      {if (flag_1) fprintf(yyout, "SEMICOLON\n"); line++; col = 0; error_line=1; BEGIN 0;  return SEMICOLON;    }
+<_SEMICOLON>{whispace}	                   {col+=yyleng;error_line=0;}
 <_SEMICOLON>"/*"                           {; comment_lines = 0; comment_cols = 0; swaped_line = 0; error_line=0; BEGIN SEMIBCOMMENT;}
 <_SEMICOLON>"//"                           {error_line=0; BEGIN SEMILCOMMENT;}
 <_SEMICOLON>.                              {error_line=0; yyless(0); BEGIN 0;}
@@ -160,7 +160,7 @@ whispace (" "|\t)
 <DUMMY_QUOTE>\"                            {comment_cols = 1; BEGIN INVALID_STRING;}
 
 <INVALID_STRING>\"                         { col+=comment_cols; BEGIN 0;}
-<INVALID_STRING>{newline}                  {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col);  error_line=1;  col = 0; BEGIN 0;}
+<INVALID_STRING>{newline}                  {fprintf(yyout, "Line %d, column %d: unterminated string literal\n", line, col);  line++; error_line=1;  col = 0; BEGIN 0;}
 <INVALID_STRING>\\(\"|n|r|t|f|\\)          {comment_cols+=yyleng; error_line=0;}
 <INVALID_STRING>\\[^\\\"nrtf\r\n]          {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng; error_line=0;}
 <INVALID_STRING>\\                         {fprintf(yyout, "Line %d, column %d: invalid escape sequence (%s)\n", line, col+comment_cols, yytext); comment_cols+=yyleng; error_line=0;}
