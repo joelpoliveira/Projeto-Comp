@@ -53,11 +53,11 @@ typedef struct _s31 is_var_dec;
 typedef struct _s32 is_var_spec;
 typedef struct _s33 is_id_list;
 typedef struct _s34 is_func_inv_expr_list;
+
+
 typedef struct _s35 id_token;
-
-
 typedef struct _t1 table_element;
-
+typedef struct _t2 table_element_params;
 
 
 typedef struct _s35 {
@@ -245,6 +245,7 @@ typedef struct _s4{
 } is_parameter;
 
 typedef struct _s3 {
+        table_element *symtab;
         is_parameter * ipl;
         is_func_body * ifb;
         parameter_type type;
@@ -274,7 +275,6 @@ typedef struct _s0{
 //=================== SYMBOL TABLE=================== 
 
 
-
 typedef struct _t2 {
         char* name;
         parameter_type type;
@@ -285,10 +285,13 @@ typedef struct _t1 {
         char *name;
         table_element_params* params; //lista de parametros
         parameter_type type; //return type
-        declaration_type dec;
+        declaration_type type_dec;
+        union {
+                is_func_dec * ifd;
+                is_var_dec * ivd;
+        } dec;
         struct _t1 *next;
 } table_element;
-
 
 
 #endif

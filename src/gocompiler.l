@@ -200,7 +200,7 @@ int main(int argc, char *argv[]){
 
 void yyerror (char *s) {
     //TODO alterar para usar a linha e coluna do token
-    //fprintf(yyout, "Line %d, column %d: %s: %s\n", (error_line)? previous_line : line, previous_col + 1, s, yytext );
+    //fprintf(yyout, "Line %d, column %d: %s: %s\n", , s, yytext );
     fprintf(yyout, "dsajkndasdaoisdoiasd");
 }
 

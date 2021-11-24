@@ -2,7 +2,13 @@ package main;
 
 var x int;
 
-func teste(a bool, c int) int {}
 
-func main() {}
+func teste(a bool, c int) int {
+    var t float32;
+
+}
+
+func main() {
+
+}
 

@@ -5,16 +5,6 @@
 #include <stdio.h>
 
 
-id_token *create_token(char *id, int line, int col) {
-    id_token *idt = malloc(sizeof(id_token));
-
-    idt->id = id;
-    idt->line = line;
-    idt->col = col;
-    
-    return idt;
-}
-
 
 is_program * insert_program(is_declarations_list * idl){
     is_program * ip = (is_program*) malloc(sizeof(is_program));
@@ -23,6 +13,7 @@ is_program * insert_program(is_declarations_list * idl){
 
     return ip;
 }
+
 
 is_declarations_list * insert_declaration(is_declarations_list * head, is_declaration * id){
     is_declarations_list * idl = (is_declarations_list*) malloc(sizeof(is_declarations_list));
@@ -40,6 +31,7 @@ is_declarations_list * insert_declaration(is_declarations_list * head, is_declar
     return head;
 }
 
+
 is_declaration * insert_var_declaration(is_var_spec * ivs){
     is_declaration * id = (is_declaration*) malloc(sizeof(is_declaration));
     id->dec.ivd = (is_var_dec*) malloc(sizeof(is_var_dec)); 
@@ -54,8 +46,9 @@ is_declaration * insert_var_declaration(is_var_spec * ivs){
 is_declaration * insert_func_declaration(id_token* id, is_parameter * iparam, parameter_type type, is_func_body * ifb){
     is_declaration * idec = (is_declaration *) malloc(sizeof(is_declaration));
     idec->dec.ifd = (is_func_dec*) malloc(sizeof(is_func_dec));
+    
     idec->type_dec = d_func_dec;
-
+    idec->dec.ifd->symtab = NULL;//(table_element*) malloc(sizeof(table_element));
     idec->dec.ifd->id = id;
     idec->dec.ifd->ipl = iparam;
     idec->dec.ifd->ifb = ifb;
@@ -63,6 +56,7 @@ is_declaration * insert_func_declaration(id_token* id, is_parameter * iparam, pa
 
     return idec;
 }
+
 
 is_var_spec * insert_var_specifications(id_token* id, is_id_list * iis, parameter_type type){
     is_var_spec * ivs = (is_var_spec *) malloc(sizeof(is_var_spec));
@@ -75,6 +69,7 @@ is_var_spec * insert_var_specifications(id_token* id, is_id_list * iis, paramete
     ivs->type = type;
     return ivs;
 }
+
 
 is_id_list * insert_var_id(is_id_list * head, id_token* id ){
     is_id_list * iil = (is_id_list *) malloc(sizeof(is_id_list));
@@ -92,6 +87,7 @@ is_id_list * insert_var_id(is_id_list * head, id_token* id ){
     return head;
 }
 
+
 is_parameter * insert_parameter(id_token* id, parameter_type type, is_id_type_list * iitl){
     is_id_type_list * new_head = (is_id_type_list *) malloc(sizeof(is_id_type_list));
     new_head->val = (is_id_type *) malloc(sizeof(is_id_type));
@@ -106,6 +102,7 @@ is_parameter * insert_parameter(id_token* id, parameter_type type, is_id_type_li
 
     return ip;
 }
+
 
 is_id_type_list * insert_id_type(is_id_type_list * head, id_token* id, parameter_type type){
     is_id_type_list * iitl = (is_id_type_list *) malloc(sizeof(is_id_type_list));
@@ -127,6 +124,7 @@ is_id_type_list * insert_id_type(is_id_type_list * head, id_token* id, parameter
     return head;
 }
 
+
 is_func_body * insert_func_body(is_vars_and_statements_list * ivsl){
     is_func_body * ifb = (is_func_body * ) malloc(sizeof(ifb));
 
@@ -134,6 +132,7 @@ is_func_body * insert_func_body(is_vars_and_statements_list * ivsl){
 
     return ifb;
 }
+
 
 is_vars_and_statements_list * insert_var_dec(is_vars_and_statements_list * head, is_var_dec * ivd){
     is_vars_and_statements_list * ivsl = (is_vars_and_statements_list *) malloc(sizeof(is_vars_and_statements_list));
@@ -176,6 +175,7 @@ is_vars_and_statements_list * insert_statements(is_vars_and_statements_list * he
     return head;
 }
 
+
 is_statement * insert_if_statement(is_expression_or_list * iel, is_statements_list * if_isl, is_statements_list * else_isl){
     is_statement * is = (is_statement* ) malloc(sizeof(is_statement));
     is_if_statement * iis = (is_if_statement *) malloc(sizeof(is_if_statement));
@@ -194,6 +194,7 @@ is_statement * insert_if_statement(is_expression_or_list * iel, is_statements_li
     return is;
 }
 
+
 is_statement * insert_for_statement(is_expression_or_list * iel, is_statements_list* isl){
     is_statement * is = (is_statement* ) malloc(sizeof(is_statement));
     is_for_statement * ifs = (is_for_statement *) malloc(sizeof(is_for_statement));
@@ -206,6 +207,7 @@ is_statement * insert_for_statement(is_expression_or_list * iel, is_statements_l
     return is;
 }
 
+
 is_statement * insert_return_statement(is_expression_or_list * iel){
     is_statement * is = (is_statement*) malloc(sizeof(is_statement));
     is_return_statement * irs = (is_return_statement*) malloc(sizeof(is_return_statement));
@@ -215,6 +217,7 @@ is_statement * insert_return_statement(is_expression_or_list * iel){
     is->statement.u_return_state = irs;
     return is;
 }
+
 
 is_statement * insert_print_expr_statement(is_expression_or_list * iel){
     is_statement * is = (is_statement *) malloc(sizeof(is_statement));
@@ -242,6 +245,7 @@ is_statement * insert_print_str_statement(id_token* id){
     return is;
 }
 
+
 is_statement * insert_assign_statement(id_token* id, is_expression_or_list * iel){
     is_statement * is = (is_statement *) malloc(sizeof(is_statement));
     is_assign_statement * ias = (is_assign_statement*) malloc(sizeof(is_assign_statement));
@@ -255,6 +259,7 @@ is_statement * insert_assign_statement(id_token* id, is_expression_or_list * iel
     return is;
 }
 
+
 is_statement * insert_statements_list(is_statements_list * isl){
     is_statement * is = (is_statement *) malloc(sizeof(is_statement));
 
@@ -263,6 +268,7 @@ is_statement * insert_statements_list(is_statements_list * isl){
 
     return is;
 }
+
 
 is_statement * insert_final_statement(is_final_statement * ifs){
     is_statement * is = (is_statement*) malloc( sizeof(is_statement));
@@ -273,6 +279,7 @@ is_statement * insert_final_statement(is_final_statement * ifs){
     return is;
 }
 
+
 is_final_statement * insert_final_state_args(is_parse_arguments * ipa){
     is_final_statement * ifs = (is_final_statement *) malloc(sizeof(is_final_statement));
 
@@ -282,6 +289,7 @@ is_final_statement * insert_final_state_args(is_parse_arguments * ipa){
     return ifs;
 }
 
+
 is_final_statement * insert_final_state_func_inv(is_function_invocation * ifi){
     is_final_statement * ifs = (is_final_statement *) malloc(sizeof(is_final_statement));
     
@@ -290,6 +298,7 @@ is_final_statement * insert_final_state_func_inv(is_function_invocation * ifi){
 
     return ifs;
 }
+
 
 is_statements_list * insert_statement_in_list(is_statements_list * head, is_statement * is){
     is_statements_list * isl = (is_statements_list *) malloc(sizeof(is_statements_list));
@@ -307,6 +316,7 @@ is_statements_list * insert_statement_in_list(is_statements_list * head, is_stat
     return head;
 }
 
+
 is_parse_arguments * insert_parse_args( id_token* id, is_expression_or_list * iel){
     is_parse_arguments * ipa = (is_parse_arguments*) malloc(sizeof(is_parse_arguments));
 
@@ -314,6 +324,7 @@ is_parse_arguments * insert_parse_args( id_token* id, is_expression_or_list * ie
     ipa->iel = iel;
     return ipa;
 }
+
 
 is_function_invocation * insert_func_inv(id_token* id, is_expression_or_list * head, is_func_inv_expr_list * iel){
     is_function_invocation * ifi = (is_function_invocation * ) malloc(sizeof(is_function_invocation));
@@ -327,6 +338,7 @@ is_function_invocation * insert_func_inv(id_token* id, is_expression_or_list * h
 
     return ifi;
 }
+
 
 is_func_inv_expr_list * insert_expression(is_func_inv_expr_list * head, is_expression_or_list * ieol){
     is_func_inv_expr_list * ifiel = (is_func_inv_expr_list*) malloc(sizeof(is_func_inv_expr_list)), *aux;
@@ -342,6 +354,7 @@ is_func_inv_expr_list * insert_expression(is_func_inv_expr_list * head, is_expre
     return head;
 }
 
+
 is_expression_or_list * insert_or(is_expression_or_list * ieol, is_expression_and_list * ieal){
     is_expression_or_list * new = (is_expression_or_list *) malloc(sizeof(is_expression_or_list));
     
@@ -351,6 +364,7 @@ is_expression_or_list * insert_or(is_expression_or_list * ieol, is_expression_an
 
     return new;
 }
+
 
 is_expression_and_list * insert_and(is_expression_and_list * ieal, is_expression_comp_list * iecl){
     is_expression_and_list * new = (is_expression_and_list*)malloc(sizeof(is_expression_and_list));
@@ -362,6 +376,7 @@ is_expression_and_list * insert_and(is_expression_and_list * ieal, is_expression
     return new;
 }
 
+
 is_expression_comp_list * insert_comp(is_expression_comp_list * iecl, comp_type type , is_expression_sum_like_list * iesl){
     is_expression_comp_list * new = (is_expression_comp_list*)malloc(sizeof(is_expression_comp_list));
     
@@ -371,6 +386,7 @@ is_expression_comp_list * insert_comp(is_expression_comp_list * iecl, comp_type 
 
     return new;
 }
+
 
 is_expression_sum_like_list * insert_sum_like(is_expression_sum_like_list * iesl, sum_like_type type, is_expression_star_like_list * iestl){
     is_expression_sum_like_list * new = (is_expression_sum_like_list*)malloc(sizeof(is_expression_sum_like_list));
@@ -382,6 +398,7 @@ is_expression_sum_like_list * insert_sum_like(is_expression_sum_like_list * iesl
     return new;
 }
 
+
 is_expression_star_like_list * insert_star_like(is_expression_star_like_list * iestl, star_like_type type, is_self_expression_list * isel){
     is_expression_star_like_list * new = (is_expression_star_like_list*)malloc(sizeof(is_expression_star_like_list));
     
@@ -391,6 +408,7 @@ is_expression_star_like_list * insert_star_like(is_expression_star_like_list * i
 
     return new;
 }
+
 
 is_self_expression_list * insert_self(is_self_expression_list * isel, self_operation_type type, is_final_expression * ife){
     is_self_expression_list * new = (is_self_expression_list*)malloc(sizeof(is_self_expression_list));
@@ -413,6 +431,7 @@ is_self_expression_list * insert_self(is_self_expression_list * isel, self_opera
     return new;
 }
 
+
 is_final_expression* insert_intlit(id_token* id){
     is_final_expression * ife = (is_final_expression *)malloc(sizeof(is_final_expression));
     is_intlit * intlit = (is_intlit*)malloc(sizeof(is_intlit));
@@ -424,6 +443,7 @@ is_final_expression* insert_intlit(id_token* id){
     return ife;
 }
 
+
 is_final_expression * insert_real(id_token* id){
     is_final_expression * ife = (is_final_expression *)malloc(sizeof(is_final_expression));
     is_reallit * real = (is_reallit *) malloc(sizeof(is_reallit));
@@ -434,6 +454,7 @@ is_final_expression * insert_real(id_token* id){
 
     return ife;
 }
+
 
 is_final_expression* insert_id(id_token* id){
     is_final_expression * ife = (is_final_expression *)malloc(sizeof(is_final_expression));
@@ -447,6 +468,7 @@ is_final_expression* insert_id(id_token* id){
     return ife;
 }
 
+
 is_final_expression * insert_final_func_inv(is_function_invocation * ifi){
     is_final_expression * ife = (is_final_expression *)malloc(sizeof(is_final_expression));
 
@@ -455,6 +477,7 @@ is_final_expression * insert_final_func_inv(is_function_invocation * ifi){
 
     return ife;
 }
+
 
 is_final_expression * insert_final_expr(is_expression_or_list*ieol){
     is_final_expression * ife = (is_final_expression *)malloc(sizeof(is_final_expression));
@@ -465,6 +488,7 @@ is_final_expression * insert_final_expr(is_expression_or_list*ieol){
     //print(iel);
     return ife;
 }
+
 
 comp_type insert_comp_oper(char * oper){
     if( !strcmp(oper, "LT") )
@@ -481,6 +505,8 @@ comp_type insert_comp_oper(char * oper){
         return d_le;
     return d_sum_like;
 }
+
+
 sum_like_type insert_sum_like_oper(char * oper){
     if( !strcmp(oper, "PLUS") )
         return d_plus;
@@ -488,6 +514,7 @@ sum_like_type insert_sum_like_oper(char * oper){
         return d_minus;
     return d_star_like;
 }
+
 
 star_like_type insert_star_like_oper(char * oper){
     if( !strcmp(oper, "STAR") )
@@ -499,6 +526,7 @@ star_like_type insert_star_like_oper(char * oper){
     return d_self;
 }
 
+
 self_operation_type insert_self_oper(char * oper){
     if( !strcmp(oper, "PLUS") )
         return d_self_plus;
@@ -508,6 +536,7 @@ self_operation_type insert_self_oper(char * oper){
         return d_self_not;
     return d_final;
 }
+
 
 parameter_type insert_type(char * type){
     if ( !strcmp(type, "INT") )

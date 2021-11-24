@@ -6,4 +6,5 @@ table_element *insert_var(table_element **symtab, char* str, parameter_type retu
 table_element *search_symbol(table_element *symtab, char *str);
 void symbol_print_type(parameter_type type);
 void show_table(table_element *symtab);
+void print_function_table(table_element *symtab);
 
