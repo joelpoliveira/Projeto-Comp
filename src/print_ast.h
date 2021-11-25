@@ -1,5 +1,6 @@
 #include "structures.h"
 
+
 void print_ast(is_program* root);
 void print_declarations(is_declarations_list* idl, int);
 void print_func_dec(is_func_dec* ifd, int);

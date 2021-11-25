@@ -190,7 +190,7 @@ int main(int argc, char *argv[]){
     if (!flag_1){
         yyparse();
         check_program(program);
-        show_table(program->symtab);
+        print_symbol_tables(program);
     }
     else
         while(yylex());

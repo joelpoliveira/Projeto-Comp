@@ -46,8 +46,7 @@ void check_func_declaration(table_element** symtab, is_func_dec* ifd){
         return;
     }
 
-    //possilvemente erro aqui |
-    //printf("++++++++++++++++%p\n", ifd->symtab);
+    //inserir na tabela de simbolos da função
     check_function_body(&ifd->symtab, ifd->ifb);
 }
 
@@ -139,7 +138,7 @@ void check_for_statement(is_for_statement* ifs){
 
 
 void check_return_statement(is_return_statement* irs){
-
+    
 }
 
 

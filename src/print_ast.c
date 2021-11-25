@@ -11,13 +11,12 @@ void print_dots(int depth){
         printf("..");
 }
 
-bool check_statement( is_statements_list * head){
+bool check_statement_in_block( is_statements_list * head){
     int i = 0;
     for (;head; head = head->next ){
-        switch (head->val->type_state)
-        {
+        switch (head->val->type_state){
         case d_statement_list:
-            if(check_statement(head->val->statement.isl))
+            if(check_statement_in_block(head->val->statement.isl))
                 i++;
             break;
         default:
@@ -34,7 +33,7 @@ bool check_block( is_statements_list * head){
         switch (head->val->type_state)
         {
         case d_statement_list:
-            if(check_statement(head->val->statement.isl))
+            if(check_statement_in_block(head->val->statement.isl))
                 i++;
             break;
         default:

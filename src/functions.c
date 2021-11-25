@@ -46,9 +46,9 @@ is_declaration * insert_var_declaration(is_var_spec * ivs){
 is_declaration * insert_func_declaration(id_token* id, is_parameter * iparam, parameter_type type, is_func_body * ifb){
     is_declaration * idec = (is_declaration *) malloc(sizeof(is_declaration));
     idec->dec.ifd = (is_func_dec*) malloc(sizeof(is_func_dec));
-    
+
     idec->type_dec = d_func_dec;
-    idec->dec.ifd->symtab = NULL;//(table_element*) malloc(sizeof(table_element));
+    idec->dec.ifd->symtab = NULL;
     idec->dec.ifd->id = id;
     idec->dec.ifd->ipl = iparam;
     idec->dec.ifd->ifb = ifb;

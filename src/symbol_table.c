@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-//extern table_element *symtab;
+extern is_program * program;
 
 id_token *create_token(char *id, int line, int col) {
     id_token *idt = malloc(sizeof(id_token));
@@ -17,7 +17,7 @@ id_token *create_token(char *id, int line, int col) {
 
 
 table_element* insert_symbol(table_element **symtab, char* str, table_element* new_symbol){
-    table_element *aux;
+    table_element *aux = (table_element*) malloc(sizeof(table_element));
     table_element *previous;
 
     if (*symtab) {
@@ -31,8 +31,10 @@ table_element* insert_symbol(table_element **symtab, char* str, table_element* n
         previous->next = new_symbol;
     } else {
         *symtab = new_symbol;
-        return new_symbol;
+        //return new_symbol;
     }
+    //printf("================Inserted %s\n", new_symbol->name);
+    return new_symbol;
 }
 
 
@@ -165,27 +167,38 @@ void print_table(table_element *symtab){
 }
 
 
-void show_table(table_element *symtab) {
+// Função para dar return á tabela de simbolos de uma função
+//return NULL caso a função não exista
+table_element* get_function_table(is_program* ip, char* str){
+    for(is_declarations_list* current = ip->idlist; current; current = current->next){
+        if(current->val->type_dec == d_func_dec){
+            if (strcmp(current->val->dec.ifd->id->id, str) == 0)
+                return current->val->dec.ifd->symtab;
+        }
+    }
+    return NULL;
+}
+
+
+void print_symbol_tables(is_program* ip) {
     //{d_integer, d_float32, d_string, d_bool, d_var, d_dummy}   parameter_type;
     table_element *aux;
     table_element_params *param_list;
 
-    printf("\n===== Global Symbol Table =====\n");
+    //print global table
+    printf("\n===== Global Symbol Table =====\n");  
+    print_table(ip->symtab);
 
-    print_table(symtab);
-
-    for (aux = symtab; aux != NULL; aux = aux->next){
+    //print function tables
+    for (aux = ip->symtab; aux != NULL; aux = aux->next){
         if (aux->type_dec == d_func_dec){
             printf("\n===== Function %s ", aux->name);
             print_function_params(aux);
             printf(" Symbol Table =====\n");
-            //printf("++++++++++++++%p", aux->dec.ifd);
-            //if (aux->dec.ifd->symtab != NULL)
-                //printf("CENAS AQUI\n");
-                //print_table(aux->dec.ifd->symtab);
+
+            print_table(get_function_table(ip, aux->name));
         }
     }
     
 }
-
 
