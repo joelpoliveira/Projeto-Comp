@@ -57,7 +57,7 @@ typedef struct _s34 is_func_inv_expr_list;
 
 typedef struct _s35 id_token;
 typedef struct _t1 table_element;
-typedef struct _t2 table_element_params;
+// typedef struct _t2 table_element_params;
 
 
 typedef struct _s35 {
@@ -275,15 +275,15 @@ typedef struct _s0{
 //=================== SYMBOL TABLE=================== 
 
 
-typedef struct _t2 {
-        char* name;
-        parameter_type type;
-        struct _t2* next;
-} table_element_params;
+// typedef struct _t2 {
+//         char* name;
+//         parameter_type type;
+//         struct _t2* next;
+// } table_element_params;
 
 typedef struct _t1 {
         char *name;
-        table_element_params* params; //lista de parametros
+        bool is_param;
         parameter_type type; //return type
         declaration_type type_dec;
         union {

@@ -3,7 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 extern is_program * program;
+//extern table_element* symtab;
+
 
 id_token *create_token(char *id, int line, int col) {
     id_token *idt = malloc(sizeof(id_token));
@@ -31,57 +34,57 @@ table_element* insert_symbol(table_element **symtab, char* str, table_element* n
         previous->next = new_symbol;
     } else {
         *symtab = new_symbol;
-        //return new_symbol;
     }
     //printf("================Inserted %s\n", new_symbol->name);
     return new_symbol;
 }
 
-
+//TODO inserir parametros á tabela de simbolos de uma função
 table_element *insert_func(table_element **symtab, char* str, is_parameter * ip, parameter_type return_type) {
     table_element *new_symbol = (table_element *)malloc(sizeof(table_element));
-
-    //{d_func_dec, d_var_declaration} declaration_type;
     is_id_type_list* current;
-    table_element_params* last_param = (table_element_params*)malloc(sizeof(table_element_params));
- 
+    //table_element_params* last_param = (table_element_params*)malloc(sizeof(table_element_params));
+    table_element* func_table = NULL;
+
     new_symbol->name = strdup(str);
+    new_symbol->is_param = 0;
     new_symbol->type = return_type;
     new_symbol->type_dec = d_func_dec;
     new_symbol->next = NULL;
 
-    //insert params (linked list)
+    //inserir nome da função
+    new_symbol = insert_symbol(symtab, str, new_symbol);
+    if (new_symbol == NULL)
+        return NULL;
+    
+    //insert params
     if (ip != NULL){
         for (is_id_type_list* current = ip->val; current != NULL; current = current->next) {
-            table_element_params* param = (table_element_params*)malloc(sizeof(table_element_params));
+            new_symbol = (table_element *)malloc(sizeof(table_element));
 
-            param->name = current->val->id->id;
-            param->type = current->val->type_param;
-            param->next = NULL;
+            new_symbol->name = strdup(current->val->id->id);
+            new_symbol->is_param = 1;
+            new_symbol->type = return_type;
+            new_symbol->type_dec = d_func_dec;
+            new_symbol->next = NULL;
 
-            if (new_symbol->params == NULL){
-                new_symbol->params = param;
-                last_param = param;
-            } else {
-                last_param->next = param;
-                last_param = param;
-            }
+            //search_symbol(program->symtab, str);
+            new_symbol = insert_symbol(&func_table, str, new_symbol);
+            if (new_symbol == NULL)
+                return NULL;
         } 
-    } else {
-        new_symbol->params = NULL;
-    }
+    } 
 
-    return insert_symbol(symtab, str, new_symbol);
+    return func_table;
 }
 
 
 table_element *insert_var(table_element **symtab, char* str, parameter_type return_type) {
     table_element *new_symbol = (table_element *)malloc(sizeof(table_element));
 
-    is_id_type_list* current;
-    table_element_params* last_param = (table_element_params*)malloc(sizeof(table_element_params));
  
     new_symbol->name = strdup(str);
+    new_symbol->is_param = 0;
     new_symbol->type = return_type;
     new_symbol->type_dec = d_var_declaration;
     new_symbol->next = NULL;
@@ -94,9 +97,16 @@ table_element *insert_var(table_element **symtab, char* str, parameter_type retu
 table_element *search_symbol(table_element *symtab, char *str) {
     table_element *aux;
 
-    for (aux = symtab; aux; aux = aux->next)
-        if (strcmp(aux->name, str) == 0)
+    // if (symtab == NULL){
+    //     printf("NULL\n");
+    // }
+
+    for (aux = symtab; aux; aux = aux->next){
+        //printf("======= %s\n", aux->name);
+        if (strcmp(aux->name, str) == 0){
             return aux;
+        }
+    }
 
     return NULL;
 }
@@ -129,13 +139,14 @@ void symbol_print_type(parameter_type type){
 }
 
 
-void print_function_params(table_element *symtab) {
-    table_element_params *param_list;
+void print_function_params_type(table_element *symtab) {
+    table_element* aux;
     printf("(");
-    if (symtab->params != NULL){
-        for (param_list = symtab->params; param_list != NULL; param_list = param_list->next) {
-            symbol_print_type(param_list->type);
-            if (param_list->next != NULL)
+    for (aux = symtab; aux ; aux = aux->next) {
+        //printf("++++++%s", aux->name);
+        if(aux->is_param){
+            symbol_print_type(aux->type);
+            if (aux->next != NULL && aux->next->is_param)
                 printf(", ");
         }
     }
@@ -143,22 +154,14 @@ void print_function_params(table_element *symtab) {
 } 
 
 
-void print_table(table_element *symtab){
+void print_global_table(table_element *symtab){
     table_element *aux;
     for (aux = symtab; aux != NULL; aux = aux->next){
         printf("%s\t", aux->name);
-        
-        switch (aux->type_dec){
-            case d_func_dec:
-                print_function_params(aux);
-                printf("\t");
-                break;
-            case d_var_declaration:
-                //nao era preciso um switch mas n me apetece apagar :D
-                break;
-            default:
-            printf("Erro print_table\n");
-                break;
+
+        if (aux->type_dec == d_func_dec){
+            print_function_params_type(get_function_table(program, aux->name));
+            printf("\t");
         }
         
         symbol_print_type(aux->type);
@@ -166,9 +169,30 @@ void print_table(table_element *symtab){
     }
 }
 
+void print_function_table(table_element *symtab){
+    table_element *aux;
+
+    //print return
+    for (aux = symtab; aux != NULL; aux = aux->next) {
+        if (strcmp(aux->name, "return") == 0){
+            printf("return\t");
+            symbol_print_type(aux->type);
+        }
+    }
+
+    //print variáveis
+    for (aux = symtab; aux != NULL; aux = aux->next){
+        printf("%s\t", aux->name); // id
+        symbol_print_type(aux->type); //tipo
+        if (aux->is_param)
+            printf(" param");
+        printf("\n");
+    }
+}
+
 
 // Função para dar return á tabela de simbolos de uma função
-//return NULL caso a função não exista
+// return NULL caso a função não exista
 table_element* get_function_table(is_program* ip, char* str){
     for(is_declarations_list* current = ip->idlist; current; current = current->next){
         if(current->val->type_dec == d_func_dec){
@@ -183,20 +207,19 @@ table_element* get_function_table(is_program* ip, char* str){
 void print_symbol_tables(is_program* ip) {
     //{d_integer, d_float32, d_string, d_bool, d_var, d_dummy}   parameter_type;
     table_element *aux;
-    table_element_params *param_list;
 
     //print global table
     printf("\n===== Global Symbol Table =====\n");  
-    print_table(ip->symtab);
+    print_global_table(ip->symtab);
 
     //print function tables
     for (aux = ip->symtab; aux != NULL; aux = aux->next){
         if (aux->type_dec == d_func_dec){
             printf("\n===== Function %s ", aux->name);
-            print_function_params(aux);
+            print_function_params_type(get_function_table(ip, aux->name));
             printf(" Symbol Table =====\n");
 
-            print_table(get_function_table(ip, aux->name));
+            print_function_table(get_function_table(ip, aux->name));
         }
     }
     

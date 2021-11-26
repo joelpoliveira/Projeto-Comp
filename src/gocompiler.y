@@ -113,7 +113,7 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON declarations {$$ = program = insert_program($4); if (!error_flag && flag_2) print_ast(program);}
+program: PACKAGE ID SEMICOLON declarations {$$ = program = insert_program($4);}
         ;
 
 declarations:    /*EMPTY*/                              {$$ = NULL;}  

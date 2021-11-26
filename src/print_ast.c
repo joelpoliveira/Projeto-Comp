@@ -155,13 +155,10 @@ void print_func_body(is_func_body* ifb, int depth){
 
     is_vars_and_statements_list* current = ifb->ivsl;
 
-    //aqui temos de verificar se tem {} para n dar print sempre que o statement tenha >2 linhas
-
     print_dots(depth);
     printf("FuncBody\n");
 
     while (current != NULL) {
-        //é preciso alterar aqui qq coisa. n pode ser sempre +2
         print_var_or_statement(current->val, depth + 1);
         current = current->next;
     }
@@ -432,6 +429,7 @@ void print_expression_comp_list(is_expression_comp_list * iecl, int depth){
     }
 }
 
+
 void print_expression_sum_like_list(is_expression_sum_like_list * iesl, int depth){
     if (iesl == NULL) return;
 
@@ -450,6 +448,7 @@ void print_expression_sum_like_list(is_expression_sum_like_list * iesl, int dept
     }
 }
 
+
 void print_expression_star_like_list(is_expression_star_like_list * iestl, int depth){
     if (iestl == NULL) return;
 
@@ -467,6 +466,7 @@ void print_expression_star_like_list(is_expression_star_like_list * iestl, int d
         print_expression_star_like_list(current->next_left, depth);
     }
 }
+
 
 void print_self_expression_list(is_self_expression_list * isel, int depth){
     if (isel == NULL) return;

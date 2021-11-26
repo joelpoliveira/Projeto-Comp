@@ -4,6 +4,7 @@
     #include "structures.h"
     #include "functions.h"
     #include "semantics.h"
+    #include "print_ast.h"
     #include "y.tab.h"
     #include <string.h>
     #include <stdbool.h>
@@ -189,10 +190,18 @@ int main(int argc, char *argv[]){
 
     if (!flag_1){
         yyparse();
-        check_program(program);
-        print_symbol_tables(program);
-    }
-    else
+        if (!error_flag && flag_2) {
+            print_ast(program);
+            return 0;
+        }
+
+        if (flag_3) {
+            check_program(program);
+            print_symbol_tables(program);
+            //print_ast(program);
+            return 0;
+        }
+    } else
         while(yylex());
 
     return 0;
@@ -200,8 +209,8 @@ int main(int argc, char *argv[]){
 
 void yyerror (char *s) {
     //TODO alterar para usar a linha e coluna do token
-    //fprintf(yyout, "Line %d, column %d: %s: %s\n", , s, yytext );
-    fprintf(yyout, "dsajkndasdaoisdoiasd");
+    //fprintf(yyout, "Line %d, column %d: %s: %s\n", id.linha , s, yytext );
+    fprintf(yyout, "dsajkndasdaoisdoiasd\n");
 }
 
 int yywrap(){

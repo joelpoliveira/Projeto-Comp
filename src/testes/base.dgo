@@ -4,12 +4,16 @@ var x int;
 
 
 func teste(a bool, c int) int {
-    var t float32;
+    var x float32;
     var t int;
     //p = 123;
+
+    return x*t;
 }
 
 func main() {
-
+    var x string;
+    teste(a, b);
+    
 }
 
