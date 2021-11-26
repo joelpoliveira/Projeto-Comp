@@ -195,9 +195,10 @@ int main(int argc, char *argv[]){
             return 0;
         }
 
-        if (flag_3) {
+        if (!error_flag && flag_3) {
             check_program(program);
             print_symbol_tables(program);
+            printf("\n");
             //print_ast(program);
             return 0;
         }

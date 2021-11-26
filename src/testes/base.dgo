@@ -6,14 +6,15 @@ var x int;
 func teste(a bool, c int) int {
     var x float32;
     var t int;
-    //p = 123;
+    p = 123;
 
+    //return 1;
     return x*t;
 }
 
 func main() {
     var x string;
     teste(a, b);
-    
+    return;
 }
 

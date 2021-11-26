@@ -11,7 +11,12 @@ extern is_program * program;
 
 
 void print_already_defined(char* id, int line, int col){
-    printf("Line %d, column %d: Symbol %s already defined\n", line, col, id);
+    printf("Line %d, column %d: Symbol %s already defined\n", line, col+1, id);
+}
+
+
+void print_cannot_find(char* id, int line, int col){
+    printf("Line %d col %d: Cannot find symbol %s\n", line, col+1, id);
 }
 
 
@@ -136,6 +141,17 @@ void check_for_statement(table_element** symtab, is_for_statement* ifs){
 
 
 void check_return_statement(table_element** symtab, is_return_statement* irs){
+    //inserir um simbolo return a none e alterar mais tarde dependendo do tipo de operação
+    table_element* new_symbol = (table_element*)malloc(sizeof(table_element));
+
+    new_symbol->name = "return";
+    new_symbol->is_param = 0;
+    new_symbol->type = d_dummy; // é preciso meter o return type da função
+    //new_symbol->type_dec = NULL;
+    new_symbol->next = NULL;
+
+    new_symbol = insert_symbol(symtab, new_symbol);
+
     check_expression_or_list(symtab, irs->iel);
 }
 
@@ -147,6 +163,8 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
 
 void check_assign_statement(table_element** symtab, is_assign_statement* ias){
 
+    insert_var(symtab, ias->id->id, d_dummy);
+    check_expression_or_list(symtab, ias->iel);
 }
 
 
@@ -311,28 +329,9 @@ void check_func_invocation(table_element** symtab, is_function_invocation * ifi)
 
 
 void check_id(table_element* symtab, id_token* id){
-    table_element* aux;
-
-
-    // aux = search_symbol(symtab, id->id);
-    // if (aux != NULL){
-    //     printf("--------------%s\n", aux->name);
-    // }
-
-
-    // for (aux = symtab;  aux ; aux = aux->next){
-    //     printf("--------------%s\n", aux->name);
-    // }
-    
-
-    if (search_symbol(symtab, id->id) == NULL){
-        printf("Line %d col %d: Cannot find symbol %s in function\n", id->line, id->col, id->id);
+    if (search_symbol(symtab, id->id) == NULL && search_symbol(program->symtab, id->id) == NULL){
+        print_cannot_find(id->id, id->line, id->col);
+        return;
     } 
-    // else if (search_symbol(program->symtab, id->id) == NULL){
-    //     printf("Line %d col %d: Cannot find symbol %s in global\n", id->line, id->col, id->id);
-    //     return;
-    // }
-
-    
 }
 

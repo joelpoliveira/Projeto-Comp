@@ -1,6 +1,6 @@
 #include "structures.h"
 
-table_element* insert_symbol(table_element **symtab, char* str, table_element* new_symbol);
+table_element* insert_symbol(table_element **symtab, table_element* new_symbol);
 table_element *insert_func(table_element **symtab, char* str, is_parameter * ip, parameter_type return_type);
 table_element *insert_var(table_element **symtab, char* str, parameter_type return_type);
 table_element *search_symbol(table_element *symtab, char *str);
