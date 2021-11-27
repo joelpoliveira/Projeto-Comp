@@ -179,10 +179,10 @@ void print_function_table(table_element *symtab){
     table_element *aux;
 
     for (aux = symtab; aux != NULL; aux = aux->next){
-        printf("%s\t", aux->name); // id
+        printf("%s\t\t", aux->name); // id
         symbol_print_type(aux->type); //tipo
         if (aux->is_param)
-            printf(" param");
+            printf("\tparam");
         printf("\n");
     }
 }
@@ -213,7 +213,7 @@ void print_symbol_tables(is_program* ip) {
     //print function tables
     for (aux = ip->symtab; aux != NULL; aux = aux->next){
         if (aux->type_dec == d_func_dec){
-            printf("\n===== Function %s ", aux->name);
+            printf("\n===== Function %s", aux->name);
             print_function_params_type(get_function_table(ip, aux->name));
             printf(" Symbol Table =====\n");
 
