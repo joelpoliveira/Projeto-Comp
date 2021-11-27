@@ -131,7 +131,17 @@ void check_statement(table_element** symtab, is_statement* is){
 
 
 void check_if_statement(table_element** symtab, is_if_statement* ifs){
-    
+    if (ifs == NULL) return;
+
+    check_expression_or_list(symtab, ifs->iel);
+    check_statements_list(symtab, ifs->isl);
+    check_else_statement(symtab, ifs->ies);
+}
+
+void check_else_statement(table_element** symtab, is_else_statement* ies){
+    if (ies == NULL) return;
+
+    check_statements_list(symtab, ies->isl);
 }
 
 
@@ -146,24 +156,66 @@ void check_return_statement(table_element** symtab, is_return_statement* irs){
 
 
 void check_print_statement(table_element** symtab, is_print_statement* ips){
+     if (ips == NULL) return;
 
+    print_type type = ips->type_print; // {d_expression, d_str}
+
+    switch (type){
+        case d_expression:
+            check_expression_or_list(symtab, ips->print.iel);
+            break;
+        case d_str:
+            ips->print.id->type = d_string;
+            //printf("StrLit(%s)\n", ips->print.id->id);
+            break;
+        default:
+            printf("Erro check_print_statement\n");
+            break;
+    }
 }
 
 
 void check_assign_statement(table_element** symtab, is_assign_statement* ias){
-
     insert_var(symtab, ias->id->id, d_dummy);
     check_expression_or_list(symtab, ias->iel);
 }
 
 
 void check_statements_list(table_element** symtab, is_statements_list* isl){
+    if (isl == NULL) return;
 
+    is_statements_list * current = isl;
+    
+    while( current != NULL){
+        check_statement(symtab, current->val);
+        current = current->next;
+    }
 }
 
 
 void check_final_statement(table_element** symtab, is_final_statement* ifs){
+    if (ifs == NULL) return;
 
+    final_state_type type = ifs->type_state;  //d_function_invoc, d_arguments
+    is_func_inv_expr_list * current;
+
+    switch (type){
+        case d_function_invoc:
+            check_func_invocation(symtab, ifs->statement.ifi);
+
+            current = ifs->statement.ifi->iel;
+            while ( current ){
+                check_expression_or_list(symtab, current->val);
+                current = current->next;
+            }
+        case d_arguments:
+            check_id(*symtab, ifs->statement.ipa->id);
+            check_expression_or_list(symtab, ifs->statement.ipa->iel);
+            break;
+        default:
+            printf("Erro check_final_statement\n");
+            break;
+    }
 }
 
 
@@ -204,6 +256,9 @@ void check_expression_and_list(table_element** symtab, is_expression_and_list* i
 
 void check_expression_comp_list(table_element** symtab, is_expression_comp_list * iecl){
     if (iecl == NULL) return;
+
+    // comp_type type = iecl->oper_comp;
+    // check_comp_type();
 
     if (iecl->oper_comp != d_sum_like){
         //print_comp_type(type);
@@ -277,23 +332,23 @@ void check_self_expression_list(table_element** symtab, is_self_expression_list 
 void check_final_expression(table_element** symtab, is_final_expression * ife){
     if (ife == NULL) return;
 
+    //{d_intlit, d_reallit, d_id, d_func_inv, d_expr_final} 
+
     switch (ife->type_final_expression){
         case d_intlit:
-            //printf("IntLit(%s)\n", ife->expr.u_intlit->intlit->id);
-            //check_intlit(symtab, ife->expr.u_intlit->intlit);
+            ife->expr.u_intlit->intlit->type = d_integer;
             break;
         case d_reallit:
-            //printf("RealLit(%s)\n", ife->expr.u_reallit->reallit->id);
+            ife->expr.u_reallit->reallit->type = d_float32; 
             break;
         case d_id:
             check_id(*symtab, ife->expr.u_id->id);
-            //printf("Id(%s)\n", ife->expr.u_id->id->id);
             break;
         case d_func_inv:
             check_func_invocation(symtab, ife->expr.ifi);
             break;
         case d_expr_final:
-            //print_expression_or_list(ife->expr.ieol); 
+            check_expression_or_list(symtab, ife->expr.ieol); 
             break;
         default:
             printf("Erro check_final_expression\n");
@@ -303,10 +358,12 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 
 
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
-    //printf("Id(%s)\n", ifi->id->id);
+    table_element* symbol = search_symbol(program->symtab, ifi->id->id);
 
-    if (search_symbol(program->symtab, ifi->id->id) == NULL){
-        printf("Line %d col %d: Cannot find symbol %s\n", ifi->id->line, ifi->id->col, ifi->id->id);
+    if (symbol == NULL){
+        print_cannot_find(ifi->id->id, ifi->id->line, ifi->id->col);
+    } else {
+        ifi->id->type = symbol->type;
     }
 
     is_func_inv_expr_list * current = ifi->iel;
@@ -318,9 +375,16 @@ void check_func_invocation(table_element** symtab, is_function_invocation * ifi)
 
 
 void check_id(table_element* symtab, id_token* id){
-    if (search_symbol(symtab, id->id) == NULL && search_symbol(program->symtab, id->id) == NULL){
+    table_element* symbol = search_symbol(symtab, id->id);
+    
+    if (symbol == NULL){
         print_cannot_find(id->id, id->line, id->col);
-        return;
-    } 
+    } else{
+        id->type = symbol->type;
+    }
 }
 
+
+void check_comp_type(){
+
+}

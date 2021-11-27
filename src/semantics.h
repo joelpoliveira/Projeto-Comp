@@ -11,6 +11,7 @@ void check_var_declaration(table_element** symtab, is_var_dec* ivd);
 void check_var_spec(table_element** symtab, is_var_spec* ivs);
 void check_statement(table_element** symtab, is_statement* is);
 void check_if_statement(table_element** symtab, is_if_statement* ifs);
+void check_else_statement(table_element** symtab, is_else_statement* ies);
 void check_for_statement(table_element** symtab, is_for_statement* ifs);
 void check_return_statement(table_element** symtab, is_return_statement* irs);
 void check_print_statement(table_element** symtab, is_print_statement* ips);

@@ -549,6 +549,7 @@ void print_final_expression(is_final_expression * ife, int depth){
     }
 }
 
+
 void print_func_invocation(is_function_invocation * ifi, int depth){
     print_dots(depth);
     printf("Id(%s)", ifi->id->id);
@@ -566,22 +567,34 @@ void print_comp_type(comp_type ct){
     //{d_lt, d_gt, d_eq, d_ne, d_ge, d_le, d_sum_like}
     switch (ct){
         case d_lt:
-            printf("Lt\n");
+            printf("Lt");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_gt:
-            printf("Gt\n");
+            printf("Gt");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_eq:
-            printf("Eq\n");
+            printf("Eq");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_ne:
-            printf("Ne\n");
+            printf("Ne");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_ge:
-            printf("Ge\n");
+            printf("Ge");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_le:
-            printf("Le\n");
+            printf("Le");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         default:
             printf("Erro print_comp_type");
