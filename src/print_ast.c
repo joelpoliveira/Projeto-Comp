@@ -8,6 +8,30 @@
 extern bool flag_3;
 
 
+void print_anotation_type(id_token* id){
+    //typedef enum {d_integer, d_float32, d_string, d_bool, d_var, d_dummy}  
+    if (flag_3){
+        switch (id->type){
+            case d_integer:
+                printf(" - int");
+                break;
+            case d_float32:
+                printf(" - float32");
+                break;
+            case d_string:
+                printf(" - string");
+                break;
+            case d_dummy:
+                printf(" - none");
+                break;
+            default:
+                printf("Erro print_anotation_type");
+                break;
+        }
+    } 
+    printf("\n");
+}
+
 void print_dots(int depth){
     for (int i = 0; i < depth; i++)
         printf("..");
@@ -342,7 +366,8 @@ void print_final_statement(is_final_statement* ifs, int depth) {
             printf("Call\n");
 
             print_dots(depth + 1);
-            printf("Id(%s)\n", ifs->statement.ifi->id->id);
+            printf("Id(%s)", ifs->statement.ifi->id->id);
+            print_anotation_type(ifs->statement.ifi->id);
             
             current = ifs->statement.ifi->iel;
             while ( current ){
@@ -369,7 +394,8 @@ void print_final_statement(is_final_statement* ifs, int depth) {
 void print_assign_statement(is_assign_statement* ias, int depth){
     if (ias == NULL) return;
     print_dots(depth);
-    printf("Id(%s)\n", ias->id->id);
+    printf("Id(%s)", ias->id->id);
+    print_anotation_type(ias->id);
     print_expression_or_list(ias->iel, depth);
 }
 
@@ -495,19 +521,23 @@ void print_final_expression(is_final_expression * ife, int depth){
     switch (ife->type_final_expression){
         case d_intlit:
             print_dots(depth);
-            printf("IntLit(%s)\n", ife->expr.u_intlit->intlit->id);
+            printf("IntLit(%s)", ife->expr.u_intlit->intlit->id);
+            print_anotation_type(ife->expr.u_intlit->intlit);
             break;
         case d_reallit:
             print_dots(depth);
-            printf("RealLit(%s)\n", ife->expr.u_reallit->reallit->id);
+            printf("RealLit(%s)", ife->expr.u_reallit->reallit->id);
+            print_anotation_type(ife->expr.u_reallit->reallit);
             break;
         case d_id:
             print_dots(depth);
-            printf("Id(%s)\n", ife->expr.u_id->id->id);
+            printf("Id(%s)", ife->expr.u_id->id->id);
+            print_anotation_type(ife->expr.u_id->id);
             break;
         case d_func_inv:
             print_dots(depth);
-            printf("Call\n");
+            printf("Call");
+            print_anotation_type(ife->expr.ifi->id);
             print_func_invocation(ife->expr.ifi, depth + 1);
             break;
         case d_expr_final:
@@ -521,7 +551,8 @@ void print_final_expression(is_final_expression * ife, int depth){
 
 void print_func_invocation(is_function_invocation * ifi, int depth){
     print_dots(depth);
-    printf("Id(%s)\n", ifi->id->id);
+    printf("Id(%s)", ifi->id->id);
+    print_anotation_type(ifi->id);
 
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){

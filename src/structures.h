@@ -63,6 +63,7 @@ typedef struct _s35 {
         char *id;
         int line;
         int col;
+        parameter_type type;
 } id_token;
 
 typedef struct _s34{

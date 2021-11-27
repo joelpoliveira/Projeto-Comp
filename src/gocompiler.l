@@ -199,7 +199,7 @@ int main(int argc, char *argv[]){
             check_program(program);
             print_symbol_tables(program);
             printf("\n");
-            //print_ast(program);
+            print_ast(program);
             return 0;
         }
     } else
