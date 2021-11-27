@@ -141,17 +141,6 @@ void check_for_statement(table_element** symtab, is_for_statement* ifs){
 
 
 void check_return_statement(table_element** symtab, is_return_statement* irs){
-    //inserir um simbolo return a none e alterar mais tarde dependendo do tipo de operação
-    table_element* new_symbol = (table_element*)malloc(sizeof(table_element));
-
-    new_symbol->name = "return";
-    new_symbol->is_param = 0;
-    new_symbol->type = d_dummy; // é preciso meter o return type da função
-    //new_symbol->type_dec = NULL;
-    new_symbol->next = NULL;
-
-    new_symbol = insert_symbol(symtab, new_symbol);
-
     check_expression_or_list(symtab, irs->iel);
 }
 

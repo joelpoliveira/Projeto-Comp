@@ -43,8 +43,6 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
 
 table_element *insert_func(table_element **symtab, char* str, is_parameter * ip, parameter_type return_type) {
     table_element *new_symbol = (table_element *)malloc(sizeof(table_element));
-    is_id_type_list* current;
-    //table_element_params* last_param = (table_element_params*)malloc(sizeof(table_element_params));
     table_element* func_table = NULL;
 
     new_symbol->name = strdup(str);
@@ -59,8 +57,17 @@ table_element *insert_func(table_element **symtab, char* str, is_parameter * ip,
         return NULL;
         free(func_table);
     }
+
+    //inserir return
+    new_symbol = (table_element *)malloc(sizeof(table_element));
+    new_symbol->name = "return";
+    new_symbol->is_param = 0;
+    new_symbol->type = return_type;
+    //new_symbol->type_dec = NULL;
+    new_symbol->next = NULL;
+    insert_symbol(&func_table, new_symbol);
     
-    //insert params
+    //insert parametros
     if (ip != NULL){
         for (is_id_type_list* current = ip->val; current ; current = current->next) {
             new_symbol = (table_element *)malloc(sizeof(table_element));
@@ -86,7 +93,6 @@ table_element *insert_func(table_element **symtab, char* str, is_parameter * ip,
 table_element *insert_var(table_element **symtab, char* str, parameter_type return_type) {
     table_element *new_symbol = (table_element *)malloc(sizeof(table_element));
 
- 
     new_symbol->name = strdup(str);
     new_symbol->is_param = 0;
     new_symbol->type = return_type;
@@ -172,24 +178,12 @@ void print_global_table(table_element *symtab){
 void print_function_table(table_element *symtab){
     table_element *aux;
 
-    //print return 1º, pq sim i guess 
     for (aux = symtab; aux != NULL; aux = aux->next){
-        if (strcmp(aux->name, "return") == 0){
-            printf("%s\t", aux->name);
-            symbol_print_type(aux->type); //tipo
-            printf("\n");
-            break;
-        }
-    }
-
-    for (aux = symtab; aux != NULL; aux = aux->next){
-        if (strcmp(aux->name, "return")){
-            printf("%s\t", aux->name); // id
-            symbol_print_type(aux->type); //tipo
-            if (aux->is_param)
-                printf(" param");
-            printf("\n");
-        }
+        printf("%s\t", aux->name); // id
+        symbol_print_type(aux->type); //tipo
+        if (aux->is_param)
+            printf(" param");
+        printf("\n");
     }
 }
 
@@ -206,35 +200,6 @@ table_element* get_function_table(is_program* ip, char* str){
     return NULL;
 }
 
-
-void swap(table_element* a, table_element* b){
- 
-    table_element* temp = a;
-    a = b;
-    b = temp;
-}
-
-
-void swap_elemets(table_element* symtab, char* x, char* y){
-    if (strcmp(x, y) == 0) return;
- 
-    table_element *a = NULL, *b = NULL;
-
-    while (symtab) {
-        if (strcmp(symtab->name, x) == 0) {
-            a = symtab;
-        }
-        else if (strcmp(symtab->name, y) == 0) {
-            b = symtab;
-        }
-        symtab = symtab->next;
-    }
- 
-    if (a && b) {
-        swap(a, b);
-        swap(a->next, b->next);
-    }
-}
 
 
 void print_symbol_tables(is_program* ip) {

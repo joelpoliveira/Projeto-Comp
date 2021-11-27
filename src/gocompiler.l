@@ -88,10 +88,10 @@ whispace (" "|\t)
 "for"			{if (flag_1) fprintf(yyout, "FOR\n");  col+=yyleng; error_line=0;return FOR; }
 "if"			{if (flag_1) fprintf(yyout, "IF\n");  col+=yyleng;error_line=0; return IF; }
 "var"			{if (flag_1) fprintf(yyout, "VAR\n");  col+=yyleng;error_line=0; return VAR; }
-"int"			{if (flag_1) fprintf(yyout, "INT\n");  col+=yyleng;error_line=0; return INT;}
-"float32"		{if (flag_1) fprintf(yyout, "FLOAT32\n");  col+=yyleng; error_line=0;return FLOAT32;}
-"bool"			{if (flag_1) fprintf(yyout, "BOOL\n");  col+=yyleng; error_line=0;return BOOL; }
-"string"		{if (flag_1) fprintf(yyout, "STRING\n");  col+=yyleng;error_line=0; return STRING; }
+"int"			{if (flag_1) fprintf(yyout, "INT\n");    col+=yyleng;error_line=0;  return INT;}
+"float32"		{if (flag_1) fprintf(yyout, "FLOAT32\n");  col+=yyleng; error_line=0;  return FLOAT32;}
+"bool"			{if (flag_1) fprintf(yyout, "BOOL\n");  col+=yyleng; error_line=0;  return BOOL; }
+"string"		{if (flag_1) fprintf(yyout, "STRING\n");  col+=yyleng;error_line=0;  return STRING; }
 "fmt.Println"	{if (flag_1) fprintf(yyout, "PRINT\n");  col+=yyleng;error_line=0; return PRINT; }
 "strconv.Atoi"	{if (flag_1) fprintf(yyout, "PARSEINT\n");  col+=yyleng;error_line=0; return PARSEINT; }
 "func"			{if (flag_1) fprintf(yyout, "FUNC\n");  col+=yyleng; error_line=0;return FUNC; }
@@ -209,9 +209,8 @@ int main(int argc, char *argv[]){
 }
 
 void yyerror (char *s) {
-    //TODO alterar para usar a linha e coluna do token
-    //fprintf(yyout, "Line %d, column %d: %s: %s\n", id.linha , s, yytext );
-    fprintf(yyout, "dsajkndasdaoisdoiasd\n");
+    //(error_line)? previous_line : line, previous_col + 1
+    fprintf(yyout, "Line %d, column %d: %s: %s\n",(error_line)? yylval.id->line+yyleng+1 : yylval.id->line, (error_line)? yylval.id->col + yyleng : yylval.id->col+yyleng-1 , s, yytext );
 }
 
 int yywrap(){

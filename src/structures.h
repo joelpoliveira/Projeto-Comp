@@ -2,7 +2,6 @@
 #define STRUCTURES_H
 
 #include <stdbool.h>
-#include "symbols.h"
 
 
 typedef enum {d_intlit, d_reallit, d_id, d_func_inv, d_expr_final}      final_expression_type;

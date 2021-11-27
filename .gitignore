@@ -51,10 +51,10 @@ Mkfile.old
 dkms.conf
 
 #Random stuff
+*.txt
 src/gocompiler
 src/gocompiler.zip
 src/lex.yy.c
 **/y.*
-src/meta1/outputs/
-src/meta2/outputs/
+**/outputs/
 **/makefile
