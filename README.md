@@ -4,17 +4,20 @@
 ### Repositório para o projeto da cadeira de Compiladores
 
 Compilar com o comando
+
 ```
-make && ./gocompiler [-l | -t] < {nome_ficheiro}.dgo > {nome_ficheiro}.out
+make && ./gocompiler [-l | -t | -s] < {nome_ficheiro}.dgo > {nome_ficheiro}.out
 ```
+
 Usar o seguinte comando para comparar o output do compilador com um ficheiro
 ```
-make && ./gocompiler [-l | -t] < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out - 
+make && ./gocompiler [-l | -t | -s] < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out - 
 
 ```
 
  - -l -> 1ª meta
  - -t -> 2ª meta
+ - -s -> 3ª meta
 
 ### TODO
 
@@ -32,7 +35,12 @@ make && ./gocompiler [-l | -t] < {nome_ficheiro}.dgo | diff {nome_ficheiro}.out 
     - [x] Erros
     - [x] AST 
 
-- [ ] Meta 3
+- [ ] Meta 3 - Semantic Analysis
+    - [x] Tabela de símbolos
+        - [x] Global
+        - [x] Funções
+    - [ ] Anotações na AST
+    - [ ] Erros Semânticos
 
-- [ ] Meta 4
+- [ ] Meta 4 - Code Generation
 

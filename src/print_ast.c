@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+extern bool flag_3;
+
 
 void print_dots(int depth){
     for (int i = 0; i < depth; i++)
