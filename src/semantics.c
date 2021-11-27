@@ -356,7 +356,9 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
     }
 }
 
-//TODO pode ter vários parametros (int, int, bool)
+// TODO pode ter vários parametros (int, int, bool)
+// Aproveitar table_element.type_dec == d_func para ver se é uma função
+// e fazer uma lista ligada no id_token.type ?
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
     table_element* symbol = search_symbol(program->symtab, ifi->id->id);
 
