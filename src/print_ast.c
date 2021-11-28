@@ -605,7 +605,7 @@ void print_comp_type(comp_type ct){
 
 
 void print_sum_like(sum_like_type slt) {
-    //{d_plus, d_minus, d_star_like}                             sum_like_type
+    //{d_plus, d_minus, d_star_like} sum_like_type
 
     switch (slt){
         case d_plus:

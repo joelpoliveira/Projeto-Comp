@@ -146,7 +146,8 @@ void check_else_statement(table_element** symtab, is_else_statement* ies){
 
 
 void check_for_statement(table_element** symtab, is_for_statement* ifs){
-
+    check_expression_or_list(symtab, ifs->iel);
+    check_statements_list(symtab, ifs->isl);
 }
 
 
@@ -166,7 +167,6 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
             break;
         case d_str:
             ips->print.id->type = d_string;
-            //printf("StrLit(%s)\n", ips->print.id->id);
             break;
         default:
             printf("Erro check_print_statement\n");
@@ -360,13 +360,17 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 // Aproveitar table_element.type_dec == d_func para ver se é uma função
 // e fazer uma lista ligada no id_token.type ?
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
-    table_element* symbol = search_symbol(program->symtab, ifi->id->id);
+    table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
+    table_element* func_symbol = search_symbol(*symtab, ifi->id->id);
 
-    if (symbol == NULL){
-        print_cannot_find(ifi->id->id, ifi->id->line, ifi->id->col);
-    } else {
-        ifi->id->type = symbol->type;
-    }
+    printf("====Check_func_invocation: %s\n====", ifi->id->id);
+
+    // if (global_symbol == NULL && func_symbol == NULL){
+    //     print_cannot_find(ifi->id->id, ifi->id->line, ifi->id->col);
+    // }
+    // else {
+    //     ifi->id->type = global_symbol->type;
+    // }
 
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){
@@ -378,6 +382,8 @@ void check_func_invocation(table_element** symtab, is_function_invocation * ifi)
 
 void check_id(table_element* symtab, id_token* id){
     table_element* symbol = search_symbol(symtab, id->id);
+
+    printf("====Check_id: %s\n====", id->id);
     
     if (symbol == NULL){
         print_cannot_find(id->id, id->line, id->col);

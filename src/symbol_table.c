@@ -25,10 +25,10 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
 
     if (*symtab) {
         for (aux = *symtab; aux; previous = aux, aux = aux->next) {
+            //printf("++++++++ %s\n", aux->name);
             if (strcmp(aux->name, new_symbol->name) == 0) {
-                free(aux);
                 free(new_symbol);
-                //printf("------------Alredy existed\n");
+                //printf("--------Alredy existed\n");
                 return NULL;
             }
         }
