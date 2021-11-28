@@ -399,6 +399,8 @@ void print_assign_statement(is_assign_statement* ias, int depth){
     print_expression_or_list(ias->iel, depth);
 }
 
+//  TODO se for a || b -> Or - bool mas se for a || b() -> Or pq é uma funcção
+// Deve ser o mesmo para os statements
 void print_expression_or_list(is_expression_or_list* ieol, int depth){
     if (ieol == NULL) return;
 
@@ -408,7 +410,10 @@ void print_expression_or_list(is_expression_or_list* ieol, int depth){
     
     if (type){
         print_dots(depth);
-        printf("Or\n");
+        printf("Or");
+        //if (flag_3) printf(" - bool");
+        printf("\n");
+
 
         print_expression_or_list(current->next_left, depth+1);
         print_expression_and_list(current->next_right, depth+1);
@@ -427,7 +432,9 @@ void print_expression_and_list(is_expression_and_list* ieal, int depth){
     
     if(type){
         print_dots(depth);
-        printf("And\n");
+        printf("And");
+        //if (flag_3) printf(" - bool");
+        printf("\n");
         
         print_expression_and_list(current->next_left, depth + 1);
         print_expression_comp_list(current->next_right, depth + 1);

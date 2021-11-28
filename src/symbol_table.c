@@ -74,7 +74,7 @@ table_element *insert_func(table_element **symtab, char* str, is_parameter * ip,
 
             new_symbol->name = strdup(current->val->id->id);
             new_symbol->is_param = 1;
-            new_symbol->type = return_type;
+            new_symbol->type = current->val->type_param;
             new_symbol->type_dec = d_func_dec;
             new_symbol->next = NULL;
 
