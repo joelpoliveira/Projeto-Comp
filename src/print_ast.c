@@ -21,11 +21,14 @@ void print_anotation_type(id_token* id){
             case d_string:
                 printf(" - string");
                 break;
+             case d_bool:
+                printf(" - bool");
+                break;
             case d_dummy:
                 printf(" - none");
                 break;
             default:
-                printf("Erro print_anotation_type");
+                printf("Erro print_anotation_type: %d", id->type);
                 break;
         }
     } 
@@ -145,11 +148,16 @@ void print_parameter_type(parameter_type param, int depth){
             print_dots(depth);
             printf("Bool\n");
             break;
-        case d_var:
-            print_dots(depth);
-            printf("Var\n");
-            break;
+        // case d_var:
+        //     print_dots(depth);
+        //     printf("Var\n");
+        //     break;
+        // case d_dummy:
+        //     print_dots(depth);
+        //     printf("None\n");
+        //     break;
         default:
+            //printf("Erro print_parameter_type: %d\n", param);
             break;
     };
 }
@@ -411,7 +419,7 @@ void print_expression_or_list(is_expression_or_list* ieol, int depth){
     if (type){
         print_dots(depth);
         printf("Or");
-        //if (flag_3) printf(" - bool");
+        if (flag_3) printf(" - bool");
         printf("\n");
 
 
@@ -433,7 +441,7 @@ void print_expression_and_list(is_expression_and_list* ieal, int depth){
     if(type){
         print_dots(depth);
         printf("And");
-        //if (flag_3) printf(" - bool");
+        if (flag_3) printf(" - bool");
         printf("\n");
         
         print_expression_and_list(current->next_left, depth + 1);

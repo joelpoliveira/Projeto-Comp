@@ -174,13 +174,15 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
     }
 }
 
+
 //TODO apenas inserir variável se esriver declarada numa tabela
 //Se não estiver declarada, erro cannot find
 void check_assign_statement(table_element** symtab, is_assign_statement* ias){
     // assign_statement -> a = 2;
     // se existir na table global -> não adicionar á tabela local
-    if (search_symbol(program->symtab, ias->id->id) == NULL){
-        insert_var(symtab, ias->id->id, d_dummy);
+    if (search_symbol(*symtab, ias->id->id) == NULL){
+        //Não existe na tabela local
+        //insert_var(symtab, ias->id->id, d_dummy);
     }
     
     check_expression_or_list(symtab, ias->iel);
@@ -362,12 +364,13 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
     }
 }
 
+
 // TODO pode ter vários parametros (int, int, bool)
 // Aproveitar table_element.type_dec == d_func para ver se é uma função
 // e fazer uma lista ligada no id_token.type ?
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
-    table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
-    table_element* func_symbol = search_symbol(*symtab, ifi->id->id);
+    //table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
+    //table_element* func_symbol = search_symbol(*symtab, ifi->id->id);
 
     //printf("====Check_func_invocation: %s\n====", ifi->id->id);
 
@@ -385,13 +388,12 @@ void check_func_invocation(table_element** symtab, is_function_invocation * ifi)
     } 
 }
 
-// TODO arranjar esta função
-// gera erros de cannot find quando não é suposto
+
 void check_id(table_element* symtab, id_token* id){
     table_element* local_symbol = search_symbol(symtab, id->id);
     table_element* global_symbol = search_symbol(program->symtab, id->id);
-    bool in_function_table = 0;
-    bool in_global_table = 0;
+    bool in_function_table = 1;
+    bool in_global_table = 1;
 
     //printf("====Check_id: %s\n====", id->id);
 
