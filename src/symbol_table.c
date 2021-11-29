@@ -153,7 +153,7 @@ void print_function_params_type(table_element *symtab) {
         if(aux->is_param){
             symbol_print_type(aux->type);
             if (aux->next != NULL && aux->next->is_param)
-                printf(", ");
+                printf(",");
         }
     }
     printf(")");
@@ -168,7 +168,8 @@ void print_global_table(table_element *symtab){
         if (aux->type_dec == d_func_dec){
             print_function_params_type(get_function_table(program, aux->name));
             printf("\t");
-        }
+        } else
+            printf("\t"); 
         
         symbol_print_type(aux->type);
         printf("\n");

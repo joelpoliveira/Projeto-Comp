@@ -174,13 +174,15 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
     }
 }
 
+
 //TODO apenas inserir variável se esriver declarada numa tabela
 //Se não estiver declarada, erro cannot find
 void check_assign_statement(table_element** symtab, is_assign_statement* ias){
     // assign_statement -> a = 2;
     // se existir na table global -> não adicionar á tabela local
-    if (search_symbol(program->symtab, ias->id->id) == NULL){
-        insert_var(symtab, ias->id->id, d_dummy);
+    if (search_symbol(*symtab, ias->id->id) == NULL){
+        //Não existe na tabela local
+        //insert_var(symtab, ias->id->id, d_dummy);
     }
     
     check_expression_or_list(symtab, ias->iel);
@@ -360,8 +362,8 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 }
 
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
-    table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
-    table_element* func_symbol = search_symbol(*symtab, ifi->id->id);
+    //table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
+    //table_element* func_symbol = search_symbol(*symtab, ifi->id->id);
 
     //printf("====Check_func_invocation: %s\n====", ifi->id->id);
 
