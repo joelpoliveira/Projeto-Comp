@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+
 typedef enum {d_intlit, d_reallit, d_id, d_func_inv, d_expr_final}      final_expression_type;
 typedef enum {d_self_plus, d_self_minus, d_self_not, d_final}           self_operation_type;
 typedef enum {d_lt, d_gt, d_eq, d_ne, d_ge, d_le, d_sum_like}           comp_type;
@@ -50,7 +51,20 @@ typedef struct _s30 is_func_body;
 typedef struct _s31 is_var_dec;
 typedef struct _s32 is_var_spec;
 typedef struct _s33 is_id_list;
+typedef struct _s34 is_func_inv_expr_list;
 
+
+typedef struct _s35 id_token;
+typedef struct _t1 table_element;
+// typedef struct _t2 table_element_params;
+
+
+typedef struct _s35 {
+        char *id;
+        int line;
+        int col;
+        parameter_type type;
+} id_token;
 
 typedef struct _s34{
         is_expression_or_list * val;
@@ -58,7 +72,7 @@ typedef struct _s34{
 } is_func_inv_expr_list;
 
 typedef struct _s33{
-        char * val;
+        id_token * val;
         struct _s33 * next;
 } is_id_list;
 
@@ -76,15 +90,15 @@ typedef struct _s30{
 } is_func_body;
 
 typedef struct _s29{
-        char * id;
+        id_token* id;
 } is_id;
 
 typedef struct _s28{
-        char * reallit;
+        id_token * reallit;
 } is_reallit;
 
 typedef struct _s27{
-        char * intlit;
+        id_token * intlit;
 } is_intlit;
 
 typedef struct _s26{
@@ -135,12 +149,12 @@ typedef struct _s20 {
 } is_expression_or_list;
 
 typedef struct _s19{
-        char * id;
+        id_token* id;
         is_func_inv_expr_list * iel;
 } is_function_invocation;
 
 typedef struct _s18{
-        char * id;
+        id_token* id;
         is_expression_or_list * iel;
 } is_parse_arguments;
 
@@ -153,7 +167,7 @@ typedef struct _s17{
 } is_final_statement;
 
 typedef struct _s16{
-        char * id;
+        id_token* id;
         is_expression_or_list * iel;
 } is_assign_statement;
 
@@ -161,7 +175,7 @@ typedef struct _s15{
         print_type type_print;
         union{
                 is_expression_or_list * iel;
-                char * id;
+                id_token* id;
         } print;
 } is_print_statement;
 
@@ -218,7 +232,7 @@ typedef struct _s7{
 //possiveis tipos de variavel INT, FLOAT32, bool, var , string
 typedef struct _s6{
         parameter_type type_param;
-        char * id;
+        id_token* id;
 } is_id_type;
 
 typedef struct _s5{
@@ -231,10 +245,11 @@ typedef struct _s4{
 } is_parameter;
 
 typedef struct _s3 {
+        table_element *symtab;
         is_parameter * ipl;
         is_func_body * ifb;
         parameter_type type;
-        char* id;
+        id_token* id;
 } is_func_dec;
 
 //a lista de declarações pode ter 2 tipos de elementos. func_dec e var_dec;
@@ -252,7 +267,32 @@ typedef struct _s1 {
 } is_declarations_list;
 
 typedef struct _s0{
+        table_element *symtab;
         is_declarations_list * idlist;
 } is_program;
+
+
+//=================== SYMBOL TABLE=================== 
+
+
+// typedef struct _t2 {
+//         char* name;
+//         parameter_type type;
+//         struct _t2* next;
+// } table_element_params;
+
+typedef struct _t1 {
+        char *name;
+        bool is_param;
+        parameter_type type; //return type
+        declaration_type type_dec;
+        union {
+                is_func_dec * ifd;
+                is_var_dec * ivd;
+        } dec;
+        struct _t1 *next;
+} table_element;
+
+
 #endif
 

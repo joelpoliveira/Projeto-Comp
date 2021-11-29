@@ -42,7 +42,7 @@ def run_tests():
     test_files = []
     failed = 0
     passed = []
-    flags = ["", "-l", "-t"]  # used in flags[meta] to select flag
+    flags = ["", "-l", "-t", "-s", ]  # used in flags[meta] to select flag
 
     # Create outputs dir
     if not os.path.exists(f"meta{meta}/outputs"):

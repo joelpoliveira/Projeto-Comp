@@ -14,27 +14,31 @@
     int yylex(void);
     void yyerror (char *s);
 
-    extern bool flag_1, flag_2, error_flag;
+    extern bool flag_1, flag_2, flag_3, error_flag;
 
     int yydebug = 1;
 
-    is_program* program;
+    is_program * program = NULL;
+    table_element* symtab = NULL;
 
     /*  
         Submissão no Mooshak:
-        A -> 244/250    :: Global
+        ====Meta 2====
+        A -> 250/250    :: Global
         B -> 35/35      :: Syntax errors - Variable and function declarations/definitions
         C -> 35/35      :: Syntax errors - Expressions
         D -> 35/35      :: Syntax errors - Statements
         E -> 35/35      :: AST - Variable and function declarations/definitions
         F -> 35/35      :: AST - Expressions
-        G -> 29/35      :: AST - Statements
-        H -> 40/40      :: AST - Full Programs 
+        G -> 35/35      :: AST - Statements
+        H -> 40/40      :: AST - Full Programs
+        
+        ====Meta 3====
     */
 %}
 
 %union{
-    char *id;
+    id_token* id;
     parameter_type pt;
     is_program* ip;
     is_declarations_list* idl;
@@ -99,7 +103,7 @@
 %type<isel> self_expr
 %type<ife> final_expr
 
-%right ASSIGN //'+=' '-='
+%right ASSIGN
 %left  OR
 %left  AND
 %right  EQ NE LE GE LT GT
@@ -110,7 +114,7 @@
 
 %%
 
-program: PACKAGE ID SEMICOLON declarations {$$ = program = insert_program($4); if (!error_flag && flag_2) print_ast(program);  free_ast($$); }
+program: PACKAGE ID SEMICOLON declarations {$$ = program = insert_program($4);}
         ;
 
 declarations:    /*EMPTY*/                              {$$ = NULL;}  

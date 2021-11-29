@@ -5,19 +5,44 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+extern bool flag_3;
+
+
+void print_anotation_type(id_token* id){
+    //typedef enum {d_integer, d_float32, d_string, d_bool, d_var, d_dummy}  
+    if (flag_3){
+        switch (id->type){
+            case d_integer:
+                printf(" - int");
+                break;
+            case d_float32:
+                printf(" - float32");
+                break;
+            case d_string:
+                printf(" - string");
+                break;
+            case d_dummy:
+                printf(" - none");
+                break;
+            default:
+                printf("Erro print_anotation_type");
+                break;
+        }
+    } 
+    printf("\n");
+}
 
 void print_dots(int depth){
     for (int i = 0; i < depth; i++)
         printf("..");
 }
 
-bool check_statement( is_statements_list * head){
+bool check_statement_in_block( is_statements_list * head){
     int i = 0;
     for (;head; head = head->next ){
-        switch (head->val->type_state)
-        {
+        switch (head->val->type_state){
         case d_statement_list:
-            if(check_statement(head->val->statement.isl))
+            if(check_statement_in_block(head->val->statement.isl))
                 i++;
             break;
         default:
@@ -34,7 +59,7 @@ bool check_block( is_statements_list * head){
         switch (head->val->type_state)
         {
         case d_statement_list:
-            if(check_statement(head->val->statement.isl))
+            if(check_statement_in_block(head->val->statement.isl))
                 i++;
             break;
         default:
@@ -91,7 +116,7 @@ void print_func_dec(is_func_dec* ifd, int depth){
     printf("FuncHeader\n");
 
     print_dots(depth + 1);
-    printf("Id(%s)\n", ifd->id);
+    printf("Id(%s)\n", ifd->id->id);
     print_parameter_type(ifd->type, depth + 1);
 
     print_dots(depth + 1);
@@ -144,7 +169,7 @@ void print_func_params(is_parameter* ipl, int depth){
         print_parameter_type(current->val->type_param, depth + 1);
 
         print_dots(depth + 1);
-        printf("Id(%s)\n", current->val->id);
+        printf("Id(%s)\n", current->val->id->id);
 
         current = current->next;
     }
@@ -156,13 +181,10 @@ void print_func_body(is_func_body* ifb, int depth){
 
     is_vars_and_statements_list* current = ifb->ivsl;
 
-    //aqui temos de verificar se tem {} para n dar print sempre que o statement tenha >2 linhas
-
     print_dots(depth);
     printf("FuncBody\n");
 
     while (current != NULL) {
-        //é preciso alterar aqui qq coisa. n pode ser sempre +2
         print_var_or_statement(current->val, depth + 1);
         current = current->next;
     }
@@ -200,7 +222,7 @@ void print_var_spec(is_var_spec* ivs, int depth){
         print_parameter_type(ivs->type, depth + 1);
 
         print_dots(depth + 1);
-        printf("Id(%s)\n", current->val);
+        printf("Id(%s)\n", current->val->id);
         current = current->next;        
     }
 }
@@ -294,7 +316,7 @@ void print_print_statement(is_print_statement* ips, int depth){
             break;
         case d_str:
             print_dots(depth);
-            printf("StrLit(%s)\n", ips->print.id);
+            printf("StrLit(%s)\n", ips->print.id->id);
             break;
         default:
             printf("Erro print_print_statement\n");
@@ -344,7 +366,8 @@ void print_final_statement(is_final_statement* ifs, int depth) {
             printf("Call\n");
 
             print_dots(depth + 1);
-            printf("Id(%s)\n", ifs->statement.ifi->id);
+            printf("Id(%s)", ifs->statement.ifi->id->id);
+            print_anotation_type(ifs->statement.ifi->id);
             
             current = ifs->statement.ifi->iel;
             while ( current ){
@@ -357,7 +380,7 @@ void print_final_statement(is_final_statement* ifs, int depth) {
             printf("ParseArgs\n");
 
             print_dots(depth+1);
-            printf("Id(%s)\n", ifs->statement.ipa->id);
+            printf("Id(%s)\n", ifs->statement.ipa->id->id);
 
             print_expression_or_list(ifs->statement.ipa->iel, depth+1);
             break;
@@ -371,10 +394,13 @@ void print_final_statement(is_final_statement* ifs, int depth) {
 void print_assign_statement(is_assign_statement* ias, int depth){
     if (ias == NULL) return;
     print_dots(depth);
-    printf("Id(%s)\n", ias->id);
+    printf("Id(%s)", ias->id->id);
+    print_anotation_type(ias->id);
     print_expression_or_list(ias->iel, depth);
 }
 
+//  TODO se for a || b -> Or - bool mas se for a || b() -> Or pq é uma funcção
+// Deve ser o mesmo para os statements
 void print_expression_or_list(is_expression_or_list* ieol, int depth){
     if (ieol == NULL) return;
 
@@ -384,7 +410,10 @@ void print_expression_or_list(is_expression_or_list* ieol, int depth){
     
     if (type){
         print_dots(depth);
-        printf("Or\n");
+        printf("Or");
+        //if (flag_3) printf(" - bool");
+        printf("\n");
+
 
         print_expression_or_list(current->next_left, depth+1);
         print_expression_and_list(current->next_right, depth+1);
@@ -403,7 +432,9 @@ void print_expression_and_list(is_expression_and_list* ieal, int depth){
     
     if(type){
         print_dots(depth);
-        printf("And\n");
+        printf("And");
+        //if (flag_3) printf(" - bool");
+        printf("\n");
         
         print_expression_and_list(current->next_left, depth + 1);
         print_expression_comp_list(current->next_right, depth + 1);
@@ -433,6 +464,7 @@ void print_expression_comp_list(is_expression_comp_list * iecl, int depth){
     }
 }
 
+
 void print_expression_sum_like_list(is_expression_sum_like_list * iesl, int depth){
     if (iesl == NULL) return;
 
@@ -451,6 +483,7 @@ void print_expression_sum_like_list(is_expression_sum_like_list * iesl, int dept
     }
 }
 
+
 void print_expression_star_like_list(is_expression_star_like_list * iestl, int depth){
     if (iestl == NULL) return;
 
@@ -468,6 +501,7 @@ void print_expression_star_like_list(is_expression_star_like_list * iestl, int d
         print_expression_star_like_list(current->next_left, depth);
     }
 }
+
 
 void print_self_expression_list(is_self_expression_list * isel, int depth){
     if (isel == NULL) return;
@@ -494,19 +528,23 @@ void print_final_expression(is_final_expression * ife, int depth){
     switch (ife->type_final_expression){
         case d_intlit:
             print_dots(depth);
-            printf("IntLit(%s)\n", ife->expr.u_intlit->intlit);
+            printf("IntLit(%s)", ife->expr.u_intlit->intlit->id);
+            print_anotation_type(ife->expr.u_intlit->intlit);
             break;
         case d_reallit:
             print_dots(depth);
-            printf("RealLit(%s)\n", ife->expr.u_reallit->reallit);
+            printf("RealLit(%s)", ife->expr.u_reallit->reallit->id);
+            print_anotation_type(ife->expr.u_reallit->reallit);
             break;
         case d_id:
             print_dots(depth);
-            printf("Id(%s)\n", ife->expr.u_id->id);
+            printf("Id(%s)", ife->expr.u_id->id->id);
+            print_anotation_type(ife->expr.u_id->id);
             break;
         case d_func_inv:
             print_dots(depth);
-            printf("Call\n");
+            printf("Call");
+            print_anotation_type(ife->expr.ifi->id);
             print_func_invocation(ife->expr.ifi, depth + 1);
             break;
         case d_expr_final:
@@ -518,9 +556,11 @@ void print_final_expression(is_final_expression * ife, int depth){
     }
 }
 
+
 void print_func_invocation(is_function_invocation * ifi, int depth){
     print_dots(depth);
-    printf("Id(%s)\n", ifi->id);
+    printf("Id(%s)", ifi->id->id);
+    print_anotation_type(ifi->id);
 
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){
@@ -534,22 +574,34 @@ void print_comp_type(comp_type ct){
     //{d_lt, d_gt, d_eq, d_ne, d_ge, d_le, d_sum_like}
     switch (ct){
         case d_lt:
-            printf("Lt\n");
+            printf("Lt");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_gt:
-            printf("Gt\n");
+            printf("Gt");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_eq:
-            printf("Eq\n");
+            printf("Eq");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_ne:
-            printf("Ne\n");
+            printf("Ne");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_ge:
-            printf("Ge\n");
+            printf("Ge");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         case d_le:
-            printf("Le\n");
+            printf("Le");
+            if (flag_3)printf(" - bool");
+            printf("\n");
             break;
         default:
             printf("Erro print_comp_type");
@@ -560,7 +612,7 @@ void print_comp_type(comp_type ct){
 
 
 void print_sum_like(sum_like_type slt) {
-    //{d_plus, d_minus, d_star_like}                             sum_like_type
+    //{d_plus, d_minus, d_star_like} sum_like_type
 
     switch (slt){
         case d_plus:
