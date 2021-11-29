@@ -5,6 +5,7 @@
     #include "functions.h"
     #include "semantics.h"
     #include "print_ast.h"
+    #include "free_tree.h"
     #include "y.tab.h"
     #include <string.h>
     #include <stdbool.h>
@@ -200,6 +201,7 @@ int main(int argc, char *argv[]){
             print_symbol_tables(program);
             printf("\n");
             print_ast(program);
+            free_ast(program);
             return 0;
         }
     } else

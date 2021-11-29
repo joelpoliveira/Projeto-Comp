@@ -202,6 +202,16 @@ table_element* get_function_table(is_program* ip, char* str){
 }
 
 
+is_func_dec * get_function_declaration(is_program* ip, char* str){
+    for(is_declarations_list* current = ip->idlist; current; current = current->next){
+        if(current->val->type_dec == d_func_dec){
+            if (strcmp(current->val->dec.ifd->id->id, str) == 0)
+                return current->val->dec.ifd;
+        }
+    }
+    return NULL;
+}
+
 
 void print_symbol_tables(is_program* ip) {
     //{d_integer, d_float32, d_string, d_bool, d_var, d_dummy}   parameter_type;

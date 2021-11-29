@@ -9,3 +9,4 @@ void print_symbol_tables(is_program* ip);
 void print_global_table(table_element *symtab);
 void print_function_table(table_element *symtab);
 table_element* get_function_table(is_program* ip, char* str);
+is_func_dec * get_function_declaration(is_program* ip, char* str);

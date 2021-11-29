@@ -269,9 +269,6 @@ void check_expression_comp_list(table_element** symtab, is_expression_comp_list 
     // check_comp_type();
 
     if (iecl->oper_comp != d_sum_like){
-        //print_comp_type(type);
-        //Do stuff
-
         check_expression_comp_list(symtab, iecl->next_left);
         check_expression_sum_like_list(symtab, iecl->next_right);
     }else{
@@ -366,20 +363,11 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 
 
 // TODO pode ter vários parametros (int, int, bool)
-// Aproveitar table_element.type_dec == d_func para ver se é uma função
-// e fazer uma lista ligada no id_token.type ?
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
     //table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
     //table_element* func_symbol = search_symbol(*symtab, ifi->id->id);
 
     //printf("====Check_func_invocation: %s\n====", ifi->id->id);
-
-    // if (global_symbol == NULL && func_symbol == NULL){
-    //     print_cannot_find(ifi->id->id, ifi->id->line, ifi->id->col);
-    // }
-    // else {
-    //     ifi->id->type = global_symbol->type;
-    // }
 
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){
@@ -403,10 +391,11 @@ void check_id(table_element* symtab, id_token* id){
         id->type = local_symbol->type;
     }
 
-    if (global_symbol == NULL) {
-        in_global_table = 0;
-    } else {
-        id->type = global_symbol->type;
+    if (in_function_table == 0){
+        if (global_symbol == NULL) 
+            in_global_table = 0;
+        else 
+            id->type = global_symbol->type;
     }
 
     if (!in_function_table && !in_global_table)
