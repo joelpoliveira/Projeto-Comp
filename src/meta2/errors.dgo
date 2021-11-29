@@ -3,12 +3,6 @@
 
 package main;
 
-var n int;
-var x float32;
-
-func f(n int) bool {
-    return (n > );
-};
 
 func f2() {
     f(&&);
@@ -16,6 +10,3 @@ func f2() {
     =;;
 };
 
-func main() {
-    n,_ = strconv.Atoi(/);
-};

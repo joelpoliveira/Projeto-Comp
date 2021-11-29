@@ -6,6 +6,7 @@
 
 
 is_program * insert_program(is_declarations_list * idl){
+	if (idl == NULL) return NULL;
 	is_program * ip = (is_program*) malloc(sizeof(is_program));
 	ip->idlist = idl;
 
@@ -13,6 +14,7 @@ is_program * insert_program(is_declarations_list * idl){
 }
 
 is_declarations_list * insert_declaration(is_declarations_list * head, is_declaration * id){
+	if (head == NULL && id == NULL) return NULL;
 	is_declarations_list * idl = (is_declarations_list*) malloc(sizeof(is_declarations_list));
 	is_declarations_list * aux;
 
@@ -253,6 +255,7 @@ is_statement * insert_statements_list(is_statements_list * isl){
 }
 
 is_statement * insert_final_statement(is_final_statement * ifs){
+	if (ifs == NULL) return NULL;
 	is_statement * is = (is_statement*) malloc( sizeof(is_statement));
 
 	is->type_state = d_final_statement;
@@ -296,6 +299,7 @@ is_statements_list * insert_statement_in_list(is_statements_list * head, is_stat
 }
 
 is_parse_arguments * insert_parse_args( char * id, is_expression_or_list * iel){
+	if ( id == NULL && iel == NULL) return NULL;
 	is_parse_arguments * ipa = (is_parse_arguments*) malloc(sizeof(is_parse_arguments));
 
 	ipa->id = (char * )strdup(id);
@@ -304,6 +308,7 @@ is_parse_arguments * insert_parse_args( char * id, is_expression_or_list * iel){
 }
 
 is_function_invocation * insert_func_inv(char * id, is_expression_or_list * head, is_func_inv_expr_list * iel){
+	if (id == NULL && head == NULL &&iel == NULL) return NULL;
 	is_function_invocation * ifi = (is_function_invocation * ) malloc(sizeof(is_function_invocation));
 	is_func_inv_expr_list * ifie = (is_func_inv_expr_list *) malloc(sizeof(is_func_inv_expr_list));
 

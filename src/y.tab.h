@@ -145,7 +145,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 35 "gocompiler.y"
+#line 36 "gocompiler.y"
 
     char *id;
     parameter_type pt;
@@ -175,8 +175,9 @@ union YYSTYPE
     star_like_type stlt;
     self_operation_type sot;
     is_func_dec * ifd;
+    is_func_inv_expr_list * ifiel;
 
-#line 180 "y.tab.h"
+#line 181 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
