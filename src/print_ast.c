@@ -1,12 +1,13 @@
 #include "print_ast.h"
 #include "functions.h"
+#include "symbol_table.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
 
 extern bool flag_3;
-
+extern is_program * program;
 
 void print_anotation_type(id_token* id){
     //typedef enum {d_integer, d_float32, d_string, d_bool, d_var, d_dummy}  
@@ -30,6 +31,34 @@ void print_anotation_type(id_token* id){
         }
     } 
     printf("\n");
+}
+
+void print_parameters_type(is_id_type_list * iitl){
+    for ( ; iitl; iitl = iitl->next){
+            switch (iitl->val->type_param)
+            {
+            case d_integer:
+                printf("int");
+                break;
+            case d_float32:
+                printf("float32");
+                break;
+            case d_string:
+                printf("string");
+                break;
+            case d_bool:
+                printf("bool");
+                break;
+            case d_var:
+            case d_dummy:
+                break;
+            default:
+                printf("-----------------\n\n-----------------\n");
+            }
+            if (iitl->next != NULL)
+                printf(",");
+        
+    }
 }
 
 void print_dots(int depth){
@@ -560,8 +589,13 @@ void print_final_expression(is_final_expression * ife, int depth){
 void print_func_invocation(is_function_invocation * ifi, int depth){
     print_dots(depth);
     printf("Id(%s)", ifi->id->id);
-    print_anotation_type(ifi->id);
-
+    
+    is_func_dec * func_dec = get_function_declaration(program, ifi->id->id);
+    printf(" - (");
+    if (func_dec->ipl!=NULL)
+        print_parameters_type(func_dec->ipl->val);
+    printf(")\n");
+    
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){
         print_expression_or_list(current->val, depth);
