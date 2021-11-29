@@ -174,7 +174,8 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
     }
 }
 
-
+//TODO apenas inserir variável se esriver declarada numa tabela
+//Se não estiver declarada, erro cannot find
 void check_assign_statement(table_element** symtab, is_assign_statement* ias){
     // assign_statement -> a = 2;
     // se existir na table global -> não adicionar á tabela local
