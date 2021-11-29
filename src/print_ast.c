@@ -435,8 +435,7 @@ void print_assign_statement(is_assign_statement* ias, int depth){
     print_expression_or_list(ias->iel, depth);
 }
 
-//  TODO se for a || b -> Or - bool mas se for a || b() -> Or pq é uma funcção
-// Deve ser o mesmo para os statements
+
 void print_expression_or_list(is_expression_or_list* ieol, int depth){
     if (ieol == NULL) return;
 
