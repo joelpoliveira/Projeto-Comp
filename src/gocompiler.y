@@ -169,7 +169,7 @@ statements: IF expr_or states_in_brace                          { $$ = insert_if
         |   ID ASSIGN expr_or                                   { $$ = insert_assign_statement($1, $3); }
         |   states_in_brace                                     { $$ = insert_statements_list($1); }
         |   final_states                                        { $$ = insert_final_statement($1); }
-        |   error                                               {error_flag = 1;  free_statement($$); }
+        |   error                                               {error_flag = 1; }
         ;
 
 final_states:   func_invocation  { $$ = insert_final_state_func_inv($1);}
@@ -181,10 +181,10 @@ state_semic_rec: /*EMPTY*/                              { $$ = NULL ; }
                 | state_semic_rec statements SEMICOLON  {   $$ = insert_statement_in_list($1, $2);}
                 ;
 parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr_or RSQ RPAR {$$ = insert_parse_args($1, $9); }
-        |   ID COMMA BLANKID ASSIGN PARSEINT LPAR error RPAR                {error_flag = 1;  free_parse_args($$); }
+        |   ID COMMA BLANKID ASSIGN PARSEINT LPAR error RPAR                {error_flag = 1; }
         ;
 
-func_invocation: ID LPAR error RPAR                 { error_flag = 1; free_func_invocation($$);}
+func_invocation: ID LPAR error RPAR                 { error_flag = 1;}
             |   ID LPAR expr_or comma_expr_rec RPAR    {$$ = insert_func_inv($1, $3, $4);}
             |   ID LPAR RPAR                        {  $$ = insert_func_inv($1, NULL, NULL);}
             ;
