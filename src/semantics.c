@@ -139,6 +139,7 @@ void check_if_statement(table_element** symtab, is_if_statement* ifs){
     check_else_statement(symtab, ifs->ies);
 }
 
+
 void check_else_statement(table_element** symtab, is_else_statement* ies){
     if (ies == NULL) return;
 
@@ -176,12 +177,9 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
 }
 
 
-// Tipo da anotação do assing é o do id, i.e a = 123; Add - int
-void check_assign_statement(table_element** symtab, is_assign_statement* ias){
-    // assign_statement -> a = 2;
-    // se existir na table global -> não adicionar á tabela local
-    search_in_tables(symtab, ias->id);
 
+void check_assign_statement(table_element** symtab, is_assign_statement* ias){
+    search_in_tables(symtab, ias->id);
     check_expression_or_list(symtab, ias->iel);
 }
 
@@ -378,7 +376,7 @@ void check_id(table_element** symtab, id_token* id){
 
 // Procurar simbolo na tabela local e global
 // Se existir, definir o tipo do id para anotação na AST
-table_element* search_in_tables(table_element **symtab, id_token* id){
+void search_in_tables(table_element **symtab, id_token* id){
     table_element* local_symbol = search_symbol(*symtab, id->id);
     table_element* global_symbol = search_symbol(program->symtab, id->id);
     bool in_function_table = 1;
@@ -400,7 +398,9 @@ table_element* search_in_tables(table_element **symtab, id_token* id){
         } 
     }
 
-    if (!in_function_table && !in_global_table)
+    if (!in_function_table && !in_global_table){
         print_cannot_find(id->id, id->line, id->col);
+        id->type = d_undef;
+    }
 }
 

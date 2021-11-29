@@ -11,7 +11,7 @@ extern is_program * program;
 
 
 void print_anotation_type(id_token* id){
-    //typedef enum {d_integer, d_float32, d_string, d_bool, d_var, d_dummy}  
+    //typedef enum {d_integer, d_float32, d_string, d_bool, d_var, d_none}  
     if (flag_3){
         switch (id->type){
             case d_integer:
@@ -26,11 +26,14 @@ void print_anotation_type(id_token* id){
              case d_bool:
                 printf(" - bool");
                 break;
-            case d_dummy:
+            case d_none:
                 //printf(" - none");
                 break;
+            case d_undef:
+                printf(" - undef");
+                break;
             default:
-                printf("Erro print_anotation_type: %d", id->type);
+                printf("Erro print_anotation_typnonee: %d", id->type);
                 break;
         }
     } 
@@ -55,7 +58,7 @@ void print_parameters_type(is_id_type_list * iitl){
                 printf("bool");
                 break;
             case d_var:
-            case d_dummy:
+            case d_none:
                 break;
             default:
                 printf("-----------------\n\n-----------------\n");
@@ -161,7 +164,7 @@ void print_func_dec(is_func_dec* ifd, int depth){
 }
 
 void print_parameter_type(parameter_type param, int depth){
-    //types: d_integer, d_float32, d_string, d_bool, d_var, d_dummy
+    //types: d_integer, d_float32, d_string, d_bool, d_var, d_none
     switch(param){
         case d_integer:
             print_dots(depth);
@@ -183,7 +186,7 @@ void print_parameter_type(parameter_type param, int depth){
         //     print_dots(depth);
         //     printf("Var\n");
         //     break;
-        // case d_dummy:
+        // case d_none:
         //     print_dots(depth);
         //     printf("None\n");
         //     break;
@@ -399,7 +402,7 @@ void print_final_statement(is_final_statement* ifs, int depth) {
 
     final_state_type type = ifs->type_state; 
     //d_function_invoc, d_arguments
-    is_func_inv_expr_list * current;
+   
     switch (type){
         case d_function_invoc:
             //printf("======print_final_statement======\n");
@@ -558,8 +561,6 @@ void print_self_expression_list(is_self_expression_list * isel, int depth){
 void print_final_expression(is_final_expression * ife, int depth){
     if (ife == NULL) return;
 
-    is_func_inv_expr_list * current;
-
     switch (ife->type_final_expression){
         case d_intlit:
             print_dots(depth);
@@ -598,11 +599,14 @@ void print_func_invocation(is_function_invocation * ifi, int depth){
     print_dots(depth);
     printf("Id(%s)", ifi->id->id);
     
-    is_func_dec * func_dec = get_function_declaration(program, ifi->id->id);
-    printf(" - (");
-    if (func_dec->ipl!=NULL)
-        print_parameters_type(func_dec->ipl->val);
-    printf(")\n");
+    if (flag_3){
+        is_func_dec * func_dec = get_function_declaration(program, ifi->id->id);
+        printf(" - (");
+        if (func_dec->ipl!=NULL)
+            print_parameters_type(func_dec->ipl->val);
+        printf(")");
+    }
+    printf("\n");
     
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){
