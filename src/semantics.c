@@ -48,6 +48,7 @@ void check_declarations_list(table_element** symtab, is_declarations_list* idl){
 void check_func_declaration(table_element** symtab, is_func_dec* ifd){
     
     ifd->symtab = insert_func(symtab, ifd->id->id, ifd->ipl, ifd->type);
+    //printf("%s ifd->id->type: %d        ifd->type: %d\n", ifd->id->id,ifd->id->type, ifd->type);
 
     //inserir na tabela de simbolos da função
     check_function_body(&ifd->symtab, ifd->ifb);
@@ -138,6 +139,7 @@ void check_if_statement(table_element** symtab, is_if_statement* ifs){
     check_else_statement(symtab, ifs->ies);
 }
 
+
 void check_else_statement(table_element** symtab, is_else_statement* ies){
     if (ies == NULL) return;
 
@@ -175,16 +177,9 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
 }
 
 
-//TODO apenas inserir variável se esriver declarada numa tabela
-//Se não estiver declarada, erro cannot find
+
 void check_assign_statement(table_element** symtab, is_assign_statement* ias){
-    // assign_statement -> a = 2;
-    // se existir na table global -> não adicionar á tabela local
-    if (search_symbol(*symtab, ias->id->id) == NULL){
-        //Não existe na tabela local
-        //insert_var(symtab, ias->id->id, d_dummy);
-    }
-    
+    search_in_tables(symtab, ias->id);
     check_expression_or_list(symtab, ias->iel);
 }
 
@@ -217,7 +212,7 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
                 current = current->next;
             }
         case d_arguments:
-            check_id(*symtab, ifs->statement.ipa->id);
+            check_id(symtab, ifs->statement.ipa->id);
             check_expression_or_list(symtab, ifs->statement.ipa->iel);
             break;
         default:
@@ -347,7 +342,7 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
             ife->expr.u_reallit->reallit->type = d_float32; 
             break;
         case d_id:
-            check_id(*symtab, ife->expr.u_id->id);
+            check_id(symtab, ife->expr.u_id->id);
             break;
         case d_func_inv:
             check_func_invocation(symtab, ife->expr.ifi);
@@ -361,11 +356,10 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
     }
 }
 
-void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
-    //table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
-    //table_element* func_symbol = search_symbol(*symtab, ifi->id->id);
 
+void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
     //printf("====Check_func_invocation: %s\n====", ifi->id->id);
+    search_in_tables(symtab, ifi->id);
 
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){
@@ -375,28 +369,38 @@ void check_func_invocation(table_element** symtab, is_function_invocation * ifi)
 }
 
 
-void check_id(table_element* symtab, id_token* id){
-    table_element* local_symbol = search_symbol(symtab, id->id);
+void check_id(table_element** symtab, id_token* id){
+    search_in_tables(symtab, id);
+}
+
+
+// Procurar simbolo na tabela local e global
+// Se existir, definir o tipo do id para anotação na AST
+void search_in_tables(table_element **symtab, id_token* id){
+    table_element* local_symbol = search_symbol(*symtab, id->id);
     table_element* global_symbol = search_symbol(program->symtab, id->id);
     bool in_function_table = 1;
     bool in_global_table = 1;
-
-    //printf("====Check_id: %s\n====", id->id);
 
     if (local_symbol == NULL) {
         in_function_table = 0;
     } else {
         id->type = local_symbol->type;
+        //printf("Local -> %s: id: %d - symbol: %d\n", local_symbol->name, id->type, local_symbol->type);
     }
 
     if (in_function_table == 0){
         if (global_symbol == NULL) 
             in_global_table = 0;
-        else 
+        else{
             id->type = global_symbol->type;
+            //printf("Global -> %s: id: %d - symbol: %d\n", global_symbol->name, id->type, global_symbol->type);
+        } 
     }
 
-    if (!in_function_table && !in_global_table)
+    if (!in_function_table && !in_global_table){
         print_cannot_find(id->id, id->line, id->col);
-    
+        id->type = d_undef;
+    }
 }
+

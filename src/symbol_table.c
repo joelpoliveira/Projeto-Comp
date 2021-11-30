@@ -120,23 +120,26 @@ table_element *search_symbol(table_element *symtab, char *str) {
 
 void symbol_print_type(parameter_type type){
     switch (type) {
-        case 0:
+        case d_integer:
             printf("int");
             break;
-        case 1:
+        case d_float32:
             printf("float32");
             break;
-        case 2:
+        case d_string:
             printf("string");
             break;
-        case 3:
+        case d_bool:
             printf("bool");
             break;
-        case 4:
+        case d_var:
             printf("var");
             break;
-        case 5:
+        case d_none:
             printf("none");
+            break;
+        case d_undef:
+            printf("undef");
             break;
         default:
             printf("Erro show_table\n");
@@ -214,7 +217,7 @@ is_func_dec * get_function_declaration(is_program* ip, char* str){
 
 
 void print_symbol_tables(is_program* ip) {
-    //{d_integer, d_float32, d_string, d_bool, d_var, d_dummy}   parameter_type;
+    //{d_integer, d_float32, d_string, d_bool, d_var, d_none}   parameter_type;
     table_element *aux;
 
     //print global table

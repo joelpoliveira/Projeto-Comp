@@ -141,8 +141,8 @@ type:   INT             { $$ = insert_type("INT");}
 
 func_dec:   FUNC ID LPAR parameters RPAR type func_body     { $$=insert_func_declaration($2, $4, $6, $7);}
         |   FUNC ID LPAR RPAR type func_body                { $$=insert_func_declaration($2, NULL, $5, $6);}
-        |   FUNC ID LPAR parameters RPAR func_body          { $$=insert_func_declaration($2, $4, d_dummy, $6);}
-        |   FUNC ID LPAR RPAR func_body                     { $$=insert_func_declaration($2, NULL, d_dummy, $5);}
+        |   FUNC ID LPAR parameters RPAR func_body          { $$=insert_func_declaration($2, $4, d_none, $6);}
+        |   FUNC ID LPAR RPAR func_body                     { $$=insert_func_declaration($2, NULL, d_none, $5);}
         ;
 
 parameters: ID type comma_id_type_rec               {  $$ = insert_parameter($1, $2, $3);};
