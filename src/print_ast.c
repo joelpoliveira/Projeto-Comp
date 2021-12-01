@@ -441,10 +441,9 @@ void print_assign_statement(is_assign_statement* ias, int depth){
 
 void print_expression_or_list(is_expression_or_list* ieol, int depth){
     if (ieol == NULL) return;
-
+    
     is_expression_or_list*  current = ieol;
-
-    bool type = ieol->is_operation; //expression_type = d_operation, d_expr
+    bool type = current->is_operation; //expression_type = d_operation, d_expr
     
     if (type){
         print_dots(depth);
@@ -457,7 +456,6 @@ void print_expression_or_list(is_expression_or_list* ieol, int depth){
         print_expression_and_list(current->next_right, depth+1);
     } else {
         print_expression_and_list(current->next_right, depth);
-        print_expression_or_list(current->next_left, depth);
     }
 }
 
@@ -478,7 +476,6 @@ void print_expression_and_list(is_expression_and_list* ieal, int depth){
         print_expression_comp_list(current->next_right, depth + 1);
     } else {
         print_expression_comp_list(current->next_right, depth);
-        print_expression_and_list(current->next_left, depth);
     }
 }
 
@@ -496,7 +493,6 @@ void print_expression_comp_list(is_expression_comp_list * iecl, int depth){
         print_expression_sum_like_list(current->next_right, depth + 1);
     } else {
         print_expression_sum_like_list(current->next_right, depth);
-        print_expression_comp_list(current->next_left, depth);
     }
 }
 
@@ -515,7 +511,6 @@ void print_expression_sum_like_list(is_expression_sum_like_list * iesl, int dept
         print_expression_star_like_list(current->next_right, depth + 1);
     } else {
         print_expression_star_like_list(current->next_right, depth);
-        print_expression_sum_like_list(current->next_left, depth);
     }
 }
 
@@ -534,7 +529,6 @@ void print_expression_star_like_list(is_expression_star_like_list * iestl, int d
         print_self_expression_list(current->next_right, depth + 1);
     } else {
         print_self_expression_list(current->next_right, depth);
-        print_expression_star_like_list(current->next_left, depth);
     }
 }
 
@@ -553,7 +547,6 @@ void print_self_expression_list(is_self_expression_list * isel, int depth){
         print_final_expression(current->next_final, depth + 1);
     } else {
         print_final_expression(current->next_final, depth);
-        print_self_expression_list(current->next_same, depth);
     }
 }
 
