@@ -252,6 +252,8 @@ void print_never_used_errors (is_program* ip){
                 printf("Line %d, column %d: Symbol %s declared but never used\n", symtab->id->line, symtab->id->col+1, symtab->id->id);
         } else { // Procurar na tabela da função
             for (aux = get_function_table(ip, symtab->id->id); aux; aux = aux->next) {
+                if (strcmp(aux->id->id, "return") == 0) continue; // ignore return 
+                
                 if (aux->id->uses == 0)
                     printf("(%s) Line %d, column %d: Symbol %s declared but never used\n", symtab->id->id, aux->id->line, aux->id->col+1,aux->id->id);
             }

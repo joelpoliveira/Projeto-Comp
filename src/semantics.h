@@ -27,4 +27,4 @@ void check_self_expression_list(table_element** symtab, is_self_expression_list 
 void check_final_expression(table_element** symtab, is_final_expression * ife);
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi);
 void check_id(table_element** symtab, id_token* id);
-void search_in_tables(table_element **symtab, id_token* id);
+bool search_in_tables(table_element **symtab, id_token* id);

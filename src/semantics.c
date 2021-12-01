@@ -184,7 +184,9 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
 
 
 void check_assign_statement(table_element** symtab, is_assign_statement* ias){
-    search_in_tables(symtab, ias->id);
+    if (!search_in_tables(symtab, ias->id))
+        printf("Line %d, column %d: Cannot find symbol %s\n", ias->id->line, ias->id->col+1, ias->id->id);
+
     check_expression_or_list(symtab, ias->iel);
 }
 
@@ -209,6 +211,7 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
 
     switch (type){
         case d_function_invoc:
+            //printf("======== check_final_statement ========\n");
             check_func_invocation(symtab, ifs->statement.ifi);
 
             current = ifs->statement.ifi->iel;
@@ -216,6 +219,8 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
                 check_expression_or_list(symtab, current->val);
                 current = current->next;
             }
+
+            break;
         case d_arguments:
             check_id(symtab, ifs->statement.ipa->id);
             check_expression_or_list(symtab, ifs->statement.ipa->iel);
@@ -350,6 +355,7 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
             check_id(symtab, ife->expr.u_id->id);
             break;
         case d_func_inv:
+            //printf("======== check_final_expression ========\n");
             check_func_invocation(symtab, ife->expr.ifi);
             break;
         case d_expr_final:
@@ -364,25 +370,30 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
     //printf("====Check_func_invocation: %s\n====", ifi->id->id);
-    search_in_tables(symtab, ifi->id);
-    (ifi->id->uses)++;
+    // verificar se a função a ser chamada existe
+    if (!search_in_tables(symtab, ifi->id)){
+        printf("Line %d, column %d: Cannot find symbol %s()\n", ifi->id->line, ifi->id->col+1, ifi->id->id);
+        return;
+    }
 
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){
         check_expression_or_list(symtab, current->val);
         current = current->next;
     } 
+    
 }
 
 
 void check_id(table_element** symtab, id_token* id){
-    search_in_tables(symtab, id);
+    if (!search_in_tables(symtab, id))
+        printf("Line %d, column %d: Cannot find symbol %s\n", id->line, id->col+1, id->id);
 }
 
 
 // Procurar simbolo na tabela local e global
 // Se existir, definir o tipo do id para anotação na AST
-void search_in_tables(table_element **symtab, id_token* id){
+bool search_in_tables(table_element **symtab, id_token* id){
     table_element* local_symbol = search_symbol(*symtab, id->id);
     table_element* global_symbol = search_symbol(program->symtab, id->id);
     bool in_function_table = 1;
@@ -407,8 +418,10 @@ void search_in_tables(table_element **symtab, id_token* id){
     }
 
     if (!in_function_table && !in_global_table){
-        print_cannot_find(id->id, id->line, id->col);
         id->type = d_undef;
+        return 0;
     }
+
+    return 1;
 }
 
