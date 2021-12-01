@@ -64,6 +64,7 @@ typedef struct _s35 {
         int line;
         int col;
         parameter_type type;
+        int uses;
 } id_token;
 
 typedef struct _s34{
@@ -289,7 +290,7 @@ typedef struct _s0{
 // } table_element_params;
 
 typedef struct _t1 {
-        char *name;
+        id_token* id;
         bool is_param;
         parameter_type type; //return type
         declaration_type type_dec;
