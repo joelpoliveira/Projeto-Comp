@@ -9,11 +9,12 @@ extern is_program * program;
 
 
 id_token *create_token(char *id, int line, int col) {
-    id_token *idt = malloc(sizeof(id_token));
+    id_token *idt = (id_token*)malloc(sizeof(id_token));
 
     idt->id = id;
     idt->line = line;
     idt->col = col;
+    idt->uses = 0;
     
     return idt;
 }
@@ -26,7 +27,7 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
     if (*symtab) {
         for (aux = *symtab; aux; previous = aux, aux = aux->next) {
             //printf("++++++++ %s\n", aux->name);
-            if (strcmp(aux->name, new_symbol->name) == 0) {
+            if (strcmp(aux->id->id, new_symbol->id->id) == 0) {
                 free(new_symbol);
                 //printf("--------Alredy existed\n");
                 return NULL;
@@ -41,11 +42,12 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
 }
 
 
-table_element *insert_func(table_element **symtab, char* str, is_parameter * ip, parameter_type return_type) {
+table_element *insert_func(table_element **symtab, id_token* id, is_parameter * ip, parameter_type return_type) {
     table_element *new_symbol = (table_element *)malloc(sizeof(table_element));
     table_element* func_table = NULL;
+    //id_token* temp = id;
 
-    new_symbol->name = strdup(str);
+    new_symbol->id = id;
     new_symbol->is_param = 0;
     new_symbol->type = return_type;
     new_symbol->type_dec = d_func_dec;
@@ -60,7 +62,7 @@ table_element *insert_func(table_element **symtab, char* str, is_parameter * ip,
 
     //inserir return
     new_symbol = (table_element *)malloc(sizeof(table_element));
-    new_symbol->name = "return";
+    new_symbol->id = create_token("return", 0, 0);
     new_symbol->is_param = 0;
     new_symbol->type = return_type;
     //new_symbol->type_dec = NULL;
@@ -71,11 +73,13 @@ table_element *insert_func(table_element **symtab, char* str, is_parameter * ip,
     if (ip != NULL){
         for (is_id_type_list* current = ip->val; current ; current = current->next) {
             new_symbol = (table_element *)malloc(sizeof(table_element));
+            //temp = (table_element*)malloc(sizeof(table_element));
+            //temp = current->val->id;
 
-            new_symbol->name = strdup(current->val->id->id);
+            new_symbol->id = current->val->id;
             new_symbol->is_param = 1;
             new_symbol->type = current->val->type_param;
-            new_symbol->type_dec = d_func_dec;
+            new_symbol->type_dec = d_var_declaration;
             new_symbol->next = NULL;
 
             //search_symbol(program->symtab, str);
@@ -90,10 +94,11 @@ table_element *insert_func(table_element **symtab, char* str, is_parameter * ip,
 }
 
 
-table_element *insert_var(table_element **symtab, char* str, parameter_type return_type) {
+table_element *insert_var(table_element **symtab, id_token* id, parameter_type return_type) {
     table_element *new_symbol = (table_element *)malloc(sizeof(table_element));
+    //id_token* temp = id;
 
-    new_symbol->name = strdup(str);
+    new_symbol->id = id;
     new_symbol->is_param = 0;
     new_symbol->type = return_type;
     new_symbol->type_dec = d_var_declaration;
@@ -105,11 +110,10 @@ table_element *insert_var(table_element **symtab, char* str, parameter_type retu
 
 // Procura um identificador, devolve NULL caso nao exista
 table_element *search_symbol(table_element *symtab, char *str) {
-    table_element *aux;
 
-    for (aux = symtab; aux; aux = aux->next){
+    for (table_element *aux = symtab; aux; aux = aux->next){
         //printf("======= %s\n", aux->name);
-        if (strcmp(aux->name, str) == 0){
+        if (strcmp(aux->id->id, str) == 0){
             return aux;
         }
     }
@@ -166,10 +170,10 @@ void print_function_params_type(table_element *symtab) {
 void print_global_table(table_element *symtab){
     table_element *aux;
     for (aux = symtab; aux != NULL; aux = aux->next){
-        printf("%s\t", aux->name);
+        printf("%s\t", aux->id->id);
 
         if (aux->type_dec == d_func_dec){
-            print_function_params_type(get_function_table(program, aux->name));
+            print_function_params_type(get_function_table(program, aux->id->id));
             printf("\t");
         } else
             printf("\t"); 
@@ -183,7 +187,7 @@ void print_function_table(table_element *symtab){
     table_element *aux;
 
     for (aux = symtab; aux != NULL; aux = aux->next){
-        printf("%s\t\t", aux->name); // id
+        printf("%s\t\t", aux->id->id); // id
         symbol_print_type(aux->type); //tipo
         if (aux->is_param)
             printf("\tparam");
@@ -227,13 +231,33 @@ void print_symbol_tables(is_program* ip) {
     //print function tables
     for (aux = ip->symtab; aux != NULL; aux = aux->next){
         if (aux->type_dec == d_func_dec){
-            printf("\n===== Function %s", aux->name);
-            print_function_params_type(get_function_table(ip, aux->name));
+            printf("\n===== Function %s", aux->id->id);
+            print_function_params_type(get_function_table(ip, aux->id->id));
             printf(" Symbol Table =====\n");
 
-            print_function_table(get_function_table(ip, aux->name));
+            print_function_table(get_function_table(ip, aux->id->id));
         }
     }
     
+}
+
+
+void print_never_used_errors (is_program* ip){
+    table_element* aux;
+
+    //Global table
+    for(table_element* symtab = ip->symtab; symtab; symtab = symtab->next){
+        if (symtab->type_dec != d_func_dec){
+            if (symtab->id->uses == 0)
+                printf("Line %d, column %d: Symbol %s declared but never used\n", symtab->id->line, symtab->id->col+1, symtab->id->id);
+        } else { // Procurar na tabela da função
+            for (aux = get_function_table(ip, symtab->id->id); aux; aux = aux->next) {
+                if (aux->id->uses == 0)
+                    printf("(%s) Line %d, column %d: Symbol %s declared but never used\n", symtab->id->id, aux->id->line, aux->id->col+1,aux->id->id);
+            }
+            
+        }
+        
+    }
 }
 

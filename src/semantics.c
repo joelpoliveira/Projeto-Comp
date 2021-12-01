@@ -9,6 +9,9 @@
 //extern table_element* symtab;
 extern is_program * program;
 
+// TODO verificar todas as declarações globais em 1º
+// só depois entrar nas declaraçoes de funções
+
 
 void print_already_defined(char* id, int line, int col){
     printf("Line %d, column %d: Symbol %s already defined\n", line, col+1, id);
@@ -47,11 +50,12 @@ void check_declarations_list(table_element** symtab, is_declarations_list* idl){
 
 void check_func_declaration(table_element** symtab, is_func_dec* ifd){
     
-    ifd->symtab = insert_func(symtab, ifd->id->id, ifd->ipl, ifd->type);
+    ifd->symtab = insert_func(symtab, ifd->id, ifd->ipl, ifd->type);
     //printf("%s ifd->id->type: %d        ifd->type: %d\n", ifd->id->id,ifd->id->type, ifd->type);
 
     //inserir na tabela de simbolos da função
     check_function_body(&ifd->symtab, ifd->ifb);
+    //get_function_declaration(program, )
 }
 
 
@@ -90,7 +94,7 @@ void check_var_spec(table_element** symtab, is_var_spec* ivs){
     parameter_type type = ivs->type;
 
     for (is_id_list* current = ivs->iil; current != NULL; current = current->next){
-        new_symbol = insert_var(symtab, current->val->id, type);
+        new_symbol = insert_var(symtab, current->val, type);
 
         if (new_symbol == NULL){
             print_already_defined(current->val->id, current->val->line, current->val->col);
@@ -154,6 +158,7 @@ void check_for_statement(table_element** symtab, is_for_statement* ifs){
 
 
 void check_return_statement(table_element** symtab, is_return_statement* irs){
+    // TODO verificar o tipo que da return e comparar com o suposta da função
     check_expression_or_list(symtab, irs->iel);
 }
 
@@ -360,6 +365,7 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
     //printf("====Check_func_invocation: %s\n====", ifi->id->id);
     search_in_tables(symtab, ifi->id);
+    (ifi->id->uses)++;
 
     is_func_inv_expr_list * current = ifi->iel;
     while ( current ){
@@ -386,7 +392,8 @@ void search_in_tables(table_element **symtab, id_token* id){
         in_function_table = 0;
     } else {
         id->type = local_symbol->type;
-        //printf("Local -> %s: id: %d - symbol: %d\n", local_symbol->name, id->type, local_symbol->type);
+        local_symbol->id->uses++;
+        //printf("Found on Local -> %s: type: %d - symbol type: %d / uses: %d\n", local_symbol->id->id, id->type, local_symbol->type, local_symbol->id->uses);
     }
 
     if (in_function_table == 0){
@@ -394,7 +401,8 @@ void search_in_tables(table_element **symtab, id_token* id){
             in_global_table = 0;
         else{
             id->type = global_symbol->type;
-            //printf("Global -> %s: id: %d - symbol: %d\n", global_symbol->name, id->type, global_symbol->type);
+            global_symbol->id->uses++;
+            //printf("Found on Global -> %s: type: %d - symbol type: %d / uses: %d\n", global_symbol->id->id, id->type, global_symbol->type, global_symbol->id->uses);
         } 
     }
 
