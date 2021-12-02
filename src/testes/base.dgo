@@ -1,9 +1,21 @@
 package main;
 
 var x int;
+var b bool;
 
 
 func teste(a bool, c int) int {
-    if (a) {}
+    if (c) {
+        x = 2
+    }
+
+    for a {}
+
+    return a;
+}
+
+func teste2 (a int) {
+    b = 0
+    return a;
 }
 
