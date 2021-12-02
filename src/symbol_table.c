@@ -28,6 +28,13 @@ next_oper* create_next_oper(int line, int col){
     return nop;
 }
 
+location * create_location(int line, int col){
+    location * loc = (location*) malloc(sizeof(location));
+    loc->line=line;
+    loc->col=col;
+    return loc;
+}
+
 table_element* insert_symbol(table_element **symtab,  table_element* new_symbol){
     table_element *aux = (table_element*) malloc(sizeof(table_element));
     table_element *previous;

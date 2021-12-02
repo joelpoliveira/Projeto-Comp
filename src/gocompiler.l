@@ -72,7 +72,7 @@ whispace (" "|\t)
 ";"				{if (flag_1) fprintf(yyout, "SEMICOLON\n");  col+=yyleng;error_line=0; return SEMICOLON;  }
 ","				{if (flag_1) fprintf(yyout, "COMMA\n");  col+=yyleng; error_line=0; return COMMA;}
 "_"				{if (flag_1) fprintf(yyout, "BLANKID\n"); col+=yyleng;error_line=0; return BLANKID;}
-"="				{if (flag_1) fprintf(yyout, "ASSIGN\n"); yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return ASSIGN;}
+"="				{if (flag_1) fprintf(yyout, "ASSIGN\n"); yylval.loc=create_location(line, col); col+=yyleng;error_line=0; return ASSIGN;}
 "*"				{if (flag_1) fprintf(yyout, "STAR\n"); yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return STAR;}
 "/"				{if (flag_1) fprintf(yyout, "DIV\n");  yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return DIV; }
 "-"				{if (flag_1) fprintf(yyout, "MINUS\n");  yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return MINUS; }
@@ -104,7 +104,7 @@ whispace (" "|\t)
 "bool"			{if (flag_1) fprintf(yyout, "BOOL\n");  col+=yyleng; error_line=0;  return BOOL; }
 "string"		{if (flag_1) fprintf(yyout, "STRING\n");  col+=yyleng;error_line=0;  return STRING; }
 "fmt.Println"	{if (flag_1) fprintf(yyout, "PRINT\n");  col+=yyleng;error_line=0; return PRINT; }
-"strconv.Atoi"	{if (flag_1) fprintf(yyout, "PARSEINT\n");  col+=yyleng;error_line=0; return PARSEINT; }
+"strconv.Atoi"	{if (flag_1) fprintf(yyout, "PARSEINT\n"); yylval.loc=create_location(line, col); col+=yyleng;error_line=0; return PARSEINT; }
 "func"			{if (flag_1) fprintf(yyout, "FUNC\n");  col+=yyleng; error_line=0;return FUNC; }
 "os.Args"		{if (flag_1) fprintf(yyout, "CMDARGS\n");  col+=yyleng; error_line=0;return CMDARGS;}
 "/*"			{; comment_lines = 0; comment_cols = 0; swaped_line = 0;error_line=0; BEGIN BCOMMENT;}
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]){
         if (!error_flag && flag_3) {
             check_program(program);
             print_never_used_errors(program);
-            printf("\n");
+            //printf("\n");
             print_symbol_tables(program);
             printf("\n");
             print_ast(program);

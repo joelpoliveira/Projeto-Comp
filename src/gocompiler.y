@@ -63,14 +63,16 @@
     is_func_dec * ifd;
     is_func_inv_expr_list * ifiel;
     next_oper * nop;
+    location * loc;
 }
 
-%token SEMICOLON COMMA BLANKID ASSIGN LBRACE   //linhas 28-39
+%token SEMICOLON COMMA BLANKID LBRACE   //linhas 28-39
 %token LPAR LSQ RBRACE RPAR RSQ PACKAGE RETURN ELSE //linhas 40-54
-%token FOR IF VAR PRINT PARSEINT FUNC CMDARGS INT FLOAT32 STRING BOOL      //linhas 55-65
+%token FOR IF VAR PRINT FUNC CMDARGS INT FLOAT32 STRING BOOL      //linhas 55-65
 %token UNARY
 %token<nop>STAR DIV MINUS PLUS EQ GE GT LE LT MOD NE NOT AND OR 
 %token<id> ID STRLIT INTLIT REALLIT RESERVED
+%token<loc>PARSEINT ASSIGN
 %type<ip> program
 %type<idl> declarations
 %type<idec> var_dec func_dec
@@ -160,7 +162,7 @@ statements: IF expr_or states_in_brace                          { $$ = insert_if
         |   RETURN                                              { $$ = insert_return_statement(NULL);  }
         |   PRINT LPAR expr_or RPAR                             {$$ = insert_print_expr_statement($3); }    
         |   PRINT LPAR STRLIT RPAR                              {$$ = insert_print_str_statement($3);  }
-        |   ID ASSIGN expr_or                                   { $$ = insert_assign_statement($1, $3); }
+        |   ID ASSIGN expr_or                                   { $$ = insert_assign_statement($1, $2 ,$3); }
         |   states_in_brace                                     { $$ = insert_statements_list($1); }
         |   final_states                                        { $$ = insert_final_statement($1); }
         |   error                                               {error_flag = 1; }
@@ -174,7 +176,7 @@ states_in_brace: LBRACE state_semic_rec RBRACE          { $$ = $2; };
 state_semic_rec: /*EMPTY*/                              { $$ = NULL ; }
                 | state_semic_rec statements SEMICOLON  {   $$ = insert_statement_in_list($1, $2);}
                 ;
-parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr_or RSQ RPAR {$$ = insert_parse_args($1, $9); }
+parse_args: ID COMMA BLANKID ASSIGN PARSEINT LPAR CMDARGS LSQ expr_or RSQ RPAR {$$ = insert_parse_args($1, $5 ,$9); }
         |   ID COMMA BLANKID ASSIGN PARSEINT LPAR error RPAR                {error_flag = 1; }
         ;
 

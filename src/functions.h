@@ -18,13 +18,13 @@ is_statement * insert_for_statement(is_expression_or_list * iel, is_statements_l
 is_statement * insert_return_statement(is_expression_or_list * iel);
 is_statement * insert_print_expr_statement(is_expression_or_list * iel);
 is_statement * insert_print_str_statement(id_token * id);
-is_statement * insert_assign_statement(id_token * id, is_expression_or_list * iel);
+is_statement * insert_assign_statement(id_token * id, location * ,is_expression_or_list * iel);
 is_statement * insert_statements_list(is_statements_list * isl);
 is_statement * insert_final_statement(is_final_statement * ifs);
 is_final_statement * insert_final_state_args(is_parse_arguments * ipa);
 is_final_statement * insert_final_state_func_inv(is_function_invocation * ifi);
 is_statements_list * insert_statement_in_list(is_statements_list * head, is_statement * is);
-is_parse_arguments * insert_parse_args( id_token * id, is_expression_or_list * iel);
+is_parse_arguments * insert_parse_args( id_token * id, location *,  is_expression_or_list * iel);
 is_function_invocation * insert_func_inv(id_token * id, is_expression_or_list * iel, is_func_inv_expr_list * head);
 is_func_inv_expr_list * insert_expression(is_func_inv_expr_list * head, is_expression_or_list * ieol);
 is_expression_or_list * insert_or(is_expression_or_list * ieol, next_oper * op, is_expression_and_list * ieal);

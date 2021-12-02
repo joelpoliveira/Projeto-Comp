@@ -246,12 +246,13 @@ is_statement * insert_print_str_statement(id_token* id){
 }
 
 
-is_statement * insert_assign_statement(id_token* id, is_expression_or_list * iel){
+is_statement * insert_assign_statement(id_token* id, location * loc, is_expression_or_list * iel){
     is_statement * is = (is_statement *) malloc(sizeof(is_statement));
     is_assign_statement * ias = (is_assign_statement*) malloc(sizeof(is_assign_statement));
 
     ias->id = id;
     ias->iel = iel;
+    ias->loc = loc;
 
     is->type_state = d_assign;
     is->statement.u_assign = ias;
@@ -317,11 +318,12 @@ is_statements_list * insert_statement_in_list(is_statements_list * head, is_stat
 }
 
 
-is_parse_arguments * insert_parse_args( id_token* id, is_expression_or_list * iel){
+is_parse_arguments * insert_parse_args( id_token* id, location * loc,is_expression_or_list * iel){
     is_parse_arguments * ipa = (is_parse_arguments*) malloc(sizeof(is_parse_arguments));
 
     ipa->id = id;
     ipa->iel = iel;
+    ipa->loc = loc;
     return ipa;
 }
 

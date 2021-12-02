@@ -58,7 +58,10 @@ typedef struct _t1 table_element;
 // typedef struct _t2 table_element_params;
 
 
-
+typedef struct _s37{
+        int line;
+        int col;
+} location;
 
 typedef struct _s36{
         int line;
@@ -178,6 +181,7 @@ typedef struct _s19{
 typedef struct _s18{
         id_token* id;
         is_expression_or_list * iel;
+        location * loc;
 } is_parse_arguments;
 
 typedef struct _s17{
@@ -191,6 +195,7 @@ typedef struct _s17{
 typedef struct _s16{
         id_token* id;
         is_expression_or_list * iel;
+        location * loc;
 } is_assign_statement;
 
 typedef struct _s15{
