@@ -12,8 +12,6 @@
 //extern table_element* symtab;
 extern is_program * program;
 
-// TODO verificar todas as declarações globais em 1º
-// só depois entrar nas declaraçoes de funções
 
 
 void print_already_defined(char* id, int line, int col){
@@ -66,7 +64,9 @@ void check_program(is_program* ip){
 
 void check_declarations_list(table_element** symtab, is_declarations_list* idl){
     is_declarations_list* current;
+    is_func_dec* func_dec;
 
+    //Inserir todas as declarações globais em 1º
     //{d_func_dec, d_var_declaration} declaration_type
     for(current = idl; current != NULL; current = current->next) {
         switch (current->val->type_dec){
@@ -81,6 +81,15 @@ void check_declarations_list(table_element** symtab, is_declarations_list* idl){
             break;
         }
     }
+
+    // Inserir nas tabelas de funçoes depois de fazer tudo na global
+    for (table_element* aux = program->symtab; aux; aux = aux->next){
+        if (aux->type_dec == d_func_dec){
+            func_dec = get_function_declaration(program, aux->id->id);
+            check_function_body(&func_dec->symtab ,func_dec->ifb);
+        }
+    }
+
 }
 
 
@@ -90,8 +99,7 @@ void check_func_declaration(table_element** symtab, is_func_dec* ifd){
     //printf("%s ifd->id->type: %d        ifd->type: %d\n", ifd->id->id,ifd->id->type, ifd->type);
 
     //inserir na tabela de simbolos da função
-    check_function_body(&ifd->symtab, ifd->ifb);
-    //get_function_declaration(program, )
+    //check_function_body(&ifd->symtab, ifd->ifb);
 }
 
 
@@ -173,7 +181,10 @@ void check_statement(table_element** symtab, is_statement* is){
 
 void check_if_statement(table_element** symtab, is_if_statement* ifs){
     if (ifs == NULL) return;
-    printf("If-- in \n");
+
+    if(ifs->iel->expression_type != d_bool)
+        printf("Line <line>, Col <col> : Incompatible type <type> in if statement\n");
+
     check_expression_or_list(symtab, ifs->iel);
     printf("Parsed -- \n");
     check_statements_list(symtab, ifs->isl);
@@ -189,6 +200,11 @@ void check_else_statement(table_element** symtab, is_else_statement* ies){
 
 
 void check_for_statement(table_element** symtab, is_for_statement* ifs){
+
+    if (ifs->iel->expression_type != d_bool){
+        printf("Line <line>, Col <col> : Incompatible type <type> in for statement\n");
+    }
+    
     check_expression_or_list(symtab, ifs->iel);
     check_statements_list(symtab, ifs->isl);
 }
@@ -535,7 +551,9 @@ table_element * get_table_elem(table_element ** symtab, id_token * id){
 
 parameter_type get_id_type(table_element** symtab, id_token * id){
     table_element * temp = get_table_elem(symtab, id);
-    //printf("Token: %s -- Type: %d \n", id->id, temp->type);
+    #ifdef DEBUG
+    printf("Token: %s -- Type: %d -- Type.id.type: %d\n", id->id, temp->type, temp->id->type);
+    #endif
 
     return (temp == NULL)? d_undef : temp->type;
 }
