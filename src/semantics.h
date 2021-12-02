@@ -28,3 +28,5 @@ void check_final_expression(table_element** symtab, is_final_expression * ife);
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi);
 void check_id(table_element** symtab, id_token* id);
 bool search_in_tables(table_element **symtab, id_token* id);
+parameter_type get_id_type(table_element** symtab, id_token * id);
+table_element * get_table_elem(table_element ** symtab, id_token * id);

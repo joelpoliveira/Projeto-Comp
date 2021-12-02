@@ -40,6 +40,32 @@ void print_anotation_type(id_token* id){
     printf("\n");
 }
 
+void print_expr_anotation_type(parameter_type type){
+    //typedef enum {d_integer, d_float32, d_string, d_bool, d_var, d_none}  
+        switch (type){
+            case d_integer:
+                printf(" - int");
+                break;
+            case d_float32:
+                printf(" - float32");
+                break;
+            case d_string:
+                printf(" - string");
+                break;
+             case d_bool:
+                printf(" - bool");
+                break;
+            case d_none:
+                //printf(" - none");
+                break;
+            case d_undef:
+                printf(" - undef");
+                break;
+            default:
+                printf("Erro print_anotation_typnonee: %d", type);
+                break;
+        }
+}
 
 void print_parameters_type(is_id_type_list * iitl){
     for ( ; iitl; iitl = iitl->next){
@@ -440,10 +466,9 @@ void print_assign_statement(is_assign_statement* ias, int depth){
 
 void print_expression_or_list(is_expression_or_list* ieol, int depth){
     if (ieol == NULL) return;
-
+    
     is_expression_or_list*  current = ieol;
-
-    bool type = ieol->is_operation; //expression_type = d_operation, d_expr
+    bool type = current->is_operation; //expression_type = d_operation, d_expr
     
     if (type){
         print_dots(depth);
@@ -456,7 +481,6 @@ void print_expression_or_list(is_expression_or_list* ieol, int depth){
         print_expression_and_list(current->next_right, depth+1);
     } else {
         print_expression_and_list(current->next_right, depth);
-        print_expression_or_list(current->next_left, depth);
     }
 }
 
@@ -477,7 +501,6 @@ void print_expression_and_list(is_expression_and_list* ieal, int depth){
         print_expression_comp_list(current->next_right, depth + 1);
     } else {
         print_expression_comp_list(current->next_right, depth);
-        print_expression_and_list(current->next_left, depth);
     }
 }
 
@@ -490,12 +513,13 @@ void print_expression_comp_list(is_expression_comp_list * iecl, int depth){
     if (type != d_sum_like){
         print_dots(depth);
         print_comp_type(type);
+        if (flag_3) print_expr_anotation_type(current->expression_type);
+        printf("\n");
 
         print_expression_comp_list(current->next_left, depth + 1);
         print_expression_sum_like_list(current->next_right, depth + 1);
     } else {
         print_expression_sum_like_list(current->next_right, depth);
-        print_expression_comp_list(current->next_left, depth);
     }
 }
 
@@ -509,12 +533,13 @@ void print_expression_sum_like_list(is_expression_sum_like_list * iesl, int dept
     if (type != d_star_like){
         print_dots(depth);
         print_sum_like(type);
+        if (flag_3) print_expr_anotation_type(current->expression_type);
+        printf("\n");
 
         print_expression_sum_like_list(current->next_left, depth + 1);
         print_expression_star_like_list(current->next_right, depth + 1);
     } else {
         print_expression_star_like_list(current->next_right, depth);
-        print_expression_sum_like_list(current->next_left, depth);
     }
 }
 
@@ -528,12 +553,13 @@ void print_expression_star_like_list(is_expression_star_like_list * iestl, int d
     if (type != d_self){
         print_dots(depth);
         print_star_like(type);
+        if (flag_3) print_expr_anotation_type(current->expression_type);
+        printf("\n");
 
         print_expression_star_like_list(current->next_left, depth + 1);
         print_self_expression_list(current->next_right, depth + 1);
     } else {
         print_self_expression_list(current->next_right, depth);
-        print_expression_star_like_list(current->next_left, depth);
     }
 }
 
@@ -547,12 +573,13 @@ void print_self_expression_list(is_self_expression_list * isel, int depth){
     if (type != d_final){
         print_dots(depth);
         print_self_operation_type(type);
+        if (flag_3) print_expr_anotation_type(current->expression_type);
+        printf("\n");
 
         print_self_expression_list(current->next_same, depth + 1);
         print_final_expression(current->next_final, depth + 1);
     } else {
         print_final_expression(current->next_final, depth);
-        print_self_expression_list(current->next_same, depth);
     }
 }
 
@@ -601,8 +628,9 @@ void print_func_invocation(is_function_invocation * ifi, int depth){
     if (flag_3){
         is_func_dec * func_dec = get_function_declaration(program, ifi->id->id);
         printf(" - (");
-        if (func_dec->ipl != NULL)
-            print_parameters_type(func_dec->ipl->val);
+        if (func_dec!= NULL)
+            if (func_dec->ipl!=NULL)
+                print_parameters_type(func_dec->ipl->val);
         printf(")");
     }
     printf("\n");
@@ -620,33 +648,21 @@ void print_comp_type(comp_type ct){
     switch (ct){
         case d_lt:
             printf("Lt");
-            if (flag_3)printf(" - bool");
-            printf("\n");
             break;
         case d_gt:
             printf("Gt");
-            if (flag_3)printf(" - bool");
-            printf("\n");
             break;
         case d_eq:
             printf("Eq");
-            if (flag_3)printf(" - bool");
-            printf("\n");
             break;
         case d_ne:
             printf("Ne");
-            if (flag_3)printf(" - bool");
-            printf("\n");
             break;
         case d_ge:
             printf("Ge");
-            if (flag_3)printf(" - bool");
-            printf("\n");
             break;
         case d_le:
             printf("Le");
-            if (flag_3)printf(" - bool");
-            printf("\n");
             break;
         default:
             printf("Erro print_comp_type");
@@ -670,7 +686,6 @@ void print_sum_like(sum_like_type slt) {
             printf("Erro print_sum_type");
             break;
     }
-    printf("\n");
 }
 
 
@@ -691,8 +706,6 @@ void print_star_like(star_like_type slt) {
             printf("Erro print_star_like\n");
             break;
     }
-    printf("\n");
-
 }
 
 
@@ -708,12 +721,10 @@ void print_self_operation_type(self_operation_type sot){
             break;
         case d_self_not:
             printf("Not");
-            if (flag_3) printf(" - bool");
             break;
         default:
             printf("Erro print_self_operation_type\n");
             break;
     }
-    printf("\n");
 }
 

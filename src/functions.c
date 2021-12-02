@@ -328,10 +328,15 @@ is_parse_arguments * insert_parse_args( id_token* id, is_expression_or_list * ie
 
 is_function_invocation * insert_func_inv(id_token* id, is_expression_or_list * head, is_func_inv_expr_list * iel){
     is_function_invocation * ifi = (is_function_invocation * ) malloc(sizeof(is_function_invocation));
-    is_func_inv_expr_list * ifie = (is_func_inv_expr_list *) malloc(sizeof(is_func_inv_expr_list));
+    is_func_inv_expr_list * ifie;
 
-    ifie->next = iel;
-    ifie->val = head;
+    if (head == NULL && iel == NULL)
+        ifie = NULL;
+    else{
+        ifie = (is_func_inv_expr_list *) malloc(sizeof(is_func_inv_expr_list));
+        ifie->next = iel;
+        ifie->val = head;
+    }
 
     ifi->id = id;
     ifi->iel = ifie;
@@ -417,17 +422,6 @@ is_self_expression_list * insert_self(is_self_expression_list * isel, self_opera
     new->next_same = isel;
     new->next_final = ife;
 
-    /* new->self_oper_type = type;
-    new->next_same = NULL;
-    new->next_final = ife;
-    
-    if (isel == NULL)
-        return new;
-    
-    is_self_expression_list * aux;
-    for(aux = isel; aux->next_same; aux = aux->next_same);
-    aux->next_same = new; */
-
     return new;
 }
 
@@ -485,7 +479,6 @@ is_final_expression * insert_final_expr(is_expression_or_list*ieol){
     ife->type_final_expression = d_expr_final;
     ife->expr.ieol = ieol;
 
-    //print(iel);
     return ife;
 }
 

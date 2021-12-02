@@ -104,6 +104,7 @@ typedef struct _s27{
 
 typedef struct _s26{
         final_expression_type type_final_expression;
+        parameter_type expression_type;
         union{
                 is_intlit * u_intlit;
                 is_reallit * u_reallit;
@@ -115,36 +116,42 @@ typedef struct _s26{
 
 typedef struct _s25{
         self_operation_type self_oper_type;
+        parameter_type expression_type;
         is_final_expression * next_final;
         struct _s25 * next_same;
 }is_self_expression_list;
 
 typedef struct _s24 {
         star_like_type oper_star_like;
+        parameter_type expression_type;
         is_self_expression_list * next_right;
         struct _s24 * next_left;
 } is_expression_star_like_list;
 
 typedef struct _s23{
         sum_like_type oper_sum_like;
+        parameter_type expression_type;
         is_expression_star_like_list * next_right;
         struct _s23 * next_left;
 } is_expression_sum_like_list;
 
 typedef struct _s22{
         comp_type oper_comp;
+        parameter_type expression_type;
         is_expression_sum_like_list * next_right;
         struct _s22 * next_left;
 } is_expression_comp_list;
 
 typedef struct _s21{
         bool is_operation;
+        parameter_type expression_type;
         is_expression_comp_list * next_right;
         struct _s21 * next_left;
 } is_expression_and_list;
 
 typedef struct _s20 {
         bool is_operation;
+        parameter_type expression_type;
         is_expression_and_list * next_right;
         struct _s20 * next_left;
 } is_expression_or_list;
