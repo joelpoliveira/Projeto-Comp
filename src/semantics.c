@@ -462,6 +462,8 @@ table_element * get_table_elem(table_element ** symtab, id_token * id){
 
 parameter_type get_id_type(table_element** symtab, id_token * id){
     table_element * temp = get_table_elem(symtab, id);
+    //printf("Token: %s -- Type: %d \n", id->id, temp->type);
+
     return (temp == NULL)? d_undef : temp->type;
 }
 
