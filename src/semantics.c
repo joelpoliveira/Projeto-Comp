@@ -92,7 +92,7 @@ void check_var_declaration(table_element** symtab, is_var_dec* ivd){
 void check_var_spec(table_element** symtab, is_var_spec* ivs){
     table_element* new_symbol = NULL;
     parameter_type type = ivs->type;
-
+    printf("Type: %d \n", type);
     for (is_id_list* current = ivs->iil; current != NULL; current = current->next){
         new_symbol = insert_var(symtab, current->val, type);
 
@@ -244,13 +244,9 @@ void check_expression_or_list(table_element** symtab, is_expression_or_list* ieo
         check_expression_or_list(symtab, ieol->next_left);
         check_expression_and_list(symtab, ieol->next_right);
 
-        if (ieol->next_left->expression_type == ieol->next_right->expression_type)
-            ieol->expression_type = ieol->next_right->expression_type;
-        else
-            ieol->expression_type = d_undef;
+        ieol->expression_type = d_bool;
     }else{
         check_expression_and_list(symtab, ieol->next_right);
-        //check_expression_or_list(symtab, ieol->next_left);
 
         ieol->expression_type = ieol->next_right->expression_type;
     } 
@@ -273,13 +269,10 @@ void check_expression_and_list(table_element** symtab, is_expression_and_list* i
         check_expression_and_list(symtab, current->next_left);
         check_expression_comp_list(symtab, current->next_right);
 
-        if (current->next_left->expression_type == current->next_right->expression_type)
-            current->expression_type = current->next_right->expression_type;
-        else
-            current->expression_type = d_undef;
+
+        current->expression_type = d_bool;
     }else{
         check_expression_comp_list(symtab, current->next_right);
-        //check_expression_and_list(symtab, current->next_left);
 
         current->expression_type = current->next_right->expression_type;
     }
@@ -301,14 +294,9 @@ void check_expression_comp_list(table_element** symtab, is_expression_comp_list 
         check_expression_sum_like_list(symtab, iecl->next_right);
 
 
-        if (iecl->next_left->expression_type == iecl->next_right->expression_type)
-            iecl->expression_type = iecl->next_right->expression_type;
-        else
-            iecl->expression_type = d_undef;
-
+        iecl->expression_type = d_bool;
     }else{
         check_expression_sum_like_list(symtab, iecl->next_right);
-        //check_expression_comp_list(symtab, iecl->next_left);
 
         iecl->expression_type = iecl->next_right->expression_type;
     }
