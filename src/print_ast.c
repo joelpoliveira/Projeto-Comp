@@ -508,11 +508,11 @@ void print_expression_comp_list(is_expression_comp_list * iecl, int depth){
     if (iecl == NULL) return;
 
     is_expression_comp_list * current = iecl;
-    comp_type type = current->oper_comp;
+    next_oper * type = current->oper_comp;
 
-    if (type != d_sum_like){
+    if (type != NULL){
         print_dots(depth);
-        print_comp_type(type);
+        print_comp_type(type->oper_type.ct);
         if (flag_3) print_expr_anotation_type(current->expression_type);
         printf("\n");
 
@@ -528,11 +528,11 @@ void print_expression_sum_like_list(is_expression_sum_like_list * iesl, int dept
     if (iesl == NULL) return;
 
     is_expression_sum_like_list * current = iesl;
-    sum_like_type type = current->oper_sum_like;
+    next_oper * type = current->oper_sum_like;
 
-    if (type != d_star_like){
+    if (type != NULL){
         print_dots(depth);
-        print_sum_like(type);
+        print_sum_like(type->oper_type.slt);
         if (flag_3) print_expr_anotation_type(current->expression_type);
         printf("\n");
 
@@ -548,11 +548,11 @@ void print_expression_star_like_list(is_expression_star_like_list * iestl, int d
     if (iestl == NULL) return;
 
     is_expression_star_like_list * current = iestl;
-    star_like_type type = current->oper_star_like;
+    next_oper * type = current->oper_star_like;
 
-    if (type != d_self){
+    if (type != NULL){
         print_dots(depth);
-        print_star_like(type);
+        print_star_like(type->oper_type.stlt);
         if (flag_3) print_expr_anotation_type(current->expression_type);
         printf("\n");
 
@@ -568,11 +568,11 @@ void print_self_expression_list(is_self_expression_list * isel, int depth){
     if (isel == NULL) return;
 
     is_self_expression_list * current = isel;
-    self_operation_type type = current->self_oper_type;
+    next_oper * type = current->self_oper_type;
 
-    if (type != d_final){
+    if (type != NULL){
         print_dots(depth);
-        print_self_operation_type(type);
+        print_self_operation_type(type->oper_type.sot);
         if (flag_3) print_expr_anotation_type(current->expression_type);
         printf("\n");
 

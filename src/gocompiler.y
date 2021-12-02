@@ -61,19 +61,16 @@
     is_expression_star_like_list * iestl;
     is_self_expression_list * isel;
     is_final_expression * ife;
-    comp_type ct;
-    sum_like_type slt;
-    star_like_type stlt;
-    self_operation_type sot;
     is_func_dec * ifd;
     is_func_inv_expr_list * ifiel;
+    next_oper * nop;
 }
 
-%token SEMICOLON COMMA BLANKID ASSIGN STAR DIV MINUS PLUS EQ GE GT LBRACE   //linhas 28-39
-%token LE LPAR LSQ LT MOD NE NOT AND OR RBRACE RPAR RSQ PACKAGE RETURN ELSE //linhas 40-54
+%token SEMICOLON COMMA BLANKID ASSIGN LBRACE   //linhas 28-39
+%token LPAR LSQ RBRACE RPAR RSQ PACKAGE RETURN ELSE //linhas 40-54
 %token FOR IF VAR PRINT PARSEINT FUNC CMDARGS INT FLOAT32 STRING BOOL      //linhas 55-65
 %token UNARY
-
+%token<nop>STAR DIV MINUS PLUS EQ GE GT LE LT MOD NE NOT AND OR 
 %token<id> ID STRLIT INTLIT REALLIT RESERVED
 %type<ip> program
 %type<idl> declarations
@@ -96,12 +93,10 @@
 %type<iecl> expr_comp
 %type<iesl> expr_sum_like
 %type<iestl> expr_star_like
-%type<ct>oper_comp
-%type<slt>oper_sum_like
-%type<stlt>oper_star_like
-%type<sot>self_oper
+%type<nop> oper_comp oper_star_like oper_sum_like self_oper
 %type<isel> self_expr
 %type<ife> final_expr
+
 
 %right ASSIGN
 %left  OR
@@ -192,28 +187,28 @@ comma_expr_rec: /*EMPTY*/                   { $$ = NULL;}
             |   comma_expr_rec COMMA expr_or   { $$ = insert_expression($1, $3);}
             ;
 
-expr_or: expr_or OR expr_and    {$$ = insert_or($1, $3); }
-        | expr_and              {$$ = insert_or(NULL, $1); }
+expr_or: expr_or OR expr_and    {$$ = insert_or($1, $2, $3); }
+        | expr_and              {$$ = insert_or(NULL, NULL, $1); }
         ;
 
-expr_and: expr_and AND expr_comp        {$$ = insert_and($1, $3);}
-        | expr_comp                     {$$ = insert_and(NULL, $1);}
+expr_and: expr_and AND expr_comp        {$$ = insert_and($1, $2, $3);}
+        | expr_comp                     {$$ = insert_and(NULL, NULL, $1);}
         ;
 
 expr_comp: expr_comp oper_comp expr_sum_like    {$$ = insert_comp($1, $2, $3);}
-        |  expr_sum_like                        {$$= insert_comp(NULL, d_sum_like, $1);}
+        |  expr_sum_like                        {$$ = insert_comp(NULL, NULL, $1);}
         ;
 
 expr_sum_like: expr_sum_like oper_sum_like expr_star_like {$$ = insert_sum_like($1,$2,$3);}
-        |       expr_star_like                            {$$=insert_sum_like(NULL, d_star_like, $1);}
+        |       expr_star_like                            {$$=insert_sum_like(NULL, NULL, $1);}
         ;
 
 expr_star_like: expr_star_like oper_star_like self_expr {$$ = insert_star_like($1, $2, $3);}
-        |       self_expr                               {$$ = insert_star_like(NULL,d_self, $1);}
+        |       self_expr                               {$$ = insert_star_like(NULL, NULL, $1);}
         ;
 
 self_expr: self_oper self_expr %prec UNARY              {$$ = insert_self($2, $1, NULL);}
-        |  final_expr                                   {$$ = insert_self(NULL, d_final, $1); }
+        |  final_expr                                   {$$ = insert_self(NULL, NULL, $1); }
         ;
 
 final_expr:   INTLIT               {$$ = insert_intlit($1); }           
@@ -224,26 +219,26 @@ final_expr:   INTLIT               {$$ = insert_intlit($1); }
           |   LPAR error RPAR         {error_flag = 1;}
           ;
 
-oper_comp:  LT                  {$$ = insert_comp_oper("LT");}
-        |   LE                  {$$ = insert_comp_oper("LE"); }
-        |   GT                  {$$ = insert_comp_oper("GT"); }
-        |   EQ                  {$$ = insert_comp_oper("EQ"); }
-        |   NE                  {$$ = insert_comp_oper("NE"); }
-        |   GE                  {$$ = insert_comp_oper("GE");  }
+oper_comp:  LT                  {$$ = insert_comp_oper("LT", $1);}
+        |   LE                  {$$ = insert_comp_oper("LE", $1); }
+        |   GT                  {$$ = insert_comp_oper("GT", $1); }
+        |   EQ                  {$$ = insert_comp_oper("EQ", $1); }
+        |   NE                  {$$ = insert_comp_oper("NE", $1); }
+        |   GE                  {$$ = insert_comp_oper("GE", $1);  }
         ;
 
-oper_sum_like: PLUS             {  $$ = insert_sum_like_oper("PLUS"); }
-        |   MINUS               {  $$ = insert_sum_like_oper("MINUS"); }
+oper_sum_like: PLUS             {  $$ = insert_sum_like_oper("PLUS", $1); }
+        |   MINUS               {  $$ = insert_sum_like_oper("MINUS", $1); }
         ;
 
-oper_star_like: STAR                    {  $$ = insert_star_like_oper("STAR"); }
-        |   DIV                         {$$ = insert_star_like_oper("DIV"); }
-        |   MOD                         {$$ = insert_star_like_oper("MOD"); }
+oper_star_like: STAR                    {  $$ = insert_star_like_oper("STAR", $1); }
+        |   DIV                         {$$ = insert_star_like_oper("DIV", $1); }
+        |   MOD                         {$$ = insert_star_like_oper("MOD", $1); }
         ;
 
-self_oper:  PLUS                { $$ = insert_self_oper("PLUS"); }
-        |   MINUS               { $$ = insert_self_oper("MINUS"); }
-        |   NOT                 { $$ = insert_self_oper("NOT"); }
+self_oper:  PLUS                { $$ = insert_self_oper("PLUS", $1); }
+        |   MINUS               { $$ = insert_self_oper("MINUS", $1); }
+        |   NOT                 { $$ = insert_self_oper("NOT", $1); }
         ;
 
 

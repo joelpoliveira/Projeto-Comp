@@ -72,24 +72,24 @@ whispace (" "|\t)
 ";"				{if (flag_1) fprintf(yyout, "SEMICOLON\n");  col+=yyleng;error_line=0; return SEMICOLON;  }
 ","				{if (flag_1) fprintf(yyout, "COMMA\n");  col+=yyleng; error_line=0; return COMMA;}
 "_"				{if (flag_1) fprintf(yyout, "BLANKID\n"); col+=yyleng;error_line=0; return BLANKID;}
-"="				{if (flag_1) fprintf(yyout, "ASSIGN\n");  col+=yyleng;error_line=0; return ASSIGN;}
-"*"				{if (flag_1) fprintf(yyout, "STAR\n");  col+=yyleng;error_line=0; return STAR;}
-"/"				{if (flag_1) fprintf(yyout, "DIV\n");  col+=yyleng;error_line=0; return DIV; }
-"-"				{if (flag_1) fprintf(yyout, "MINUS\n");  col+=yyleng;error_line=0; return MINUS; }
-"+"				{if (flag_1) fprintf(yyout, "PLUS\n");  col+=yyleng; error_line=0;return PLUS; }
-"=="			{if (flag_1) fprintf(yyout, "EQ\n");  col+=yyleng; error_line=0;return EQ;}
-">="			{if (flag_1) fprintf(yyout, "GE\n");  col+=yyleng;error_line=0; return GE;}
-">"				{if (flag_1) fprintf(yyout, "GT\n");  col+=yyleng; error_line=0;return GT;}
+"="				{if (flag_1) fprintf(yyout, "ASSIGN\n"); yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return ASSIGN;}
+"*"				{if (flag_1) fprintf(yyout, "STAR\n"); yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return STAR;}
+"/"				{if (flag_1) fprintf(yyout, "DIV\n");  yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return DIV; }
+"-"				{if (flag_1) fprintf(yyout, "MINUS\n");  yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return MINUS; }
+"+"				{if (flag_1) fprintf(yyout, "PLUS\n");  yylval.nop=create_next_oper(line, col); col+=yyleng; error_line=0;return PLUS; }
+"=="			{if (flag_1) fprintf(yyout, "EQ\n"); yylval.nop=create_next_oper(line, col);  col+=yyleng; error_line=0;return EQ;}
+">="			{if (flag_1) fprintf(yyout, "GE\n");  yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return GE;}
+">"				{if (flag_1) fprintf(yyout, "GT\n");  yylval.nop=create_next_oper(line, col); col+=yyleng; error_line=0;return GT;}
 "{"				{if (flag_1) fprintf(yyout, "LBRACE\n");  col+=yyleng;error_line=0; return LBRACE;}
-"<="			{if (flag_1) fprintf(yyout, "LE\n");  col+=yyleng;error_line=0; return LE; }
+"<="			{if (flag_1) fprintf(yyout, "LE\n");  yylval.nop=create_next_oper(line, col); col+=yyleng;error_line=0; return LE; }
 "("				{if (flag_1) fprintf(yyout, "LPAR\n");  col+=yyleng;error_line=0; return LPAR; }
 "["				{if (flag_1) fprintf(yyout, "LSQ\n");  col+=yyleng;error_line=0; return LSQ;}	
-"<"				{if (flag_1) fprintf(yyout, "LT\n");  col+=yyleng; error_line=0;return LT;}
-"%"				{if (flag_1) fprintf(yyout, "MOD\n");  col+=yyleng; error_line=0;return MOD;}
-"!="			{if (flag_1) fprintf(yyout, "NE\n");  col+=yyleng; error_line=0;return NE;}
-"!"				{if (flag_1) fprintf(yyout, "NOT\n");  col+=yyleng; error_line=0;return NOT;}
-"&&"			{if (flag_1) fprintf(yyout, "AND\n");  col+=yyleng; error_line=0;return AND;}
-"||"			{if (flag_1) fprintf(yyout, "OR\n");  col+=yyleng; error_line=0;return OR;}
+"<"				{if (flag_1) fprintf(yyout, "LT\n");  yylval.nop=create_next_oper(line, col); col+=yyleng; error_line=0;return LT;}
+"%"				{if (flag_1) fprintf(yyout, "MOD\n");  yylval.nop=create_next_oper(line, col); col+=yyleng; error_line=0;return MOD;}
+"!="			{if (flag_1) fprintf(yyout, "NE\n");  yylval.nop=create_next_oper(line, col); col+=yyleng; error_line=0;return NE;}
+"!"				{if (flag_1) fprintf(yyout, "NOT\n");  yylval.nop=create_next_oper(line, col); col+=yyleng; error_line=0;return NOT;}
+"&&"			{if (flag_1) fprintf(yyout, "AND\n"); yylval.nop=create_next_oper(line, col);  col+=yyleng; error_line=0;return AND;}
+"||"			{if (flag_1) fprintf(yyout, "OR\n");  yylval.nop=create_next_oper(line, col); col+=yyleng; error_line=0;return OR;}
 "}"				{if (flag_1) fprintf(yyout, "RBRACE\n");  col+=yyleng;error_line=0;  BEGIN _SEMICOLON; return RBRACE;}
 ")"				{if (flag_1) fprintf(yyout, "RPAR\n");  col+=yyleng; error_line=0; BEGIN _SEMICOLON; return RPAR;}
 "]"				{if (flag_1) fprintf(yyout, "RSQ\n");  col+=yyleng;error_line=0; BEGIN _SEMICOLON; return RSQ;}
@@ -110,25 +110,25 @@ whispace (" "|\t)
 "/*"			{; comment_lines = 0; comment_cols = 0; swaped_line = 0;error_line=0; BEGIN BCOMMENT;}
 "//"			{; error_line=0;BEGIN LCOMMENT;}
 
-"++"|"--"		{if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0; return RESERVED; }
-"break"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED; }
-"case"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
-"chan"          {if  (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
-"const"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED; }
-"continue"      {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
-"default"       {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
-"defer"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
-"fallthrough"   {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED; }
-"go"            {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED;}
-"import"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
-"goto"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
-"interface"     {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
-"map"           {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED;}
-"range"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED;}
-"select"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
-"struct"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
-"switch"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng;error_line=0; return RESERVED;}
-"type"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;return RESERVED;}
+"++"|"--"		{if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0; return RESERVED; }
+"break"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;error_line=0; return RESERVED; }
+"case"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED; }
+"chan"          {if  (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext);col+=yyleng; error_line=0;return RESERVED; }
+"const"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;error_line=0; return RESERVED; }
+"continue"      {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED; }
+"default"       {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED; }
+"defer"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED; }
+"fallthrough"   {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED; }
+"go"            {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;error_line=0; return RESERVED;}
+"import"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED;}
+"goto"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED;}
+"interface"     {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED;}
+"map"           {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;error_line=0; return RESERVED;}
+"range"         {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;error_line=0; return RESERVED;}
+"select"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED;}
+"struct"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED;}
+"switch"        {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng;error_line=0; return RESERVED;}
+"type"          {if (flag_1) fprintf(yyout, "RESERVED(%s)\n", yytext); col+=yyleng; error_line=0;return RESERVED;}
 
 0                               {error_line=0;yyless(0); BEGIN OCTAL;}
 [1-9]{number}*|{hexa}          	{if (flag_1) fprintf(yyout, "INTLIT(%s)\n", yytext);  yylval.id = create_token(strdup(yytext), line, col); col+=yyleng; error_line=0;  BEGIN _SEMICOLON; return INTLIT; }

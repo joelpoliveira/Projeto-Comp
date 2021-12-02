@@ -3,12 +3,11 @@
 
 #include <stdbool.h>
 
-
 typedef enum {d_intlit, d_reallit, d_id, d_func_inv, d_expr_final}      final_expression_type;
-typedef enum {d_self_plus, d_self_minus, d_self_not, d_final}           self_operation_type;
-typedef enum {d_lt, d_gt, d_eq, d_ne, d_ge, d_le, d_sum_like}           comp_type;
-typedef enum {d_plus, d_minus, d_star_like}                             sum_like_type;
-typedef enum {d_star, d_div, d_mod, d_self}                             star_like_type;
+typedef enum {d_self_plus, d_self_minus, d_self_not}                       self_operation_type;
+typedef enum {d_lt, d_gt, d_eq, d_ne, d_ge, d_le}                       comp_type;
+typedef enum {d_plus, d_minus}                                          sum_like_type;
+typedef enum {d_star, d_div, d_mod}                                     star_like_type;
 typedef enum { d_function_invoc, d_arguments}                           final_state_type;
 typedef enum {d_expression, d_str}                                      print_type;
 typedef enum {d_if, d_for, d_return, d_print, d_assign, 
@@ -58,6 +57,21 @@ typedef struct _s35 id_token;
 typedef struct _t1 table_element;
 // typedef struct _t2 table_element_params;
 
+
+
+
+typedef struct _s36{
+        int line;
+        int col;
+        union 
+        {
+                self_operation_type sot;
+                comp_type ct;
+                sum_like_type slt;
+                star_like_type stlt;
+        } oper_type;
+        
+} next_oper;
 
 typedef struct _s35 {
         char *id;
@@ -115,42 +129,42 @@ typedef struct _s26{
 } is_final_expression;
 
 typedef struct _s25{
-        self_operation_type self_oper_type;
+        next_oper * self_oper_type;
         parameter_type expression_type;
         is_final_expression * next_final;
         struct _s25 * next_same;
 }is_self_expression_list;
 
 typedef struct _s24 {
-        star_like_type oper_star_like;
+        next_oper * oper_star_like;
         parameter_type expression_type;
         is_self_expression_list * next_right;
         struct _s24 * next_left;
 } is_expression_star_like_list;
 
 typedef struct _s23{
-        sum_like_type oper_sum_like;
+        next_oper * oper_sum_like;
         parameter_type expression_type;
         is_expression_star_like_list * next_right;
         struct _s23 * next_left;
 } is_expression_sum_like_list;
 
 typedef struct _s22{
-        comp_type oper_comp;
+        next_oper * oper_comp;
         parameter_type expression_type;
         is_expression_sum_like_list * next_right;
         struct _s22 * next_left;
 } is_expression_comp_list;
 
 typedef struct _s21{
-        bool is_operation;
+        next_oper * is_operation;
         parameter_type expression_type;
         is_expression_comp_list * next_right;
         struct _s21 * next_left;
 } is_expression_and_list;
 
 typedef struct _s20 {
-        bool is_operation;
+        next_oper * is_operation;
         parameter_type expression_type;
         is_expression_and_list * next_right;
         struct _s20 * next_left;

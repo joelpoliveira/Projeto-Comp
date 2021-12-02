@@ -360,32 +360,32 @@ is_func_inv_expr_list * insert_expression(is_func_inv_expr_list * head, is_expre
 }
 
 
-is_expression_or_list * insert_or(is_expression_or_list * ieol, is_expression_and_list * ieal){
+is_expression_or_list * insert_or(is_expression_or_list * ieol, next_oper * op, is_expression_and_list * ieal){
     is_expression_or_list * new = (is_expression_or_list *) malloc(sizeof(is_expression_or_list));
     
     new->next_left = ieol;
     new->next_right = ieal;
-    new->is_operation = (ieol != NULL);
+    new->is_operation = op;
 
     return new;
 }
 
 
-is_expression_and_list * insert_and(is_expression_and_list * ieal, is_expression_comp_list * iecl){
+is_expression_and_list * insert_and(is_expression_and_list * ieal, next_oper * op, is_expression_comp_list * iecl){
     is_expression_and_list * new = (is_expression_and_list*)malloc(sizeof(is_expression_and_list));
     
     new->next_left = ieal;
     new->next_right = iecl;
-    new->is_operation = (ieal != NULL);
+    new->is_operation = op;
 
     return new;
 }
 
 
-is_expression_comp_list * insert_comp(is_expression_comp_list * iecl, comp_type type , is_expression_sum_like_list * iesl){
+is_expression_comp_list * insert_comp(is_expression_comp_list * iecl, next_oper * op, is_expression_sum_like_list * iesl){
     is_expression_comp_list * new = (is_expression_comp_list*)malloc(sizeof(is_expression_comp_list));
     
-    new->oper_comp = type;
+    new->oper_comp = op;
     new->next_left = iecl;
     new->next_right = iesl;
 
@@ -393,10 +393,10 @@ is_expression_comp_list * insert_comp(is_expression_comp_list * iecl, comp_type 
 }
 
 
-is_expression_sum_like_list * insert_sum_like(is_expression_sum_like_list * iesl, sum_like_type type, is_expression_star_like_list * iestl){
+is_expression_sum_like_list * insert_sum_like(is_expression_sum_like_list * iesl, next_oper * op, is_expression_star_like_list * iestl){
     is_expression_sum_like_list * new = (is_expression_sum_like_list*)malloc(sizeof(is_expression_sum_like_list));
     
-    new->oper_sum_like = type;
+    new->oper_sum_like = op;
     new->next_left = iesl;
     new->next_right = iestl;
 
@@ -404,10 +404,10 @@ is_expression_sum_like_list * insert_sum_like(is_expression_sum_like_list * iesl
 }
 
 
-is_expression_star_like_list * insert_star_like(is_expression_star_like_list * iestl, star_like_type type, is_self_expression_list * isel){
+is_expression_star_like_list * insert_star_like(is_expression_star_like_list * iestl, next_oper * op, is_self_expression_list * isel){
     is_expression_star_like_list * new = (is_expression_star_like_list*)malloc(sizeof(is_expression_star_like_list));
     
-    new->oper_star_like = type;
+    new->oper_star_like = op;
     new->next_left = iestl;
     new->next_right = isel;
 
@@ -415,10 +415,10 @@ is_expression_star_like_list * insert_star_like(is_expression_star_like_list * i
 }
 
 
-is_self_expression_list * insert_self(is_self_expression_list * isel, self_operation_type type, is_final_expression * ife){
+is_self_expression_list * insert_self(is_self_expression_list * isel, next_oper * op, is_final_expression * ife){
     is_self_expression_list * new = (is_self_expression_list*)malloc(sizeof(is_self_expression_list));
     
-    new->self_oper_type = type;
+    new->self_oper_type = op;
     new->next_same = isel;
     new->next_final = ife;
 
@@ -483,55 +483,84 @@ is_final_expression * insert_final_expr(is_expression_or_list*ieol){
 }
 
 
-comp_type insert_comp_oper(char * oper){
-    if( !strcmp(oper, "LT") )
-        return d_lt;
-    else if( !strcmp(oper, "GT") )
-        return d_gt;
-    else if( !strcmp(oper, "EQ") )
-        return d_eq;
-    else if( !strcmp(oper, "NE") )
-        return d_ne;
-    else if( !strcmp(oper, "GE") )
-        return d_ge;
-    else if( !strcmp(oper, "LE") )
-        return d_le;
-    return d_sum_like;
+next_oper * insert_comp_oper(char * oper, next_oper * op){    
+    if( !strcmp(oper, "LT") ){
+        op->oper_type.ct = d_lt;
+        return op;
+    }
+    else if( !strcmp(oper, "GT") ){
+        op->oper_type.ct = d_gt;
+        return op;
+    }
+    else if( !strcmp(oper, "EQ") ){
+        op->oper_type.ct = d_eq;
+        return op;
+    }
+    else if( !strcmp(oper, "NE") ){
+        op->oper_type.ct = d_ne;
+        return op;
+    }
+    else if( !strcmp(oper, "GE") ){
+        op->oper_type.ct = d_ge;
+        return op;
+    }
+    else if( !strcmp(oper, "LE") ){
+        op->oper_type.ct = d_le;
+        return op;
+    }
+    return NULL;
 }
 
 
-sum_like_type insert_sum_like_oper(char * oper){
-    if( !strcmp(oper, "PLUS") )
-        return d_plus;
-    else if( !strcmp(oper, "MINUS") )
-        return d_minus;
-    return d_star_like;
+next_oper * insert_sum_like_oper(char * oper, next_oper * op){
+    if( !strcmp(oper, "PLUS") ){
+        op->oper_type.slt = d_plus;
+        return op;
+    }
+    else if( !strcmp(oper, "MINUS") ){
+        op->oper_type.slt = d_minus;
+        return op;
+    }
+    return NULL;
 }
 
 
-star_like_type insert_star_like_oper(char * oper){
-    if( !strcmp(oper, "STAR") )
-        return d_star;
-    else if( !strcmp(oper, "DIV") )
-        return d_div;
-    else if( !strcmp(oper, "MOD") )
-        return d_mod;
-    return d_self;
+next_oper * insert_star_like_oper(char * oper, next_oper * op){
+    if( !strcmp(oper, "STAR") ){
+        op->oper_type.stlt = d_star;
+        return op;
+    }
+    else if( !strcmp(oper, "DIV") ){
+        op->oper_type.stlt = d_div;
+        return op;
+    }
+    else if( !strcmp(oper, "MOD") ){
+        op->oper_type.stlt = d_mod;
+        return op;
+    }
+    return NULL;
 }
 
 
-self_operation_type insert_self_oper(char * oper){
-    if( !strcmp(oper, "PLUS") )
-        return d_self_plus;
-    else if( !strcmp(oper, "MINUS") )
-        return d_self_minus;
-    else if( !strcmp(oper, "NOT") )
-        return d_self_not;
-    return d_final;
+next_oper * insert_self_oper(char * oper, next_oper * op){
+    
+    if( !strcmp(oper, "PLUS") ){
+        op->oper_type.sot = d_self_plus;
+        return op;
+    }
+    else if( !strcmp(oper, "MINUS") ){
+        op->oper_type.sot = d_self_minus;
+        return op;
+    }
+    else if( !strcmp(oper, "NOT") ){
+        op->oper_type.sot = d_self_not;
+        return op;
+    }
+    return NULL;
 }
 
 
-parameter_type insert_type(char * type){
+parameter_type insert_type(char * type){ 
     if ( !strcmp(type, "INT") )
         return d_integer;
     else if ( !strcmp(type, "FLOAT") )
