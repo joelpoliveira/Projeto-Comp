@@ -209,6 +209,7 @@ int main(int argc, char *argv[]){
         if (!error_flag && flag_3) {
             check_program(program);
             print_never_used_errors(program);
+            printf("\n");
             print_symbol_tables(program);
             printf("\n");
             print_ast(program);

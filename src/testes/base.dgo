@@ -1,12 +1,11 @@
 package main;
 
 var x int;
-var b bool;
 
 
 func teste(a bool, c int) int {
-    if (c) {
-        x = 2
+    if (a) {
+
     }
 
     for a {}
@@ -14,8 +13,10 @@ func teste(a bool, c int) int {
     return a;
 }
 
-func teste2 (a int) {
-    b = 0
+func teste2 (x int) {
+    var a float32;
+    a = x * 3.6;
+
     return a;
 }
 

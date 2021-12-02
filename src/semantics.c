@@ -183,10 +183,12 @@ void check_if_statement(table_element** symtab, is_if_statement* ifs){
 
     check_expression_or_list(symtab, ifs->iel);
     //TODO linha e coluna na mensagem de erro
-    if(ifs->iel->expression_type != d_bool){
-        printf("Line <line>, Col <col> : Incompatible type ");
-        symbol_print_type(ifs->iel->expression_type);
-        printf(" in if statement\n");
+    if (ifs->iel != NULL) {
+        if(ifs->iel->expression_type != d_bool){
+            printf("Line <line>, Col <col> : Incompatible type ");
+            symbol_print_type(ifs->iel->expression_type);
+            printf(" in if statement\n");
+        }
     }
 
     check_statements_list(symtab, ifs->isl);
@@ -205,10 +207,13 @@ void check_for_statement(table_element** symtab, is_for_statement* ifs){
    
     check_expression_or_list(symtab, ifs->iel);
     //TODO linha e coluna na mensagem de erro
-    if (ifs->iel->expression_type != d_bool){
-        printf("Line <line>, Col <col> : Incompatible type ");
-        symbol_print_type(ifs->iel->expression_type);
-        printf(" in for statement\n");
+
+    if (ifs->iel != NULL) {
+        if (ifs->iel->expression_type != d_bool){
+            printf("Line <line>, Col <col> : Incompatible type ");
+            symbol_print_type(ifs->iel->expression_type);
+            printf(" in for statement\n");
+        }
     }
     
     check_statements_list(symtab, ifs->isl);
@@ -219,11 +224,12 @@ void check_return_statement(table_element** symtab, is_return_statement* irs){
     table_element* temp = search_symbol(*symtab, "return");
     //TODO linha e coluna na mensagem de erro
     check_expression_or_list(symtab, irs->iel);
-
-    if (irs->iel->expression_type != temp->type){
-        printf("Line <line>, Col <col>: Incompatible type ");
-        symbol_print_type(irs->iel->expression_type);
-        printf(" in return statement\n");
+    if (temp != NULL && irs->iel != NULL){
+        if (irs->iel->expression_type != temp->type){
+            printf("Line <line>, Col <col>: Incompatible type ");
+            symbol_print_type(irs->iel->expression_type);
+            printf(" in return statement\n");
+        }   
     }
 
 }
@@ -270,12 +276,14 @@ void check_assign_statement(table_element** symtab, is_assign_statement* ias){
     check_expression_or_list(symtab, ias->iel);
 
     // TODO Linha e coluna
-    if (ias->iel->expression_type != ias->id->type){
-        printf("Line <line>, Col <col>: Operator = cannot be applied to types ");
-        symbol_print_type(ias->id->type);
-        printf(", ");
-        symbol_print_type(ias->iel->expression_type);
-        printf("\n");
+    if (ias->iel != NULL) {
+        if (ias->iel->expression_type != ias->id->type){
+            printf("Line <line>, Col <col>: Operator = cannot be applied to types ");
+            symbol_print_type(ias->id->type);
+            printf(", ");
+            symbol_print_type(ias->iel->expression_type);
+            printf("\n");
+        }
     }
 }
 
