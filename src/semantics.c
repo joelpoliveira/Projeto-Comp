@@ -93,7 +93,7 @@ void check_var_declaration(table_element** symtab, is_var_dec* ivd){
 void check_var_spec(table_element** symtab, is_var_spec* ivs){
     table_element* new_symbol = NULL;
     parameter_type type = ivs->type;
-    printf("Type: %d \n", type);
+    //printf("Type: %d \n", type);
     for (is_id_list* current = ivs->iil; current != NULL; current = current->next){
         new_symbol = insert_var(symtab, current->val, type);
 
@@ -171,10 +171,19 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
 
     switch (type){
         case d_expression:
+            //printf("======== check_final_statement(expression) ========\n");
             check_expression_or_list(symtab, ips->print.iel);
             break;
         case d_str:
-            ips->print.id->type = d_string;
+
+            //printf("======== check_final_statement(d_str) ========\n");
+            if (search_in_tables(symtab, ips->print.id) == 0){
+                printf("ERRO-------------\n");
+                return;
+            }
+                
+            //ips->print.id->type = d_string;
+            //ips->print.id->uses++;
             break;
         default:
             printf("Erro check_print_statement\n");
@@ -214,7 +223,7 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
 
     switch (type){
         case d_function_invoc:
-            //printf("======== check_final_statement ========\n");
+            //printf("======== check_final_statement(invocation) ========\n");
             check_func_invocation(symtab, ifs->statement.ifi);
 
             current = ifs->statement.ifi->iel;
@@ -226,7 +235,7 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
             break;
         case d_arguments:
             check_id(symtab, ifs->statement.ipa->id);
-            //printf("============ ID: %s\n", ifs->statement.ipa->id->id);
+            //printf("======== check_final_statement(arguments) ========\n");
 
             //TODO check que expression_or_list não é um inteiro
             check_expression_or_list(symtab, ifs->statement.ipa->iel);
@@ -394,22 +403,26 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 
     switch (ife->type_final_expression){
         case d_intlit:
+            //printf("======== check_final_expression(intlit) ========\n");
             ife->expr.u_intlit->intlit->type = d_integer;
             ife->expression_type = d_integer;
             break;
         case d_reallit:
+            //printf("======== check_final_expression(reallit) ========\n");
             ife->expr.u_reallit->reallit->type = d_float32; 
             ife->expression_type = d_float32;
             break;
         case d_id:
+            //printf("======== check_final_expression(id) ========\n");
             ife->expression_type = get_id_type(symtab, ife->expr.u_id->id);
             break;
         case d_func_inv:
-            //printf("======== check_final_expression ========\n");
+            //printf("======== check_final_expression(invocation) ========\n");
             check_func_invocation(symtab, ife->expr.ifi);
             ife->expression_type = get_id_type(symtab, ife->expr.ifi->id); 
             break;
         case d_expr_final:
+            //printf("======== check_final_expression(final) ========\n");
             ife->expression_type = ife->expr.ieol->expression_type; 
             break;
         default:
@@ -420,7 +433,7 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 
 
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
-    //printf("====Check_func_invocation: %s\n====", ifi->id->id);
+    printf("====Check_func_invocation: %s\n====", ifi->id->id);
     // verificar se a função a ser chamada existe
     if (!search_in_tables(symtab, ifi->id)){
         //TODO adicionar o tipo dos parametros usados para invocar a funcção que não existe
