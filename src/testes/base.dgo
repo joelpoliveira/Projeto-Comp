@@ -4,6 +4,6 @@ var x int;
 
 
 func teste(a bool, c int) int {
-    if a {}
+    if (a) {}
 }
 

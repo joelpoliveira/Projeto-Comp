@@ -182,8 +182,8 @@ void check_statement(table_element** symtab, is_statement* is){
 void check_if_statement(table_element** symtab, is_if_statement* ifs){
     if (ifs == NULL) return;
 
-    if(ifs->iel->expression_type != d_bool)
-        printf("Line <line>, Col <col> : Incompatible type <type> in if statement\n");
+    // if(ifs->iel->expression_type != d_bool)
+    //     printf("Line <line>, Col <col> : Incompatible type <type> in if statement\n");
 
     check_expression_or_list(symtab, ifs->iel);
     check_statements_list(symtab, ifs->isl);
@@ -200,9 +200,9 @@ void check_else_statement(table_element** symtab, is_else_statement* ies){
 
 void check_for_statement(table_element** symtab, is_for_statement* ifs){
 
-    if (ifs->iel->expression_type != d_bool){
-        printf("Line <line>, Col <col> : Incompatible type <type> in for statement\n");
-    }
+    // if (ifs->iel->expression_type != d_bool){
+    //     printf("Line <line>, Col <col> : Incompatible type <type> in for statement\n");
+    // }
     
     check_expression_or_list(symtab, ifs->iel);
     check_statements_list(symtab, ifs->isl);
