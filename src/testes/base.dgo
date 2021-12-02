@@ -5,13 +5,8 @@ var x int;
 
 func teste(a bool, c int) int {
     var t int;
-    //x = 20;
-}
-
-func main() {
-    a = 2
-    var x string;
-    teste(a, x);
-    return;
+    x = 20.5;
+    abc(123)
+    d , _ = strconv.Atoi(os.Args[0]);
 }
 

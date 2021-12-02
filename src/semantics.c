@@ -1,5 +1,6 @@
 #include "semantics.h"
 #include "symbol_table.h"
+#include "print_ast.h"
 #include "y.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -182,11 +183,13 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
 }
 
 
-
 void check_assign_statement(table_element** symtab, is_assign_statement* ias){
     if (!search_in_tables(symtab, ias->id))
         printf("Line %d, column %d: Cannot find symbol %s\n", ias->id->line, ias->id->col+1, ias->id->id);
 
+    // TODO verificar o assign
+    // Se a variável estiver declarada antes com um tipo
+    // não pode ser atribuido outro tipo
     check_expression_or_list(symtab, ias->iel);
 }
 
@@ -223,6 +226,9 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
             break;
         case d_arguments:
             check_id(symtab, ifs->statement.ipa->id);
+            //printf("============ ID: %s\n", ifs->statement.ipa->id->id);
+
+            //TODO check que expression_or_list não é um inteiro
             check_expression_or_list(symtab, ifs->statement.ipa->iel);
             break;
         default:
@@ -372,6 +378,7 @@ void check_func_invocation(table_element** symtab, is_function_invocation * ifi)
     //printf("====Check_func_invocation: %s\n====", ifi->id->id);
     // verificar se a função a ser chamada existe
     if (!search_in_tables(symtab, ifi->id)){
+        //TODO adicionar o tipo dos parametros usados para invocar a funcção que não existe
         printf("Line %d, column %d: Cannot find symbol %s()\n", ifi->id->line, ifi->id->col+1, ifi->id->id);
         return;
     }

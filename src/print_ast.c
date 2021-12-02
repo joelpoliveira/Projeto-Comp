@@ -43,25 +43,24 @@ void print_anotation_type(id_token* id){
 
 void print_parameters_type(is_id_type_list * iitl){
     for ( ; iitl; iitl = iitl->next){
-            switch (iitl->val->type_param)
-            {
-            case d_integer:
-                printf("int");
-                break;
-            case d_float32:
-                printf("float32");
-                break;
-            case d_string:
-                printf("string");
-                break;
-            case d_bool:
-                printf("bool");
-                break;
-            case d_var:
-            case d_none:
-                break;
-            default:
-                printf("-----------------\n\n-----------------\n");
+            switch (iitl->val->type_param){
+                case d_integer:
+                    printf("int");
+                    break;
+                case d_float32:
+                    printf("float32");
+                    break;
+                case d_string:
+                    printf("string");
+                    break;
+                case d_bool:
+                    printf("bool");
+                    break;
+                case d_var:
+                case d_none:
+                    break;
+                default:
+                    printf("-----------------\n\n-----------------\n");
             }
             if (iitl->next != NULL)
                 printf(",");
@@ -602,7 +601,7 @@ void print_func_invocation(is_function_invocation * ifi, int depth){
     if (flag_3){
         is_func_dec * func_dec = get_function_declaration(program, ifi->id->id);
         printf(" - (");
-        if (func_dec!= NULL)
+        if (func_dec->ipl != NULL)
             print_parameters_type(func_dec->ipl->val);
         printf(")");
     }
