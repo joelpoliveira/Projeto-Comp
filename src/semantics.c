@@ -7,6 +7,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+//#define DEBUG 1
+
 //extern table_element* symtab;
 extern is_program * program;
 
@@ -171,12 +173,15 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
 
     switch (type){
         case d_expression:
-            //printf("======== check_final_statement(expression) ========\n");
+            #ifdef DEBUG
+            printf("======== check_final_statement(expression) ========\n");
+            #endif
             check_expression_or_list(symtab, ips->print.iel);
             break;
         case d_str:
-
-            //printf("======== check_final_statement(d_str) ========\n");
+            #ifdef DEBUG
+            printf("======== check_final_statement(d_str) ========\n");
+            #endif
             if (search_in_tables(symtab, ips->print.id) == 0){
                 printf("ERRO-------------\n");
                 return;
@@ -223,7 +228,9 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
 
     switch (type){
         case d_function_invoc:
-            //printf("======== check_final_statement(invocation) ========\n");
+            #ifdef DEBUG
+            printf("======== check_final_statement(invocation) ========\n");
+            #endif
             check_func_invocation(symtab, ifs->statement.ifi);
 
             current = ifs->statement.ifi->iel;
@@ -235,7 +242,9 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
             break;
         case d_arguments:
             check_id(symtab, ifs->statement.ipa->id);
-            //printf("======== check_final_statement(arguments) ========\n");
+            #ifdef DEBUG
+            printf("======== check_final_statement(arguments) ========\n");
+            #endif
 
             //TODO check que expression_or_list não é um inteiro
             check_expression_or_list(symtab, ifs->statement.ipa->iel);
@@ -403,27 +412,38 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 
     switch (ife->type_final_expression){
         case d_intlit:
-            //printf("======== check_final_expression(intlit) ========\n");
+            #ifdef DEBUG
+            printf("======== check_final_expression(intlit) ========\n");
+            #endif
             ife->expr.u_intlit->intlit->type = d_integer;
             ife->expression_type = d_integer;
             break;
         case d_reallit:
-            //printf("======== check_final_expression(reallit) ========\n");
+            #ifdef DEBUG
+            printf("======== check_final_expression(reallit) ========\n");
+            #endif
             ife->expr.u_reallit->reallit->type = d_float32; 
             ife->expression_type = d_float32;
             break;
         case d_id:
-            //printf("======== check_final_expression(id) ========\n");
+            #ifdef DEBUG
+            printf("======== check_final_expression(id) ========\n");
+            #endif
             ife->expression_type = get_id_type(symtab, ife->expr.u_id->id);
+            ife->expr.u_id->id->uses++;
             break;
         case d_func_inv:
-            //printf("======== check_final_expression(invocation) ========\n");
+            #ifdef DEBUG
+            printf("======== check_final_expression(invocation) ========\n");
+            #endif
             check_func_invocation(symtab, ife->expr.ifi);
             ife->expression_type = get_id_type(symtab, ife->expr.ifi->id); 
             break;
         case d_expr_final:
-            //printf("======== check_final_expression(final) ========\n");
-            ife->expression_type = ife->expr.ieol->expression_type; 
+            #ifdef DEBUG
+            printf("======== check_final_expression(final) ========\n");
+            #endif
+            ife->expression_type = ife->expr.ieol->expression_type;
             break;
         default:
             printf("Erro check_final_expression\n");
@@ -433,7 +453,7 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
 
 
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
-    printf("====Check_func_invocation: %s\n====", ifi->id->id);
+    //printf("====Check_func_invocation: %s\n====", ifi->id->id);
     // verificar se a função a ser chamada existe
     if (!search_in_tables(symtab, ifi->id)){
         //TODO adicionar o tipo dos parametros usados para invocar a funcção que não existe
@@ -487,7 +507,9 @@ bool search_in_tables(table_element **symtab, id_token* id){
     } else {
         id->type = local_symbol->type;
         local_symbol->id->uses++;
-        //printf("Found on Local -> %s: type: %d - symbol type: %d / uses: %d\n", local_symbol->id->id, id->type, local_symbol->type, local_symbol->id->uses);
+        #ifdef DEBUG
+        printf("Found on Local -> %s: type: %d - symbol type: %d / uses: %d\n", local_symbol->id->id, id->type, local_symbol->type, local_symbol->id->uses);
+        #endif
     }
 
     if (in_function_table == 0){
@@ -496,7 +518,9 @@ bool search_in_tables(table_element **symtab, id_token* id){
         else{
             id->type = global_symbol->type;
             global_symbol->id->uses++;
-            //printf("Found on Global -> %s: type: %d - symbol type: %d / uses: %d\n", global_symbol->id->id, id->type, global_symbol->type, global_symbol->id->uses);
+            #ifdef DEBUG
+            printf("Found on Global -> %s: type: %d - symbol type: %d / uses: %d\n", global_symbol->id->id, id->type, global_symbol->type, global_symbol->id->uses);
+            #endif
         } 
     }
 

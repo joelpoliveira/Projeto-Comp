@@ -43,6 +43,16 @@
         J ->
         K ->
         L ->
+
+
+        ====Meta 3====
+        A -> 143/250    :: Global
+        B -> 25/25      :: Symbol Tables - Variable Declarations
+        C -> 58/58      :: Symbol Tables - Function Declarations/Definitions
+        D -> 60/84      :: Annotated AST - Valid Programs
+        E -> 0/33       :: Semantic Errors - Variable and Function Declarations
+        F -> 0/50       :: Semantic Errors - Expressions and Statements
+
     */
 %}
 
@@ -198,7 +208,7 @@ int main(int argc, char *argv[]){
 
         if (!error_flag && flag_3) {
             check_program(program);
-            print_never_used_errors(program);
+            //print_never_used_errors(program);
             print_symbol_tables(program);
             printf("\n");
             print_ast(program);
