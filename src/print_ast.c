@@ -602,7 +602,8 @@ void print_final_expression(is_final_expression * ife, int depth){
         case d_id:
             print_dots(depth);
             printf("Id(%s)", ife->expr.u_id->id->id);
-            print_anotation_type(ife->expr.u_id->id);
+            print_expr_anotation_type(ife->expression_type);
+            printf("\n");
             break;
         case d_func_inv:
             //printf("==== Final Expression =====\n");

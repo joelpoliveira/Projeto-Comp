@@ -92,7 +92,6 @@ void check_var_declaration(table_element** symtab, is_var_dec* ivd){
 void check_var_spec(table_element** symtab, is_var_spec* ivs){
     table_element* new_symbol = NULL;
     parameter_type type = ivs->type;
-    printf("Type: %d \n", type);
     for (is_id_list* current = ivs->iil; current != NULL; current = current->next){
         new_symbol = insert_var(symtab, current->val, type);
 
@@ -442,6 +441,8 @@ table_element * get_table_elem(table_element ** symtab, id_token * id){
 
 parameter_type get_id_type(table_element** symtab, id_token * id){
     table_element * temp = get_table_elem(symtab, id);
+    //printf("Token: %s -- Type: %d \n", id->id, temp->type);
+
     return (temp == NULL)? d_undef : temp->type;
 }
 
