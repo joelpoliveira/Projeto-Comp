@@ -596,7 +596,8 @@ void print_func_invocation(is_function_invocation * ifi, int depth){
         is_func_dec * func_dec = get_function_declaration(program, ifi->id->id);
         printf(" - (");
         if (func_dec!= NULL)
-            print_parameters_type(func_dec->ipl->val);
+            if (func_dec->ipl!=NULL)
+                print_parameters_type(func_dec->ipl->val);
         printf(")");
     }
     printf("\n");

@@ -232,12 +232,12 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
 }
 
 
-parameter_type check_expression_or_list(table_element** symtab, is_expression_or_list* ieol){
-    if (ieol == NULL) return d_undef;
+void check_expression_or_list(table_element** symtab, is_expression_or_list* ieol){
+    if (ieol == NULL) return;
     
     if (ieol->next_left==NULL && ieol->next_right==NULL){
         ieol->expression_type=d_undef;
-        return d_undef;
+        return;
     }
 
     if (ieol->is_operation){
@@ -255,7 +255,6 @@ parameter_type check_expression_or_list(table_element** symtab, is_expression_or
         ieol->expression_type = ieol->next_right->expression_type;
     } 
 
-    return ieol->expression_type;
 }
 
 
@@ -409,15 +408,15 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
             ife->expression_type = d_float32;
             break;
         case d_id:
-            ife->expression_type = check_id(symtab, ife->expr.u_id->id);
+            ife->expression_type = get_id_type(symtab, ife->expr.u_id->id);
             break;
         case d_func_inv:
             //printf("======== check_final_expression ========\n");
             check_func_invocation(symtab, ife->expr.ifi);
-            ife->expression_type = check_id(symtab, ife->expr.ifi->id); 
+            ife->expression_type = get_id_type(symtab, ife->expr.ifi->id); 
             break;
         case d_expr_final:
-            ife->expression_type = check_expression_or_list(symtab, ife->expr.ieol); 
+            ife->expression_type = ife->expr.ieol->expression_type; 
             break;
         default:
             printf("Erro check_final_expression\n");
@@ -440,6 +439,22 @@ void check_func_invocation(table_element** symtab, is_function_invocation * ifi)
         current = current->next;
     } 
     
+}
+
+table_element * get_table_elem(table_element ** symtab, id_token * id){
+    table_element* local_symbol = search_symbol(*symtab, id->id);
+    table_element* global_symbol = search_symbol(program->symtab, id->id);
+
+    if (local_symbol == NULL) {
+        return global_symbol;
+    } else {
+        return local_symbol;
+    }
+}
+
+parameter_type get_id_type(table_element** symtab, id_token * id){
+    table_element * temp = get_table_elem(symtab, id);
+    return (temp == NULL)? d_undef : temp->type;
 }
 
 
