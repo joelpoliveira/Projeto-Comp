@@ -186,7 +186,6 @@ void check_if_statement(table_element** symtab, is_if_statement* ifs){
         printf("Line <line>, Col <col> : Incompatible type <type> in if statement\n");
 
     check_expression_or_list(symtab, ifs->iel);
-    printf("Parsed -- \n");
     check_statements_list(symtab, ifs->isl);
     check_else_statement(symtab, ifs->ies);
 }
@@ -473,7 +472,6 @@ void check_self_expression_list(table_element** symtab, is_self_expression_list 
 
 void check_final_expression(table_element** symtab, is_final_expression * ife){
     if (ife == NULL) return;
-    printf("Case : %d \n", ife->type_final_expression);
     //{d_intlit, d_reallit, d_id, d_func_inv, d_expr_final} 
 
     switch (ife->type_final_expression){
@@ -495,7 +493,6 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
             #ifdef DEBUG
             printf("======== check_final_expression(id) ========\n");
             #endif
-            printf("Type :: %d -- %d\n", get_id_type(symtab, ife->expr.u_id->id), d_integer);
             ife->expression_type = get_id_type(symtab, ife->expr.u_id->id);
             ife->expr.u_id->id->uses++;
             break;
@@ -517,7 +514,6 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
             printf("Erro check_final_expression\n");
             break;
     }
-     printf("Type on final: %d\n", ife->expression_type);
 }
 
 
