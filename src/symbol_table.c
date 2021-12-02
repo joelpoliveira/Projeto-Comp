@@ -114,6 +114,7 @@ table_element *search_symbol(table_element *symtab, char *str) {
     for (table_element *aux = symtab; aux; aux = aux->next){
         //printf("======= %s\n", aux->name);
         if (strcmp(aux->id->id, str) == 0){
+            aux->id->uses++;
             return aux;
         }
     }

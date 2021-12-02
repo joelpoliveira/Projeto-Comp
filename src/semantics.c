@@ -1,6 +1,6 @@
 #include "semantics.h"
 #include "symbol_table.h"
-#include "print_ast.h"
+//#include "print_ast.h"
 #include "y.tab.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -182,6 +182,7 @@ void check_if_statement(table_element** symtab, is_if_statement* ifs){
     if (ifs == NULL) return;
 
     check_expression_or_list(symtab, ifs->iel);
+
     //TODO linha e coluna na mensagem de erro
     if (ifs->iel != NULL) {
         if(ifs->iel->expression_type != d_bool){
@@ -289,14 +290,13 @@ void check_assign_statement(table_element** symtab, is_assign_statement* ias){
 
 
 void check_statements_list(table_element** symtab, is_statements_list* isl){
-    if (isl == NULL) return;
+    //if (isl == NULL) return;
 
-    is_statements_list * current = isl;
-    
-    while( current != NULL){
+
+    for (is_statements_list * current = isl; current; current = current->next){
         check_statement(symtab, current->val);
-        current = current->next;
     }
+    
 }
 
 
@@ -323,7 +323,7 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
         case d_arguments:
             check_id(symtab, ifs->statement.ipa->id);
             #ifdef DEBUG
-            printf("======== check_final_statement(arguments) ========\n");
+            printf("======== check_final_statement(arguments): %s ========\n", ifs->statement.ipa->id->id);
             #endif
 
             //TODO check que expression_or_list não é um inteiro
@@ -525,7 +525,7 @@ void check_final_expression(table_element** symtab, is_final_expression * ife){
             printf("======== check_final_expression(id) ========\n");
             #endif
             ife->expression_type = get_id_type(symtab, ife->expr.u_id->id);
-            ife->expr.u_id->id->uses++;
+            //ife->expr.u_id->id->uses++;
             break;
         case d_func_inv:
             #ifdef DEBUG
@@ -570,8 +570,10 @@ table_element * get_table_elem(table_element ** symtab, id_token * id){
     table_element* global_symbol = search_symbol(program->symtab, id->id);
 
     if (local_symbol == NULL) {
+        //global_symbol->id->uses++;
         return global_symbol;
     } else {
+        //local_symbol->id->uses++;
         return local_symbol;
     }
 }
@@ -579,7 +581,7 @@ table_element * get_table_elem(table_element ** symtab, id_token * id){
 parameter_type get_id_type(table_element** symtab, id_token * id){
     table_element * temp = get_table_elem(symtab, id);
     #ifdef DEBUG
-    printf("Token: %s -- Type: %d -- Type.id.type: %d\n", id->id, temp->type, temp->id->type);
+    //printf("Token: %s -- Type: %d -- Type.id.type: %d\n", id->id, temp->type, temp->id->type);
     #endif
 
     return (temp == NULL)? d_undef : temp->type;
@@ -604,7 +606,7 @@ bool search_in_tables(table_element **symtab, id_token* id){
         in_function_table = 0;
     } else {
         id->type = local_symbol->type;
-        local_symbol->id->uses++;
+        //local_symbol->id->uses++;
         #ifdef DEBUG
         printf("Found on Local -> %s: type: %d - symbol type: %d / uses: %d\n", local_symbol->id->id, id->type, local_symbol->type, local_symbol->id->uses);
         #endif
@@ -615,7 +617,7 @@ bool search_in_tables(table_element **symtab, id_token* id){
             in_global_table = 0;
         else{
             id->type = global_symbol->type;
-            global_symbol->id->uses++;
+            //global_symbol->id->uses++;
             #ifdef DEBUG
             printf("Found on Global -> %s: type: %d - symbol type: %d / uses: %d\n", global_symbol->id->id, id->type, global_symbol->type, global_symbol->id->uses);
             #endif
