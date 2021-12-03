@@ -608,7 +608,7 @@ id_token* check_self_expression_list(table_element** symtab, is_self_expression_
             }
             
         }else{
-            if (current->next_final->expression_type == d_bool || current->next_final->expression_type == d_undef){
+            if (current->next_same->expression_type == d_bool || current->next_same->expression_type == d_undef){
                 print_oper_cannot_apply_self(type, self_str(type->oper_type.sot), current->next_same->expression_type);
                 current->expression_type = d_undef;
             }else{
