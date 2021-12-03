@@ -57,7 +57,7 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
 }
 
 
-table_element *insert_func(table_element **symtab, id_token* id, is_parameter * ip, parameter_type return_type) {
+table_element *insert_func(table_element **symtab, id_token* id, is_parameter * ip, parameter_type return_type, is_func_dec * ifd) {
     table_element *new_symbol = (table_element *)malloc(sizeof(table_element));
     table_element* func_table = NULL;
     //id_token* temp = id;
@@ -67,7 +67,7 @@ table_element *insert_func(table_element **symtab, id_token* id, is_parameter * 
     new_symbol->type = return_type;
     new_symbol->type_dec = d_func_dec;
     new_symbol->next = NULL;
-
+    new_symbol->dec.ifd = ifd;
     //inserir nome da função
     new_symbol = insert_symbol(symtab, new_symbol);
     if (new_symbol == NULL){

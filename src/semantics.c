@@ -24,6 +24,7 @@ void print_cannot_find(char* id, int line, int col){
 }
 
 
+
 void print_parameter_type_(parameter_type type){
     switch (type){
         case d_integer:
@@ -45,6 +46,39 @@ void print_parameter_type_(parameter_type type){
         default:
             break;
     }
+}
+
+void print_cannot_find_function_(table_element ** symtab, is_function_invocation * ifi){
+    printf("Line %d, column %d: Cannot find symbol %s(", ifi->id->line, ifi->id->col+1, ifi->id->id);
+    id_token * token;
+    is_func_inv_expr_list * ieoll;
+    for (ieoll = ifi->iel; ieoll; ieoll = ieoll->next){
+        token = check_expression_or_list(symtab, ieoll->val);
+        print_parameter_type_(token->type);
+        if (ieoll->next!=NULL)
+            printf(",");
+    }
+    printf(")\n");
+}
+
+void print_cannot_find_function_diff_params(table_element ** symtab, is_id_type_list * iitl, int index, is_function_invocation * ifi){
+    printf("Line %d, column %d: Cannot find symbol %s(", ifi->id->line, ifi->id->col+1, ifi->id->id);
+    id_token * token;
+    is_func_inv_expr_list * ieoll;
+    int counter = 0;
+    for (ieoll = ifi->iel; ieoll; ieoll = ieoll->next){
+        if (counter <= index){
+            print_parameter_type_(ieoll->val->expression_type);
+            iitl = iitl->next;
+        }else{
+            token = check_expression_or_list(symtab, ieoll->val);
+            print_parameter_type_(ieoll->val->expression_type);
+        }
+        counter++;
+        if (ieoll->next!=NULL)
+            printf(",");
+    }
+    printf(")\n");
 }
 
 char * comp_str(comp_type type){
@@ -161,7 +195,7 @@ void check_declarations_list(table_element** symtab, is_declarations_list* idl){
 
 void check_func_declaration(table_element** symtab, is_func_dec* ifd){
     
-    ifd->symtab = insert_func(symtab, ifd->id, ifd->ipl, ifd->type);
+    ifd->symtab = insert_func(symtab, ifd->id, ifd->ipl, ifd->type, ifd);
     //printf("%s ifd->id->type: %d        ifd->type: %d\n", ifd->id->id,ifd->id->type, ifd->type);
 
     //inserir na tabela de simbolos da função
@@ -370,7 +404,6 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
     if (ifs == NULL) return;
 
     final_state_type type = ifs->type_state;  //d_function_invoc, d_arguments
-    is_func_inv_expr_list * current;
 
     switch (type){
         case d_function_invoc:
@@ -378,12 +411,6 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
             printf("======== check_final_statement(invocation) ========\n");
             #endif
             check_func_invocation(symtab, ifs->statement.ifi);
-
-            current = ifs->statement.ifi->iel;
-            while ( current ){
-                check_expression_or_list(symtab, current->val);
-                current = current->next;
-            }
 
             break;
         case d_arguments:
@@ -602,7 +629,7 @@ id_token* check_self_expression_list(table_element** symtab, is_self_expression_
             if (current->next_same->expression_type != d_bool){
                 print_oper_cannot_apply_self(type, self_str(type->oper_type.sot), current->next_same->expression_type);
                 current->expression_type = d_undef;
-
+                
             }else{
                 current->expression_type = current->next_same->expression_type;
             }
@@ -680,19 +707,8 @@ id_token * check_final_expression(table_element** symtab, is_final_expression * 
 
 
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
-    //printf("====Check_func_invocation: %s\n====", ifi->id->id);
-    // verificar se a função a ser chamada existe
-    if (!search_in_tables(symtab, ifi->id)){
-        //TODO adicionar o tipo dos parametros usados para invocar a funcção que não existe
-        printf("Line %d, column %d: Cannot find symbol %s()\n", ifi->id->line, ifi->id->col+1, ifi->id->id);
-        return;
-    }
-
-    is_func_inv_expr_list * current = ifi->iel;
-    while ( current ){
-        check_expression_or_list(symtab, current->val);
-        current = current->next;
-    } 
+    
+    check_inv_parameters(symtab, ifi);
     
 }
 
@@ -761,3 +777,46 @@ bool search_in_tables(table_element **symtab, id_token* id){
     return 1;
 }
 
+void check_params(table_element ** symtab, table_element* symbol, is_function_invocation * ifi){
+    is_parameter * param_list = symbol->dec.ifd->ipl;
+    if (param_list == NULL && ifi->iel == NULL) return;
+    else if (param_list == NULL && ifi->iel != NULL) print_cannot_find_function_(symtab, ifi);
+    else if (param_list !=NULL && ifi->iel == NULL) print_cannot_find_function_(symtab, ifi);
+    else{
+        is_func_inv_expr_list * ieoll;
+        is_id_type_list * param_elem = param_list->val;
+        id_token * token ;
+        int counter = 0;
+        for (ieoll = ifi->iel; ieoll; ieoll = ieoll->next, param_elem = param_elem->next){
+            token = check_expression_or_list(symtab, ieoll->val);
+            if ( token->type == param_elem->val->type_param){
+                counter++;
+            }else{
+                print_cannot_find_function_diff_params(symtab, param_list->val, counter, ifi);
+                return;
+            }
+        }
+    }
+
+}
+
+void check_inv_parameters(table_element **symtab, is_function_invocation * ifi){
+    table_element* local_symbol = search_symbol(*symtab, ifi->id->id);
+    table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
+
+    if (local_symbol != NULL){
+        if (local_symbol->type_dec == d_var_declaration){
+            print_cannot_find_function_(symtab, ifi);
+        }else{
+            check_params(symtab, local_symbol, ifi);
+        }
+    }else if (global_symbol!=NULL){
+        if (global_symbol->type_dec == d_var_declaration){
+            print_cannot_find_function_(symtab, ifi);
+        }else{
+            check_params(symtab, global_symbol, ifi);
+        }
+    }else{
+        print_cannot_find_function_(symtab, ifi);
+    }
+}
