@@ -43,8 +43,8 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
         for (aux = *symtab; aux; previous = aux, aux = aux->next) {
             //printf("++++++++ %s\n", aux->name);
             if (strcmp(aux->id->id, new_symbol->id->id) == 0) {
+                printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col, new_symbol->id->id);
                 free(new_symbol);
-                //printf("--------Alredy existed\n");
                 return NULL;
             }
         }
@@ -263,10 +263,7 @@ void print_never_used_errors (is_program* ip){
 
     //Global table
     for(table_element* symtab = ip->symtab; symtab; symtab = symtab->next) {
-        if (symtab->type_dec != d_func_dec) {
-            if (symtab->id->uses == 0)
-                printf("Line %d, column %d: Symbol %s declared but never used\n", symtab->id->line, symtab->id->col+1, symtab->id->id);
-        } else { // Procurar na tabela da função
+        if (symtab->type_dec  == d_func_dec){
             for (aux = get_function_table(ip, symtab->id->id); aux; aux = aux->next) {
                 if (strcmp(aux->id->id, "return") == 0) continue; // ignore return 
 
@@ -274,8 +271,8 @@ void print_never_used_errors (is_program* ip){
                     //printf("(%s) ", symtab->id->id);
                     printf("Line %d, column %d: Symbol %s declared but never used\n", aux->id->line, aux->id->col+1,aux->id->id);
                 }
-            }   
-        }
+            }  
+        } 
     }
 }
 

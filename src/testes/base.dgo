@@ -2,21 +2,11 @@ package main;
 
 var x int;
 
-
 func teste(a bool, c int) int {
-    if (a) {
+    var abc int;
+    abc = 0;
 
-    }
-
-    for a {}
-
-    return a;
+    return 1;
 }
 
-func teste2 (x int) {
-    var a float32;
-    a = x * 3.6;
-
-    return a;
-}
 
