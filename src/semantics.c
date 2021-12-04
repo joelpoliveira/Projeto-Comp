@@ -194,12 +194,7 @@ void check_declarations_list(table_element** symtab, is_declarations_list* idl){
 
 
 void check_func_declaration(table_element** symtab, is_func_dec* ifd){
-    
     ifd->symtab = insert_func(symtab, ifd->id, ifd->ipl, ifd->type, ifd);
-    //printf("%s ifd->id->type: %d        ifd->type: %d\n", ifd->id->id,ifd->id->type, ifd->type);
-
-    //inserir na tabela de simbolos da função
-    //check_function_body(&ifd->symtab, ifd->ifb);
 }
 
 
@@ -240,9 +235,9 @@ void check_var_spec(table_element** symtab, is_var_spec* ivs){
     for (is_id_list* current = ivs->iil; current != NULL; current = current->next){
         new_symbol = insert_var(symtab, current->val, type);
 
-        if (new_symbol == NULL){
+        /* if (new_symbol == NULL){
             print_already_defined(current->val->id, current->val->line, current->val->col);
-        }
+        } */
     }
 }
 
@@ -330,7 +325,8 @@ void check_return_statement(table_element** symtab, is_return_statement* irs){
     id_token * ltoken = check_expression_or_list(symtab, irs->iel);
     
     if (temp != NULL && irs->iel != NULL){
-        if (irs->iel->expression_type != temp->type){
+        if ( (irs->iel->expression_type != temp->type && temp->type!=d_none) 
+        || (irs->iel->expression_type == d_undef && temp->type!=d_none)){
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col+1);
             symbol_print_type(irs->iel->expression_type);
             printf(" in return statement\n");
@@ -352,10 +348,10 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
             #endif
             
             check_expression_or_list(symtab, ips->print.iel);
-            if (search_in_tables(symtab, ips->print.id) == 0){
-                printf("Line %d, column %d: Incompatible type ");
+            if (ips->print.iel->expression_type==d_undef){
+                printf("Line %d, column %d: Incompatible type ", ips->print.id->line, ips->print.id->col+1);
                 print_parameter_type_(ips->print.iel->expression_type);
-                printf("in fmt.Println statement");
+                printf(" in fmt.Println statement\n");
                 return;
             }
             break;
@@ -382,7 +378,9 @@ void check_assign_statement(table_element** symtab, is_assign_statement* ias){
 
     // TODO Linha e coluna
     if (ias->iel != NULL) {
-        if (ias->iel->expression_type != ias->id->type){
+        if (ias->iel->expression_type != ias->id->type
+        || ias->iel->expression_type == d_undef 
+        || ias->id->type == d_undef){
             printf("Line %d, column %d: Operator = cannot be applied to types ", ias->loc->line, ias->loc->col + 1);
             symbol_print_type(ias->id->type);
             printf(", ");
@@ -592,8 +590,10 @@ id_token* check_expression_star_like_list(table_element** symtab, is_expression_
         ltoken=check_expression_star_like_list(symtab, current->next_left);
         check_self_expression_list(symtab, current->next_right);
 
-        if (current->next_left->expression_type == d_undef || current->next_right->expression_type == d_undef)
+        if (current->next_left->expression_type == d_undef || current->next_right->expression_type == d_undef){
+            print_oper_cannot_apply(type, star_str(type->oper_type.stlt), current->next_left->expression_type, current->next_right->expression_type);
             current->expression_type = d_undef;
+        }
 
         else if (current->next_left->expression_type == d_bool || current->next_right->expression_type == d_bool){
             print_oper_cannot_apply(type, star_str(type->oper_type.stlt), current->next_left->expression_type, current->next_right->expression_type);
@@ -693,6 +693,7 @@ id_token * check_final_expression(table_element** symtab, is_final_expression * 
             check_func_invocation(symtab, ife->expr.ifi);
             ife->expression_type = get_id_type(symtab, ife->expr.ifi->id); 
             token = ife->expr.ifi->id;
+            printf("----- %s, %d \n", ife->expr.ifi->id->id, ife->expr.ifi->id->type);
             return token;
         case d_expr_final:
             #ifdef DEBUG
@@ -788,11 +789,11 @@ void check_params(table_element ** symtab, table_element* symbol, is_function_in
     else{
         is_func_inv_expr_list * ieoll;
         is_id_type_list * param_elem = param_list->val;
-        id_token * token ;
         int counter = 0;
         for (ieoll = ifi->iel; ieoll; ieoll = ieoll->next, param_elem = param_elem->next){
-            token = check_expression_or_list(symtab, ieoll->val);
-            if ( token->type == param_elem->val->type_param){
+            check_expression_or_list(symtab, ieoll->val);
+            
+            if ( ieoll->val->expression_type == param_elem->val->type_param){
                 counter++;
             }else{
                 print_cannot_find_function_diff_params(symtab, param_list->val, counter, ifi);
@@ -808,7 +809,6 @@ void check_params(table_element ** symtab, table_element* symbol, is_function_in
 void check_inv_parameters(table_element **symtab, is_function_invocation * ifi){
     table_element* local_symbol = search_symbol(*symtab, ifi->id->id);
     table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
-
     if (local_symbol != NULL){
         if (local_symbol->type_dec == d_var_declaration){
             print_cannot_find_function_(symtab, ifi);

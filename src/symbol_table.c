@@ -43,7 +43,7 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
         for (aux = *symtab; aux; previous = aux, aux = aux->next) {
             //printf("++++++++ %s\n", aux->name);
             if (strcmp(aux->id->id, new_symbol->id->id) == 0) {
-                printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col, new_symbol->id->id);
+                printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col+1, new_symbol->id->id);
                 free(new_symbol);
                 return NULL;
             }
