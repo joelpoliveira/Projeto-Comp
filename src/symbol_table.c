@@ -258,20 +258,14 @@ void print_symbol_tables(is_program* ip) {
 }
 
 
-void print_never_used_errors (is_program* ip){
+void print_never_used_errors (table_element* symtab){
     table_element* aux;
 
-    //Global table
-    for(table_element* symtab = ip->symtab; symtab; symtab = symtab->next) {
-        if (symtab->type_dec  == d_func_dec){
-            for (aux = get_function_table(ip, symtab->id->id); aux; aux = aux->next) {
-                if (strcmp(aux->id->id, "return") == 0) continue; // ignore return 
+    for(; symtab; symtab = symtab->next) {
+        if (strcmp(symtab->id->id, "return") == 0) continue; // ignore return 
 
-                if (aux->id->uses == 0 && !aux->is_param) {
-                    //printf("(%s) ", symtab->id->id);
-                    printf("Line %d, column %d: Symbol %s declared but never used\n", aux->id->line, aux->id->col+1,aux->id->id);
-                }
-            }  
+        if (symtab->id->uses == 0 && !symtab->is_param) {
+            printf("Line %d, column %d: Symbol %s declared but never used\n", symtab->id->line, symtab->id->col+1, symtab->id->id);
         } 
     }
 }

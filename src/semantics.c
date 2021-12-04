@@ -197,14 +197,13 @@ void check_func_declaration(table_element** symtab, is_func_dec* ifd){
     
     ifd->symtab = insert_func(symtab, ifd->id, ifd->ipl, ifd->type, ifd);
     //printf("%s ifd->id->type: %d        ifd->type: %d\n", ifd->id->id,ifd->id->type, ifd->type);
-
-    //inserir na tabela de simbolos da função
-    //check_function_body(&ifd->symtab, ifd->ifb);
 }
 
 
 void check_function_body(table_element** symtab, is_func_body* ifb){
     check_vars_and_statements_list(symtab, ifb->ivsl);
+    //Print das mensagens de never used antes de sair do check da função
+    print_never_used_errors(*symtab);
 }
 
 
@@ -341,19 +340,21 @@ void check_return_statement(table_element** symtab, is_return_statement* irs){
 
 
 void check_print_statement(table_element** symtab, is_print_statement* ips){
-     if (ips == NULL) return;
+    if (ips == NULL) return;
 
     print_type type = ips->type_print; // {d_expression, d_str}
+    id_token *temp;
 
     switch (type){
         case d_expression:
             #ifdef DEBUG
-            printf("======== check_final_statement(expression) ========\n");
+            printf("======== check_print_statement(expression): %s ========\n", ips->print.id->id);
             #endif
             
-            check_expression_or_list(symtab, ips->print.iel);
-            if (search_in_tables(symtab, ips->print.id) == 0){
-                printf("Line %d, column %d: Incompatible type ");
+            temp = check_expression_or_list(symtab, ips->print.iel); 
+            //printf("================== %s\n", temp->id);
+            if (search_in_tables(symtab, temp) == 0){
+                printf("Line %d, column %d: Incompatible type ", temp->line, temp->col);
                 print_parameter_type_(ips->print.iel->expression_type);
                 printf("in fmt.Println statement");
                 return;
@@ -361,7 +362,7 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
             break;
         case d_str:
             #ifdef DEBUG
-            printf("======== check_final_statement(d_str) ========\n");
+            printf("======== check_print_statement(d_str) ========\n");
             #endif
             break;
         default:

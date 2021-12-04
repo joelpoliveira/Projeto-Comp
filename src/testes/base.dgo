@@ -6,7 +6,17 @@ func teste(a bool, c int) int {
     var abc int;
     abc = 0;
 
+    fmt.Println(abc);
+
     return 1;
+}
+
+
+func main(){
+    var p bool;
+    var k, op int;
+
+    teste(k, op);
 }
 
 
