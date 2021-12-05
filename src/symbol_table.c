@@ -259,7 +259,6 @@ void print_symbol_tables(is_program* ip) {
 
 
 void print_never_used_errors (table_element* symtab){
-    table_element* aux;
 
     for(; symtab; symtab = symtab->next) {
         if (strcmp(symtab->id->id, "return") == 0) continue; // ignore return 

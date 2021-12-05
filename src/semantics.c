@@ -279,12 +279,11 @@ void check_statement(table_element** symtab, is_statement* is){
 void check_if_statement(table_element** symtab, is_if_statement* ifs){
     if (ifs == NULL) return;
 
-    check_expression_or_list(symtab, ifs->iel);
-
     id_token * ltoken = check_expression_or_list(symtab, ifs->iel);
-    //TODO linha e coluna na mensagem de erro
+    bool error_ocurred = check_or_err(symtab, ifs->iel);
+
     if (ifs->iel != NULL) {
-        if(ifs->iel->expression_type != d_bool){
+        if(ifs->iel->expression_type != d_bool && !error_ocurred){
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col+1);
             symbol_print_type(ifs->iel->expression_type);
             printf(" in if statement\n");
@@ -306,10 +305,10 @@ void check_else_statement(table_element** symtab, is_else_statement* ies){
 void check_for_statement(table_element** symtab, is_for_statement* ifs){
    
     id_token * ltoken = check_expression_or_list(symtab, ifs->iel);
-    //TODO linha e coluna na mensagem de erro
+    bool error_ocurred = check_or_err(symtab, ifs->iel);
 
     if (ifs->iel != NULL) {
-        if (ifs->iel->expression_type != d_bool){
+        if (ifs->iel->expression_type != d_bool && !error_ocurred){
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col + 1);
             symbol_print_type(ifs->iel->expression_type);
             printf(" in for statement\n");
@@ -325,10 +324,11 @@ void check_return_statement(table_element** symtab, is_return_statement* irs){
     //TODO linha e coluna na mensagem de erro
     
     id_token * ltoken = check_expression_or_list(symtab, irs->iel);
+    bool error_ocurred = check_or_err(symtab, irs->iel);
     
     if (temp != NULL && irs->iel != NULL){
-        if ( (irs->iel->expression_type != temp->type && temp->type!=d_none) 
-        || (irs->iel->expression_type == d_undef && temp->type!=d_none)){
+        if ( ((irs->iel->expression_type != temp->type && temp->type!=d_none) 
+        || (irs->iel->expression_type == d_undef && temp->type!=d_none)) && !error_ocurred){
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col+1);
             symbol_print_type(irs->iel->expression_type);
             printf(" in return statement\n");
@@ -342,17 +342,16 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
     if (ips == NULL) return;
 
     print_type type = ips->type_print; // {d_expression, d_str}
-    id_token *temp;
-
+    id_token * token;
     switch (type){
         case d_expression:
             #ifdef DEBUG
             printf("======== check_print_statement(expression): %s ========\n", ips->print.id->id);
             #endif
             
-            check_expression_or_list(symtab, ips->print.iel);
+            token = check_expression_or_list(symtab, ips->print.iel);
             if (ips->print.iel->expression_type==d_undef){
-                printf("Line %d, column %d: Incompatible type ", ips->print.id->line, ips->print.id->col+1);
+                printf("Line %d, column %d: Incompatible type ", token->line, token->col+1);
                 print_parameter_type_(ips->print.iel->expression_type);
                 printf(" in fmt.Println statement\n");
                 return;
@@ -378,6 +377,7 @@ void check_assign_statement(table_element** symtab, is_assign_statement* ias){
     // Se a variável estiver declarada antes com um tipo
     // não pode ser atribuido outro tipo
     check_expression_or_list(symtab, ias->iel);
+    check_or_err(symtab, ias->iel);
 
     // TODO Linha e coluna
     if (ias->iel != NULL) {
@@ -415,7 +415,7 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
             printf("======== check_final_statement(invocation) ========\n");
             #endif
             check_func_invocation(symtab, ifs->statement.ifi);
-
+            check_func_inv_err(symtab, ifs->statement.ifi);
             break;
         case d_arguments:
             check_id(symtab, ifs->statement.ipa->id);
@@ -440,6 +440,23 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
     }
 }
 
+bool check_or_err(table_element**symtab, is_expression_or_list * ieol){
+    if (ieol == NULL) return 0 ;
+
+    bool error_ocurred = 0, left_err = 0, right_err;
+    if (ieol->is_operation!=NULL){
+        if (ieol->expression_type==d_undef){
+            print_oper_cannot_apply(ieol->is_operation, "||", ieol->next_left->expression_type, ieol->next_right->expression_type);
+            error_ocurred = 1;
+        }
+        left_err = check_or_err(symtab, ieol->next_left);
+        right_err = check_and_err(symtab, ieol->next_right);
+    }else
+        right_err = check_and_err(symtab, ieol->next_right);
+
+    return error_ocurred||left_err||right_err;
+}
+
 
 id_token* check_expression_or_list(table_element** symtab, is_expression_or_list* ieol){
     if (ieol == NULL) return NULL;
@@ -450,10 +467,8 @@ id_token* check_expression_or_list(table_element** symtab, is_expression_or_list
         ltoken = check_expression_or_list(symtab, ieol->next_left);
         check_expression_and_list(symtab, ieol->next_right);
 
-        if (ieol->next_left->expression_type != d_bool && ieol->next_right->expression_type != d_bool){
-            print_oper_cannot_apply(ieol->is_operation, "||", ieol->next_left->expression_type, ieol->next_right->expression_type);
+        if (ieol->next_left->expression_type != d_bool && ieol->next_right->expression_type != d_bool)
             ieol->expression_type = d_undef;
-        }
         else
             ieol->expression_type = d_bool;
 
@@ -467,6 +482,21 @@ id_token* check_expression_or_list(table_element** symtab, is_expression_or_list
     } 
 }
 
+bool check_and_err(table_element ** symtab, is_expression_and_list * ieal){
+    if(ieal == NULL) return 0;
+    bool error_ocurred = 0, left_err =0 , right_err;
+    if (ieal->is_operation!=NULL){
+        if (ieal->expression_type==d_undef){
+            print_oper_cannot_apply(ieal->is_operation, "||", ieal->next_left->expression_type, ieal->next_right->expression_type);
+            error_ocurred = 1;
+        }
+        left_err = check_and_err(symtab, ieal->next_left);
+        right_err = check_comp_err(symtab, ieal->next_right);
+    }else
+        right_err = check_comp_err(symtab, ieal->next_right);
+
+    return error_ocurred||left_err||right_err;
+}
 
 id_token* check_expression_and_list(table_element** symtab, is_expression_and_list* ieal){
     if (ieal == NULL) return NULL;
@@ -479,13 +509,10 @@ id_token* check_expression_and_list(table_element** symtab, is_expression_and_li
         ltoken=check_expression_and_list(symtab, current->next_left);
         check_expression_comp_list(symtab, current->next_right);
 
-        if (current->next_left->expression_type != d_bool && current->next_right->expression_type != d_bool){
-            print_oper_cannot_apply(type, "&&", current->next_left->expression_type, current->next_right->expression_type);
+        if (current->next_left->expression_type != d_bool && current->next_right->expression_type != d_bool)
             current->expression_type = d_undef;
-        }
         else
             current->expression_type = d_bool;
-
         return ltoken;
     }else{
         ltoken=check_expression_comp_list(symtab, current->next_right);
@@ -494,6 +521,27 @@ id_token* check_expression_and_list(table_element** symtab, is_expression_and_li
 
         return ltoken;
     }    
+}
+
+bool check_comp_err(table_element ** symtab, is_expression_comp_list * iecl){
+    if (iecl == NULL) return 0;
+    bool error_ocurred = 0, left_err = 0, right_err;
+    next_oper *type = iecl->oper_comp;
+
+    if (type != NULL){
+
+        if ( iecl->expression_type==d_undef ){
+            print_oper_cannot_apply(type, comp_str(type->oper_type.ct), iecl->next_left->expression_type, iecl->next_right->expression_type); 
+            error_ocurred = 1;
+        }
+        left_err = check_comp_err(symtab, iecl->next_left);
+        right_err = check_sum_err(symtab, iecl->next_right);
+
+    }else{
+        right_err = check_sum_err(symtab, iecl->next_right);
+    }
+
+    return error_ocurred||left_err||right_err;
 }
 
 
@@ -509,24 +557,19 @@ id_token* check_expression_comp_list(table_element** symtab, is_expression_comp_
 
         if ( type->oper_type.ct == d_eq || type->oper_type.ct == d_ne ){
             if (iecl->next_left->expression_type == d_undef || iecl->next_right->expression_type == d_undef){
-                print_oper_cannot_apply(type, comp_str(type->oper_type.ct), iecl->next_left->expression_type, iecl->next_right->expression_type);
                 iecl->expression_type = d_undef;
             }else if(iecl->next_left->expression_type != iecl->next_right->expression_type){
-                print_oper_cannot_apply(type, comp_str(type->oper_type.ct), iecl->next_left->expression_type, iecl->next_right->expression_type);
                 iecl->expression_type = d_undef;
             }else 
                 iecl->expression_type = d_bool;
         }else{
             if (iecl->next_left->expression_type == d_undef || iecl->next_right->expression_type == d_undef){
-                print_oper_cannot_apply(type, comp_str(type->oper_type.ct), iecl->next_left->expression_type, iecl->next_right->expression_type);
                 iecl->expression_type = d_undef;
 
             }else if(iecl->next_left->expression_type == d_bool || iecl->next_right->expression_type == d_bool){
-                print_oper_cannot_apply(type, comp_str(type->oper_type.ct), iecl->next_left->expression_type, iecl->next_right->expression_type);
                 iecl->expression_type = d_undef;
 
             }else if(iecl->next_left->expression_type != iecl->next_right->expression_type){
-                print_oper_cannot_apply(type, comp_str(type->oper_type.ct), iecl->next_left->expression_type, iecl->next_right->expression_type);
                 iecl->expression_type = d_undef;
 
             }else
@@ -543,6 +586,24 @@ id_token* check_expression_comp_list(table_element** symtab, is_expression_comp_
     }
 }
 
+bool check_sum_err(table_element ** symtab, is_expression_sum_like_list * iesl){
+    if (iesl==NULL) return 0;
+
+    bool error_ocurred=  0, left_err = 0, right_err;
+    next_oper * type = iesl->oper_sum_like;
+    if (type != NULL){
+        if (iesl->expression_type == d_undef){
+            print_oper_cannot_apply(type, sum_str(type->oper_type.slt), iesl->next_left->expression_type, iesl->next_right->expression_type);
+            error_ocurred = 1;
+        }
+        left_err = check_sum_err(symtab, iesl->next_left);
+        right_err = check_star_err(symtab, iesl->next_right);
+
+    }else{
+        right_err = check_star_err(symtab, iesl->next_right);
+    }
+    return error_ocurred||left_err||right_err;
+}
 
 id_token* check_expression_sum_like_list(table_element** symtab, is_expression_sum_like_list * iesl){
     if (iesl == NULL) return NULL;
@@ -555,16 +616,15 @@ id_token* check_expression_sum_like_list(table_element** symtab, is_expression_s
         ltoken=check_expression_sum_like_list(symtab, current->next_left);
         check_expression_star_like_list(symtab, current->next_right);
 
-        if (current->next_left->expression_type == d_undef || current->next_right->expression_type == d_undef)
+        if (current->next_left->expression_type == d_undef || current->next_right->expression_type == d_undef){
             current->expression_type = d_undef;
+        }
 
         else if (current->next_left->expression_type == d_bool || current->next_right->expression_type == d_bool){
-            print_oper_cannot_apply(type, sum_str(type->oper_type.slt), current->next_left->expression_type, current->next_right->expression_type);
             current->expression_type = d_undef;
         }
 
         else if (current->next_left->expression_type != current->next_right->expression_type){
-            print_oper_cannot_apply(type, sum_str(type->oper_type.slt), current->next_left->expression_type, current->next_right->expression_type);
             current->expression_type = d_undef;
         }
 
@@ -581,6 +641,23 @@ id_token* check_expression_sum_like_list(table_element** symtab, is_expression_s
     }
 }
 
+bool check_star_err(table_element ** symtab, is_expression_star_like_list * iestl){
+    if (iestl == NULL) return 0;
+
+    bool error_ocurred = 0, left_err = 0, right_err;
+    next_oper * type = iestl->oper_star_like;
+    if (type!=NULL){
+        if (iestl->expression_type==d_undef){
+            print_oper_cannot_apply(type, star_str(type->oper_type.stlt), iestl->next_left->expression_type, iestl->next_right->expression_type);
+            error_ocurred = 1;
+        }
+        left_err = check_star_err(symtab, iestl->next_left);
+        right_err = check_self_err(symtab, iestl->next_right);
+    }else
+        right_err = check_self_err(symtab, iestl->next_right);
+    return error_ocurred||left_err||right_err;
+}
+
 
 id_token* check_expression_star_like_list(table_element** symtab, is_expression_star_like_list * iestl){
     if (iestl == NULL) return NULL;
@@ -594,17 +671,14 @@ id_token* check_expression_star_like_list(table_element** symtab, is_expression_
         check_self_expression_list(symtab, current->next_right);
 
         if (current->next_left->expression_type == d_undef || current->next_right->expression_type == d_undef){
-            print_oper_cannot_apply(type, star_str(type->oper_type.stlt), current->next_left->expression_type, current->next_right->expression_type);
             current->expression_type = d_undef;
         }
 
         else if (current->next_left->expression_type == d_bool || current->next_right->expression_type == d_bool){
-            print_oper_cannot_apply(type, star_str(type->oper_type.stlt), current->next_left->expression_type, current->next_right->expression_type);
             current->expression_type = d_undef;
         }
 
         else if (current->next_left->expression_type != current->next_right->expression_type){
-            print_oper_cannot_apply(type, star_str(type->oper_type.stlt), current->next_left->expression_type, current->next_right->expression_type);
             current->expression_type = d_undef;
         }
 
@@ -621,6 +695,24 @@ id_token* check_expression_star_like_list(table_element** symtab, is_expression_
 }
 
 
+bool check_self_err(table_element ** symtab, is_self_expression_list * isel){
+    if (isel == NULL) return 0;
+
+    bool error_ocurred = 0, left_err = 0, right_err ;
+    next_oper * type = isel->self_oper_type;
+    if (type!=NULL){
+        if (isel->expression_type==d_undef){
+            print_oper_cannot_apply_self(type, self_str(type->oper_type.sot), isel->next_same->expression_type);
+            error_ocurred = 1;
+        }
+        left_err = check_self_err(symtab, isel->next_same);
+        right_err = check_final_err(symtab, isel->next_final);
+    }else
+        right_err = check_final_err(symtab, isel->next_final);
+
+    return error_ocurred||left_err||right_err;
+}
+
 id_token* check_self_expression_list(table_element** symtab, is_self_expression_list * isel){
     if (isel == NULL) return NULL;
 
@@ -633,7 +725,6 @@ id_token* check_self_expression_list(table_element** symtab, is_self_expression_
         check_final_expression(symtab, current->next_final);
         if (type->oper_type.sot == d_self_not){
             if (current->next_same->expression_type != d_bool){
-                print_oper_cannot_apply_self(type, self_str(type->oper_type.sot), current->next_same->expression_type);
                 current->expression_type = d_undef;
                 
             }else{
@@ -642,7 +733,6 @@ id_token* check_self_expression_list(table_element** symtab, is_self_expression_
             
         }else{
             if (current->next_same->expression_type == d_bool || current->next_same->expression_type == d_undef){
-                print_oper_cannot_apply_self(type, self_str(type->oper_type.sot), current->next_same->expression_type);
                 current->expression_type = d_undef;
             }else{
                 current->expression_type = current->next_same->expression_type;
@@ -657,6 +747,30 @@ id_token* check_self_expression_list(table_element** symtab, is_self_expression_
     }
 }
 
+bool check_final_err(table_element ** symtab, is_final_expression * ife){
+    if ( ife == NULL) return 0;
+
+    bool error_ocurred = 0;
+    switch (ife->type_final_expression)
+    {
+    case d_func_inv:
+        if (ife->expr.ifi->id->type == d_undef){
+            check_func_inv_err(symtab, ife->expr.ifi);
+            error_ocurred = 1;
+        }
+        break;
+    case d_expr_final:
+        error_ocurred = check_or_err(symtab, ife->expr.ieol);
+        break;
+    case d_id:
+        break;
+    case d_intlit:
+    case d_reallit:
+    default:
+        break;
+    }
+    return error_ocurred;
+}
 
 id_token * check_final_expression(table_element** symtab, is_final_expression * ife){
     if (ife == NULL) return NULL;
@@ -694,9 +808,8 @@ id_token * check_final_expression(table_element** symtab, is_final_expression * 
             printf("======== check_final_expression(invocation) ========\n");
             #endif
             check_func_invocation(symtab, ife->expr.ifi);
-            ife->expression_type = get_id_type(symtab, ife->expr.ifi->id); 
+            ife->expression_type = ife->expr.ifi->id->type; 
             token = ife->expr.ifi->id;
-            printf("----- %s, %d \n", ife->expr.ifi->id->id, ife->expr.ifi->id->type);
             return token;
         case d_expr_final:
             #ifdef DEBUG
@@ -714,9 +827,7 @@ id_token * check_final_expression(table_element** symtab, is_final_expression * 
 
 
 void check_func_invocation(table_element** symtab, is_function_invocation * ifi){
-    
     check_inv_parameters(symtab, ifi);
-    
 }
 
 table_element * get_table_elem(table_element ** symtab, id_token * id){
@@ -786,48 +897,60 @@ bool search_in_tables(table_element **symtab, id_token* id){
 
 void check_params(table_element ** symtab, table_element* symbol, is_function_invocation * ifi){
     is_parameter * param_list = symbol->dec.ifd->ipl;
+    bool assign_type = 1;
     if (param_list == NULL && ifi->iel == NULL) {ifi->id->type = symbol->type; return;}
-    else if (param_list == NULL && ifi->iel != NULL) {print_cannot_find_function_(symtab, ifi); ifi->id->type = d_undef;}
-    else if (param_list !=NULL && ifi->iel == NULL){print_cannot_find_function_(symtab, ifi); ifi->id->type = d_undef;}
+    else if (param_list == NULL && ifi->iel != NULL) {ifi->id->type = d_undef;}
+    else if (param_list !=NULL && ifi->iel == NULL){ ifi->id->type = d_undef;}
     else{
         is_func_inv_expr_list * ieoll;
         is_id_type_list * param_elem = param_list->val;
         int counter = 0;
-        for (ieoll = ifi->iel; ieoll; ieoll = ieoll->next, param_elem = param_elem->next){
+        for (ieoll = ifi->iel; ieoll; ieoll = ieoll->next, param_elem = ( (param_elem==NULL)? NULL : param_elem->next ) ){
             check_expression_or_list(symtab, ieoll->val);
-            
-            if ( ieoll->val->expression_type == param_elem->val->type_param){
-                counter++;
+            check_or_err(symtab, ieoll->val);
+            if (param_elem!=NULL){
+                if ( ieoll->val->expression_type == param_elem->val->type_param){
+                    counter++;
+                }else{
+                    ifi->id->type = d_undef;
+                    assign_type = 0;
+                    
+                }
             }else{
-                print_cannot_find_function_diff_params(symtab, param_list->val, counter, ifi);
                 ifi->id->type = d_undef;
-                return;
+                assign_type = 0;
             }
         }
+        if (assign_type)
+            ifi->id->type = symbol->type;
     }
-    ifi->id->type = symbol->type;
+    
 
 }
 
+void check_func_inv_err(table_element ** symtab, is_function_invocation * ifi){
+    printf("Line %d, column %d: Cannot find symbol %s(", ifi->id->line, ifi->id->col+1, ifi->id->id);
+    for (is_func_inv_expr_list * temp = ifi->iel; temp; temp = temp->next){
+        print_parameter_type_(temp->val->expression_type);
+        if (temp->next!=NULL)
+            printf(",");
+    }
+    printf(")\n");
+}
+
 void check_inv_parameters(table_element **symtab, is_function_invocation * ifi){
-    table_element* local_symbol = search_symbol(*symtab, ifi->id->id);
     table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
-    if (local_symbol != NULL){
-        if (local_symbol->type_dec == d_var_declaration){
-            print_cannot_find_function_(symtab, ifi);
-            ifi->id->type = d_undef;
-        }else{
-            check_params(symtab, local_symbol, ifi);
-        }
-    }else if (global_symbol!=NULL){
+
+     if (global_symbol!=NULL){
         if (global_symbol->type_dec == d_var_declaration){
-            print_cannot_find_function_(symtab, ifi);
             ifi->id->type = d_undef;
         }else{
             check_params(symtab, global_symbol, ifi);
         }
     }else{
-        print_cannot_find_function_(symtab, ifi);
+        for (is_func_inv_expr_list * ieoll = ifi->iel; ieoll; ieoll = ieoll->next)
+            check_expression_or_list(symtab, ieoll->val);
+        
         ifi->id->type = d_undef;
     }
 }
