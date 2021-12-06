@@ -4,6 +4,8 @@ table_element* insert_symbol(table_element **symtab, table_element* new_symbol);
 table_element *insert_func(table_element **symtab, id_token* id, is_parameter * ip, parameter_type return_type, is_func_dec*);
 table_element *insert_var(table_element **symtab, id_token* id, parameter_type return_type);
 table_element *search_symbol(table_element *symtab, char *str);
+table_element * search_func(table_element * , char *);
+table_element * search_var(table_element *, char*);
 void symbol_print_type(parameter_type type);
 void print_symbol_tables(is_program* ip);
 void print_global_table(table_element *symtab);

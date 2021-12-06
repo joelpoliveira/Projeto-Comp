@@ -123,6 +123,31 @@ table_element *insert_var(table_element **symtab, id_token* id, parameter_type r
 }
 
 
+table_element *search_func(table_element *symtab, char *str) {
+
+    for (table_element *aux = symtab; aux; aux = aux->next){
+        //printf("======= %s\n", aux->name);
+        if (strcmp(aux->id->id, str) == 0 && aux->type_dec == d_func_dec){
+            aux->id->uses++;
+            return aux;
+        }
+    }
+
+    return NULL;
+}
+
+table_element *search_var(table_element *symtab, char *str) {
+
+    for (table_element *aux = symtab; aux; aux = aux->next){
+        //printf("======= %s\n", aux->name);
+        if (strcmp(aux->id->id, str) == 0 && aux->type_dec == d_var_declaration){
+            aux->id->uses++;
+            return aux;
+        }
+    }
+
+    return NULL;
+}
 // Procura um identificador, devolve NULL caso nao exista
 table_element *search_symbol(table_element *symtab, char *str) {
 

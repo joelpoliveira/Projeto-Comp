@@ -415,7 +415,8 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
             printf("======== check_final_statement(invocation) ========\n");
             #endif
             check_func_invocation(symtab, ifs->statement.ifi);
-            check_func_inv_err(symtab, ifs->statement.ifi);
+            if (ifs->statement.ifi->id->type == d_undef)
+                check_func_inv_err(symtab, ifs->statement.ifi);
             break;
         case d_arguments:
             check_id(symtab, ifs->statement.ipa->id);
@@ -763,6 +764,9 @@ bool check_final_err(table_element ** symtab, is_final_expression * ife){
         error_ocurred = check_or_err(symtab, ife->expr.ieol);
         break;
     case d_id:
+        if (ife->expression_type == d_undef){
+            printf("Line %d, column %d: Cannot find symbol %s\n", ife->expr.u_id->id->line, ife->expr.u_id->id->col+1, ife->expr.u_id->id->id);
+        }
         break;
     case d_intlit:
     case d_reallit:
@@ -799,7 +803,7 @@ id_token * check_final_expression(table_element** symtab, is_final_expression * 
             #ifdef DEBUG
             printf("======== check_final_expression(id) ========\n");
             #endif
-            ife->expression_type = get_id_type(symtab, ife->expr.u_id->id);
+            ife->expression_type = get_var_id_type(symtab, ife->expr.u_id->id);
             //ife->expr.u_id->id->uses++;
             token = ife->expr.u_id->id;
             return token;
@@ -830,9 +834,9 @@ void check_func_invocation(table_element** symtab, is_function_invocation * ifi)
     check_inv_parameters(symtab, ifi);
 }
 
-table_element * get_table_elem(table_element ** symtab, id_token * id){
-    table_element* local_symbol = search_symbol(*symtab, id->id);
-    table_element* global_symbol = search_symbol(program->symtab, id->id);
+table_element * get_var_table_elem(table_element ** symtab, id_token * id){
+    table_element* local_symbol = search_var(*symtab, id->id);
+    table_element* global_symbol = search_var(program->symtab, id->id);
 
     if (local_symbol == NULL) {
         return global_symbol;
@@ -841,15 +845,32 @@ table_element * get_table_elem(table_element ** symtab, id_token * id){
     }
 }
 
-parameter_type get_id_type(table_element** symtab, id_token * id){
-    table_element * temp = get_table_elem(symtab, id);
+parameter_type get_func_id_type(table_element** symtab, id_token * id){
+    table_element * temp = get_func_table_elem(symtab, id);
     #ifdef DEBUG
     printf("Token: %s -- Type: %d -- Type.id.type: %d\n", id->id, temp->type, temp->id->type);
     #endif
-
     return (temp == NULL)? d_undef : temp->type;
 }
 
+table_element * get_func_table_elem(table_element ** symtab, id_token * id){
+    table_element* local_symbol = search_func(*symtab, id->id);
+    table_element* global_symbol = search_func(program->symtab, id->id);
+
+    if (local_symbol == NULL) {
+        return global_symbol;
+    } else {
+        return local_symbol;
+    }
+}
+
+parameter_type get_var_id_type(table_element** symtab, id_token * id){
+    table_element * temp = get_var_table_elem(symtab, id);
+    #ifdef DEBUG
+    printf("Token: %s -- Type: %d -- Type.id.type: %d\n", id->id, temp->type, temp->id->type);
+    #endif
+    return (temp == NULL)? d_undef : temp->type;
+}
 
 void check_id(table_element** symtab, id_token* id){
     if (!search_in_tables(symtab, id))
@@ -860,8 +881,8 @@ void check_id(table_element** symtab, id_token* id){
 // Procurar simbolo na tabela local e global
 // Se existir, definir o tipo do id para anotação na AST
 bool search_in_tables(table_element **symtab, id_token* id){
-    table_element* local_symbol = search_symbol(*symtab, id->id);
-    table_element* global_symbol = search_symbol(program->symtab, id->id);
+    table_element* local_symbol = search_var(*symtab, id->id);
+    table_element* global_symbol = search_var(program->symtab, id->id);
     bool in_function_table = 1;
     bool in_global_table = 1;
 
@@ -939,14 +960,9 @@ void check_func_inv_err(table_element ** symtab, is_function_invocation * ifi){
 }
 
 void check_inv_parameters(table_element **symtab, is_function_invocation * ifi){
-    table_element* global_symbol = search_symbol(program->symtab, ifi->id->id);
-
+    table_element* global_symbol = search_func(program->symtab, ifi->id->id);
      if (global_symbol!=NULL){
-        if (global_symbol->type_dec == d_var_declaration){
-            ifi->id->type = d_undef;
-        }else{
-            check_params(symtab, global_symbol, ifi);
-        }
+        check_params(symtab, global_symbol, ifi);
     }else{
         for (is_func_inv_expr_list * ieoll = ifi->iel; ieoll; ieoll = ieoll->next)
             check_expression_or_list(symtab, ieoll->val);
