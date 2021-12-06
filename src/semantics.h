@@ -25,14 +25,14 @@ id_token* check_expression_sum_like_list(table_element** symtab, is_expression_s
 id_token* check_expression_star_like_list(table_element** symtab, is_expression_star_like_list * iestl);
 id_token* check_self_expression_list(table_element** symtab, is_self_expression_list * isel);
 id_token* check_final_expression(table_element** symtab, is_final_expression * ife);
-void check_func_invocation(table_element** symtab, is_function_invocation * ifi);
+bool check_func_invocation(table_element** symtab, is_function_invocation * ifi);
 void check_id(table_element** symtab, id_token* id);
 bool search_in_tables(table_element **symtab, id_token* id);
 parameter_type get_var_id_type(table_element** symtab, id_token * id);
 parameter_type get_func_id_type(table_element**, id_token*);
 table_element * get_var_table_elem(table_element ** symtab, id_token * id);
 table_element * get_func_table_elem(table_element ** , id_token *);
-void check_inv_parameters(table_element **symtab, is_function_invocation * ifi);
+bool check_inv_parameters(table_element **symtab, is_function_invocation * ifi);
 bool check_or_err(table_element **, is_expression_or_list *);
 bool check_and_err(table_element ** symtab, is_expression_and_list * ieal);
 bool check_comp_err(table_element ** symtab, is_expression_comp_list * iecl);

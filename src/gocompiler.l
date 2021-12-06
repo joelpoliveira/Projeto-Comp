@@ -206,12 +206,14 @@ int main(int argc, char *argv[]){
             return 0;
         }
 
-        if (!error_flag && flag_3) {
+        if (!error_flag) {
             check_program(program);
-            print_symbol_tables(program);
-            printf("\n");
-            print_ast(program);
-            free_ast(program);
+            if (flag_3){
+                print_symbol_tables(program);
+                printf("\n");
+                print_ast(program);
+                free_ast(program);
+            }
             return 0;
         }
     } else
