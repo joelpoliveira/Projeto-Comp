@@ -356,6 +356,7 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
             #endif
             
             token = check_expression_or_list(symtab, ips->print.iel);
+            check_or_err(symtab, ips->print.iel);
             if (ips->print.iel->expression_type==d_undef){
                 printf("Line %d, column %d: Incompatible type ", token->line, token->col+1);
                 print_parameter_type_(ips->print.iel->expression_type);
@@ -420,7 +421,7 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
             printf("======== check_final_statement(invocation) ========\n");
             #endif
             error_ocurred = check_func_invocation(symtab, ifs->statement.ifi);
-            if (ifs->statement.ifi->id->type != d_undef && error_ocurred)
+            if (ifs->statement.ifi->id->type == d_undef && !error_ocurred)
                 check_func_inv_err(symtab, ifs->statement.ifi);
             break;
         case d_arguments:
@@ -926,7 +927,11 @@ bool search_in_tables(table_element **symtab, id_token* id){
 bool check_params(table_element ** symtab, table_element* symbol, is_function_invocation * ifi){
     is_parameter * param_list = symbol->dec.ifd->ipl;
     bool assign_type = 1, error_ocurred = 0;
-    if (param_list == NULL && ifi->iel == NULL) {ifi->id->type = symbol->type; return 0;}
+    if (param_list == NULL && ifi->iel == NULL) {
+        ifi->id->type = symbol->type; 
+        return 0;
+    }
+
     else if (param_list == NULL && ifi->iel != NULL) {
         for (is_func_inv_expr_list * ieoll = ifi->iel; ieoll; ieoll = ieoll->next){
             check_expression_or_list(symtab, ieoll->val);
@@ -984,14 +989,14 @@ void check_func_inv_err(table_element ** symtab, is_function_invocation * ifi){
 
 bool check_inv_parameters(table_element **symtab, is_function_invocation * ifi){
     table_element* global_symbol = search_func(program->symtab, ifi->id->id);
-    printf("--> %s,\n", ifi->id->id);
      if (global_symbol!=NULL){
+        
         return check_params(symtab, global_symbol, ifi);
     }else{
         for (is_func_inv_expr_list * ieoll = ifi->iel; ieoll; ieoll = ieoll->next)
             check_expression_or_list(symtab, ieoll->val);
         
         ifi->id->type = d_undef;
-        return 1;
+        return 0;
     }
 }
