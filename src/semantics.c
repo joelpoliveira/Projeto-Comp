@@ -82,62 +82,58 @@ void print_cannot_find_function_diff_params(table_element ** symtab, is_id_type_
 }
 
 char * comp_str(comp_type type){
-    switch (type)
-    {
-    case d_lt:
-        return "<";
-    case d_gt:
-        return ">";
-    case d_eq:
-        return "==";
-    case d_ne:
-        return "!=";
-    case d_ge:
-        return ">=";
-    case d_le:
-        return "<=";
-    default:
-        return "";
+    switch (type){
+        case d_lt:
+            return "<";
+        case d_gt:
+            return ">";
+        case d_eq:
+            return "==";
+        case d_ne:
+            return "!=";
+        case d_ge:
+            return ">=";
+        case d_le:
+            return "<=";
+        default:
+            return "";
     }
 }
 
 char * sum_str(sum_like_type type){
-    switch (type)
-    {
-    case d_plus:
-        return "+";
-    case d_minus:
-        return "-";
-    default:
-        return "";
+    switch (type){
+        case d_plus:
+            return "+";
+        case d_minus:
+            return "-";
+        default:
+            return "";
     }
 }
 
 char * star_str(star_like_type type){
-    switch (type)
-    {
-    case d_star:
-        return "*";
-    case d_div:
-        return "/";
-    case d_mod:
-        return "%%";
-    default:
-        return "";
+    switch (type){
+        case d_star:
+            return "*";
+        case d_div:
+            return "/";
+        case d_mod:
+            return "%%";
+        default:
+            return "";
     }
 }
 
 char * self_str(self_operation_type type){
-    switch (type)
-    {
-    case d_self_not:
-        return "!";
-    case d_self_plus:
-        return "+";
-    case d_self_minus:
-        return "-";
-    default:
-        return "";
+    switch (type){
+        case d_self_not:
+            return "!";
+        case d_self_plus:
+            return "+";
+        case d_self_minus:
+            return "-";
+        default:
+            return "";
     }
 }
 

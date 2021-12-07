@@ -2,6 +2,7 @@ package main;
 
 var x int;
 
+
 func teste(a bool, c int) int {
     var abc int;
     abc = 0;
@@ -14,9 +15,8 @@ func teste(a bool, c int) int {
 
 func main(){
     var p bool;
-    var k, op int;
+    var k int;
 
-    teste(k, op);
 }
 
 
