@@ -12,11 +12,8 @@ func teste(a bool, c int) int {
     return 1;
 }
 
-
-func main(){
-    var p bool;
-    var k int;
-
+func main (){
+    
 }
 
 
