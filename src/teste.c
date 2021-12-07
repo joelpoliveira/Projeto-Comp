@@ -3,16 +3,25 @@
 #include <string.h>
 #include <stdbool.h>
 
-int abc = 0;
+int p;
 
-void teste () {
-    
+int factorial (int n) {
+
+    int abc = n;
+    int x;
+
+    x = abc;
+    abc = 3;
+
+    int o;
+
+    return abc;
 }
 
 
-int main (int argc, char** argv) {
+int main () {
 
-    bool v = 0;
+   factorial(2);
 
     return(0);
 }

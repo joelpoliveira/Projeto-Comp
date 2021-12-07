@@ -11,6 +11,16 @@ extern is_program* program;
 int global_counter = 0;
 int func_counter = 0;
 
+// store b->type %a, b->type* %b
+// store a in b*
+void llvm_store(id_token* a, id_token* b){
+    printf("\tstore ");
+    llvm_print_type(a->type);
+    printf(" %%%s, ", a->id);
+    llvm_print_type(b->type);
+    printf("* %%%s\n", b->id);
+}
+
 
 void llvm_print_type(parameter_type type){
     switch (type) {
@@ -38,6 +48,19 @@ void llvm_print_type(parameter_type type){
 
 
 void llvm_program(is_program* ip){
+
+    //print global variables
+    for(table_element* current = ip->symtab; current != NULL; current = current->next) {
+        if (current->type_dec == d_var_declaration){
+            printf("@%s = global ", current->id->id);
+            llvm_print_type(current->type);
+            printf(" 0");
+            printf("\n");
+        }
+    }
+
+    printf("\n");
+
     llvm_declarations_list(ip->idlist);
 }
 
@@ -51,7 +74,7 @@ void llvm_declarations_list(is_declarations_list* idl){
                 llvm_func_declaration(current->val->dec.ifd);
                 break;
             case d_var_declaration:
-                llvm_var_declaration(current->val->dec.ivd, true);
+                //llvm_var_declaration(current->val->dec.ivd, true);
                 break;
         default:
             printf("Erro llvm_declarations_list");
@@ -85,7 +108,7 @@ void llvm_func_declaration(is_func_dec* ifd){
     if (ifd->type != d_none)
         printf(" %d", symbol->type);
 
-    printf("\n}\n");
+    printf("\n}\n\n");
 }
 
 
@@ -99,7 +122,7 @@ void llvm_is_parameter(is_parameter * ip) {
 
     for (is_id_type_list* temp = ip->val; temp; temp = temp->next){
         llvm_print_type(temp->val->id->type);
-        printf(" %%%d", func_counter++);
+        printf(" %%%s", temp->val->id->id);
         if (temp->next != NULL)
             printf(", ");
     }
@@ -141,7 +164,7 @@ void llvm_var_spec(is_var_spec* ivs, bool is_global){
             llvm_print_type(current->val->type);
             printf(" 0\n");
         } else {
-            printf("\t%%%d = alloca ", func_counter++);
+            printf("\t%%%s = alloca ", current->val->id);
             llvm_print_type(current->val->type);
             //printf("(%s)", current->val->id);
             printf("\n");
@@ -160,13 +183,13 @@ void llvm_statement( is_statement* is){
             //llvm_for_statement(is->statement.u_for_state);
             break;
         case d_return:
-            llvm_return_statement(is->statement.u_return_state);
+            //llvm_return_statement(is->statement.u_return_state);
             break;
         case d_print:
             //llvm_print_statement(is->statement.u_print_state);
             break;
         case d_assign:
-            //llvm_assign_statement(is->statement.u_assign);
+            llvm_assign_statement(is->statement.u_assign);
             break;
         case d_statement_list:
             //llvm_statements_list(is->statement.isl);
@@ -278,8 +301,13 @@ void llvm_print_statement(is_print_statement* ips){
 
 
 void llvm_assign_statement(is_assign_statement* ias){
+    id_token* token;
 
-    
+    //TODO caso em que vem expressão tipo c + 3
+    token = llvm_expression_or_list(ias->iel);
+
+    llvm_store(token, ias->id);
+
 }
 
 
@@ -297,4 +325,170 @@ void llvm_final_statement(is_final_statement* ifs){
     if (ifs == NULL) return;
 
     
+}
+
+
+id_token* llvm_expression_or_list(is_expression_or_list* ieol){
+    if (ieol == NULL) return NULL;
+
+    id_token * ltoken;
+
+    if (ieol->is_operation!=NULL){
+        ltoken = llvm_expression_or_list(ieol->next_left);
+        llvm_expression_and_list(ieol->next_right);
+
+        return ltoken;
+    }else{
+        ltoken=llvm_expression_and_list(ieol->next_right);
+        return ltoken;
+
+    } 
+}
+
+
+id_token* llvm_expression_and_list(is_expression_and_list* ieal){
+    if (ieal == NULL) return NULL;
+
+    is_expression_and_list* current = ieal;
+    next_oper* type = current->is_operation;
+    id_token*ltoken;
+
+    if(type!=NULL){
+        ltoken = llvm_expression_and_list(current->next_left);
+        llvm_expression_comp_list(current->next_right);
+
+        return ltoken;
+    }else{
+        ltoken=llvm_expression_comp_list(current->next_right);
+
+        return ltoken;
+    }    
+}
+
+
+id_token* llvm_expression_comp_list(is_expression_comp_list * iecl){
+    if (iecl == NULL) return NULL;
+
+    next_oper *type = iecl->oper_comp;
+    id_token* ltoken;
+
+    if (type != NULL){
+        ltoken = llvm_expression_comp_list(iecl->next_left);
+        llvm_expression_sum_like_list(iecl->next_right);
+
+        return ltoken;
+        
+    }else{
+        ltoken=llvm_expression_sum_like_list(iecl->next_right);
+
+        return ltoken;
+    }
+}
+
+
+id_token* llvm_expression_sum_like_list(is_expression_sum_like_list * iesl){
+    if (iesl == NULL) return NULL;
+
+    is_expression_sum_like_list * current = iesl;
+    next_oper * type = current->oper_sum_like;
+    id_token * ltoken;
+
+    if (type != NULL){
+        ltoken=llvm_expression_sum_like_list(current->next_left);
+        llvm_expression_star_like_list(current->next_right);
+
+        return ltoken;
+    }else{
+        ltoken=llvm_expression_star_like_list(current->next_right);
+        //llvm_expression_sum_like_list(current->next_left);
+
+        return ltoken;
+    }
+}
+
+
+id_token* llvm_expression_star_like_list(is_expression_star_like_list * iestl){
+    if (iestl == NULL) return NULL;
+
+    is_expression_star_like_list * current = iestl;
+    next_oper * type = current->oper_star_like;
+    id_token*ltoken;
+
+    if (type != NULL){
+        ltoken=llvm_expression_star_like_list(current->next_left);
+        llvm_self_expression_list(current->next_right);
+        return ltoken;
+
+    }else{
+        ltoken=llvm_self_expression_list(current->next_right);
+        return ltoken;
+    }
+}
+
+id_token* llvm_self_expression_list(is_self_expression_list * isel){
+    if (isel == NULL) return NULL;
+
+    is_self_expression_list * current = isel;
+    next_oper* type = current->self_oper_type;
+    id_token*ltoken;
+
+    if (type != NULL){
+        ltoken=llvm_self_expression_list(current->next_same);
+        llvm_final_expression(current->next_final);
+        return ltoken;
+    }else{
+        ltoken=llvm_final_expression(current->next_final);
+    
+        return ltoken;
+    }
+}
+
+
+id_token * llvm_final_expression(is_final_expression * ife){
+    if (ife == NULL) return NULL;
+    //{d_intlit, d_reallit, d_id, d_func_inv, d_expr_final} 
+
+    id_token * token;
+
+    switch (ife->type_final_expression){
+        case d_intlit:
+            #ifdef DEBUG
+            printf("======== llvm_final_expression(intlit) ========\n");
+            #endif
+            token = ife->expr.u_intlit->intlit;
+            return token;
+        case d_reallit:
+            #ifdef DEBUG
+            printf("======== llvm_final_expression(reallit) ========\n");
+            #endif
+            token = ife->expr.u_reallit->reallit;
+            return token;
+        case d_id:
+            #ifdef DEBUG
+            printf("======== llvm_final_expression(id) ========\n");
+            #endif
+            token = ife->expr.u_id->id;
+            return token;
+        case d_func_inv:
+            #ifdef DEBUG
+            printf("======== llvm_final_expression(invocation) ========\n");
+            #endif
+            //llvm_func_invocation(ife->expr.ifi);
+            token = ife->expr.ifi->id;
+            return token;
+        case d_expr_final:
+            #ifdef DEBUG
+            printf("======== llvm_final_expression(final) ========\n");
+            #endif
+            token = llvm_expression_or_list(ife->expr.ieol);
+            return token; 
+        default:
+            printf("Erro llvm_final_expression\n");
+            break;
+    }
+    return NULL;
+}
+
+void llvm_func_invocation(is_function_invocation * ifi){
+    //return llvm_inv_parameters(ifi);
 }
