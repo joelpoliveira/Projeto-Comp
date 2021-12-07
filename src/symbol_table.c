@@ -43,7 +43,7 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
         for (aux = *symtab; aux; previous = aux, aux = aux->next) {
             //printf("++++++++ %s\n", aux->name);
             if (strcmp(aux->id->id, new_symbol->id->id) == 0) {
-                printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col, new_symbol->id->id);
+                printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col+1, new_symbol->id->id);
                 free(new_symbol);
                 return NULL;
             }
@@ -123,6 +123,31 @@ table_element *insert_var(table_element **symtab, id_token* id, parameter_type r
 }
 
 
+table_element *search_func(table_element *symtab, char *str) {
+
+    for (table_element *aux = symtab; aux; aux = aux->next){
+        //printf("======= %s\n", aux->name);
+        if (strcmp(aux->id->id, str) == 0 && aux->type_dec == d_func_dec){
+            aux->id->uses++;
+            return aux;
+        }
+    }
+
+    return NULL;
+}
+
+table_element *search_var(table_element *symtab, char *str) {
+
+    for (table_element *aux = symtab; aux; aux = aux->next){
+        //printf("======= %s\n", aux->name);
+        if (strcmp(aux->id->id, str) == 0 && aux->type_dec == d_var_declaration){
+            aux->id->uses++;
+            return aux;
+        }
+    }
+
+    return NULL;
+}
 // Procura um identificador, devolve NULL caso nao exista
 table_element *search_symbol(table_element *symtab, char *str) {
 
@@ -259,7 +284,6 @@ void print_symbol_tables(is_program* ip) {
 
 
 void print_never_used_errors (table_element* symtab){
-    table_element* aux;
 
     for(; symtab; symtab = symtab->next) {
         if (strcmp(symtab->id->id, "return") == 0) continue; // ignore return 
