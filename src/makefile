@@ -1,6 +1,6 @@
 
 Y_FLAGS = -d #--debug --verbose
-C_FLAGS = -g # -Wall
+C_FLAGS = -g  -Wall
 LY_FILES =  y.tab.c lex.yy.c
 FILES = functions.c print_ast.c symbol_table.c semantics.c free_tree.c
 
