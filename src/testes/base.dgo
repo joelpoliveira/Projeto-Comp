@@ -5,9 +5,8 @@ var x int;
 
 func teste(a int, c int) int {
     var abc int;
-    //var abcd float32;
   
-    abc = c + 3 + 1;
+    abc = a + c + 1;
 
     return abc;
 }
@@ -24,6 +23,7 @@ func teste_void() {
 
 
 func main () int {
+  teste(100, 100);
     return teste(100, 100);
 }
 
