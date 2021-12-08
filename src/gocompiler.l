@@ -5,6 +5,7 @@
     #include "functions.h"
     #include "semantics.h"
     #include "print_ast.h"
+    #include "print_llvm.h"
     #include "free_tree.h"
     #include "y.tab.h"
     #include <string.h>
@@ -201,6 +202,7 @@ int main(int argc, char *argv[]){
 
     if (!flag_1){
         yyparse();
+
         if (!error_flag && flag_2) {
             print_ast(program);
             return 0;
@@ -214,8 +216,13 @@ int main(int argc, char *argv[]){
                 print_ast(program);
                 free_ast(program);
             }
+
+            if(!flag_1 && !flag_2 && !flag_3)
+                llvm_program(program);
+            
             return 0;
         }
+
     } else
         while(yylex());
 

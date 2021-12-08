@@ -83,62 +83,58 @@ void print_cannot_find_function_diff_params(table_element ** symtab, is_id_type_
 }
 
 char * comp_str(comp_type type){
-    switch (type)
-    {
-    case d_lt:
-        return "<";
-    case d_gt:
-        return ">";
-    case d_eq:
-        return "==";
-    case d_ne:
-        return "!=";
-    case d_ge:
-        return ">=";
-    case d_le:
-        return "<=";
-    default:
-        return "";
+    switch (type){
+        case d_lt:
+            return "<";
+        case d_gt:
+            return ">";
+        case d_eq:
+            return "==";
+        case d_ne:
+            return "!=";
+        case d_ge:
+            return ">=";
+        case d_le:
+            return "<=";
+        default:
+            return "";
     }
 }
 
 char * sum_str(sum_like_type type){
-    switch (type)
-    {
-    case d_plus:
-        return "+";
-    case d_minus:
-        return "-";
-    default:
-        return "";
+    switch (type){
+        case d_plus:
+            return "+";
+        case d_minus:
+            return "-";
+        default:
+            return "";
     }
 }
 
 char * star_str(star_like_type type){
-    switch (type)
-    {
-    case d_star:
-        return "*";
-    case d_div:
-        return "/";
-    case d_mod:
-        return "%%";
-    default:
-        return "";
+    switch (type){
+        case d_star:
+            return "*";
+        case d_div:
+            return "/";
+        case d_mod:
+            return "%%";
+        default:
+            return "";
     }
 }
 
 char * self_str(self_operation_type type){
-    switch (type)
-    {
-    case d_self_not:
-        return "!";
-    case d_self_plus:
-        return "+";
-    case d_self_minus:
-        return "-";
-    default:
-        return "";
+    switch (type){
+        case d_self_not:
+            return "!";
+        case d_self_plus:
+            return "+";
+        case d_self_minus:
+            return "-";
+        default:
+            return "";
     }
 }
 
@@ -735,6 +731,7 @@ bool check_self_err(table_element ** symtab, is_self_expression_list * isel){
     return error_ocurred||left_err||right_err;
 }
 
+
 id_token* check_self_expression_list(table_element** symtab, is_self_expression_list * isel){
     if (isel == NULL) return NULL;
 
@@ -769,6 +766,7 @@ id_token* check_self_expression_list(table_element** symtab, is_self_expression_
     }
 }
 
+
 bool check_final_err(table_element ** symtab, is_final_expression * ife){
     if ( ife == NULL) return 0;
 
@@ -797,6 +795,7 @@ bool check_final_err(table_element ** symtab, is_final_expression * ife){
     }
     return error_ocurred;
 }
+
 
 id_token * check_final_expression(table_element** symtab, is_final_expression * ife){
     if (ife == NULL) return NULL;
@@ -856,6 +855,7 @@ bool check_func_invocation(table_element** symtab, is_function_invocation * ifi)
     return check_inv_parameters(symtab, ifi);
 }
 
+
 table_element * get_var_table_elem(table_element ** symtab, id_token * id){
     table_element* local_symbol = search_var(*symtab, id->id);
     table_element* global_symbol = search_var(program->symtab, id->id);
@@ -867,6 +867,7 @@ table_element * get_var_table_elem(table_element ** symtab, id_token * id){
     }
 }
 
+
 parameter_type get_func_id_type(table_element** symtab, id_token * id){
     table_element * temp = get_func_table_elem(symtab, id);
     #ifdef DEBUG
@@ -874,6 +875,7 @@ parameter_type get_func_id_type(table_element** symtab, id_token * id){
     #endif
     return (temp == NULL)? d_undef : temp->type;
 }
+
 
 table_element * get_func_table_elem(table_element ** symtab, id_token * id){
     table_element* local_symbol = search_func(*symtab, id->id);
@@ -886,6 +888,7 @@ table_element * get_func_table_elem(table_element ** symtab, id_token * id){
     }
 }
 
+
 parameter_type get_var_id_type(table_element** symtab, id_token * id){
     table_element * temp = get_var_table_elem(symtab, id);
     #ifdef DEBUG
@@ -893,6 +896,7 @@ parameter_type get_var_id_type(table_element** symtab, id_token * id){
     #endif
     return (temp == NULL)? d_undef : temp->type;
 }
+
 
 void check_id(table_element** symtab, id_token* id){
     if (!search_in_tables(symtab, id))
@@ -937,6 +941,7 @@ bool search_in_tables(table_element **symtab, id_token* id){
 
     return 1;
 }
+
 
 bool check_params(table_element ** symtab, table_element* symbol, is_function_invocation * ifi){
     is_parameter * param_list = symbol->dec.ifd->ipl;
@@ -1002,6 +1007,7 @@ bool check_params(table_element ** symtab, table_element* symbol, is_function_in
 
 }
 
+
 void check_func_inv_err(table_element ** symtab, is_function_invocation * ifi){
     printf("Line %d, column %d: Cannot find symbol %s(", ifi->id->line, ifi->id->col+1, ifi->id->id);
     for (is_func_inv_expr_list * temp = ifi->iel; temp; temp = temp->next){
@@ -1011,6 +1017,7 @@ void check_func_inv_err(table_element ** symtab, is_function_invocation * ifi){
     }
     printf(")\n");
 }
+
 
 bool check_inv_parameters(table_element **symtab, is_function_invocation * ifi){
     table_element* global_symbol = search_func(program->symtab, ifi->id->id);

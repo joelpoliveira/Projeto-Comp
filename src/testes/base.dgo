@@ -2,21 +2,45 @@ package main;
 
 var x int;
 
-func teste(a bool, c int) int {
+
+func teste(a int, c int) int {
     var abc int;
-    abc = 0;
+    //var abcd float32;
+  
+    abc = c + 3 + 1;
 
-    fmt.Println(abc);
-
-    return 1;
+    return abc;
 }
 
 
-func main(){
-    var p bool;
-    var k, op int;
+func teste_float() float32 {
 
-    teste(k, op);
 }
 
 
+func teste_void() {
+
+}
+
+
+func main () int {
+    return teste(100, 100);
+}
+
+
+/*
+@x = global i32 0
+
+define i32 @teste(i32 %0, i32 %1) {
+	%3 = alloca i32
+  store i32 %1, i32* %3
+  %4 = load i32, i32* %3
+	ret i32 %4
+}
+
+define i32 @main() {
+  %1 = call i32 @teste(i32 100, i32 100)
+	ret i32 %1
+}
+
+*/
