@@ -33,9 +33,26 @@ void llvm_load(id_token* a){
 
 
 // %<num> = add a->type, %a, %b
-// void llvm_add(id_token* a){
+void llvm_add(id_token* a, id_token* b){
+    printf("\t%%%d = add ", func_counter++);
+    llvm_print_type(a->type);
+    printf(" %%%s, %%%s\n", b->id, a->id);
+}
 
-// }
+
+void llvm_mul(id_token* a){
+    printf("\t%%%d = mul ", func_counter++);
+    llvm_print_type(a->type);
+    printf(" %%%d, %s\n", func_counter - 2, a->id);
+}
+
+
+void llvm_div(id_token* a){
+    printf("\t%%%d = div ", func_counter++);
+    llvm_print_type(a->type);
+    printf(" %%%d, %s\n", func_counter - 2, a->id);
+}
+
 
 
 void llvm_print_type(parameter_type type){
@@ -113,12 +130,15 @@ void llvm_func_declaration(is_func_dec* ifd){
 
     printf(") {\n");
 
+    //printf("entry:\n");
+
     //body
     func_counter++;
     llvm_function_body(ifd->ifb);
 
     //return
     symbol = search_symbol(program->symtab ,ifd->id->id);
+    //llvm_load();
     printf("\tret ");
     llvm_print_type(ifd->type);
     if (ifd->type != d_none)
@@ -317,13 +337,13 @@ void llvm_print_statement(is_print_statement* ips){
 
 
 void llvm_assign_statement(is_assign_statement* ias){
-    id_token* token;
+    id_token* token = (id_token*)malloc(sizeof(id_token));
 
-    //TODO caso em que vem expressão tipo c + 3
     llvm_expression_or_list(ias->iel, ias->id);
 
-    //llvm_store(token, ias->id);
-
+    token = ias->id;
+    sprintf(token->id, "%d", func_counter-1);
+    llvm_store(token, ias->id);
 }
 
 
@@ -348,14 +368,12 @@ void llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux){
     if (ieol == NULL) return;
 
     if (ieol->is_operation!=NULL){
-        llvm_expression_or_list(ieol->next_left, aux);
-        llvm_expression_and_list(ieol->next_right, aux);
+        //printf("\tOR\n");
 
-    
+        llvm_expression_or_list(ieol->next_left, aux);
+        llvm_expression_and_list(ieol->next_right, aux);    
     }else{
         llvm_expression_and_list(ieol->next_right, aux);
-       
-
     } 
 }
 
@@ -368,10 +386,10 @@ void llvm_expression_and_list(is_expression_and_list* ieal, id_token* aux){
     id_token*ltoken;
 
     if(type!=NULL){
+        //printf("\tAND\n");
+
         llvm_expression_and_list(current->next_left, aux);
         llvm_expression_comp_list(current->next_right, aux);
-
-       
     }else{
         llvm_expression_comp_list(current->next_right, aux);
 
@@ -384,18 +402,14 @@ void llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux){
     if (iecl == NULL) return;
 
     next_oper *type = iecl->oper_comp;
-    id_token* ltoken;
 
     if (type != NULL){
-        llvm_expression_comp_list(iecl->next_left, aux);
-        llvm_expression_sum_like_list(iecl->next_right, aux);
+        //printf("\tComp type = %d\n", type->oper_type.ct);
 
-       
-        
+        llvm_expression_comp_list(iecl->next_left, aux);
+        llvm_expression_sum_like_list(iecl->next_right, aux); 
     }else{
         llvm_expression_sum_like_list(iecl->next_right, aux);
-
-       
     }
 }
 
@@ -405,13 +419,13 @@ void llvm_expression_sum_like_list(is_expression_sum_like_list * iesl, id_token*
 
     is_expression_sum_like_list * current = iesl;
     next_oper * type = current->oper_sum_like;
-    id_token * ltoken;
 
     if (type != NULL){
+        //printf("\tSum type = %d\n", type->oper_type.slt);
+        //llvm_add(aux);
+    
         llvm_expression_sum_like_list(current->next_left, aux);
         llvm_expression_star_like_list(current->next_right, aux);
-
-       
     }else{
         llvm_expression_star_like_list(current->next_right, aux);
         //llvm_expression_sum_like_list(current->next_left);
@@ -426,13 +440,12 @@ void llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_tok
 
     is_expression_star_like_list * current = iestl;
     next_oper * type = current->oper_star_like;
-    id_token*ltoken;
 
     if (type != NULL){
+        //printf("\tStar type = %d\n", type->oper_type.stlt);
+
         llvm_expression_star_like_list(current->next_left, aux);
         llvm_self_expression_list(current->next_right, aux);
-       
-
     }else{
         llvm_self_expression_list(current->next_right, aux);
        
@@ -444,16 +457,14 @@ void llvm_self_expression_list(is_self_expression_list * isel, id_token* aux){
 
     is_self_expression_list * current = isel;
     next_oper* type = current->self_oper_type;
-    id_token*ltoken;
 
     if (type != NULL){
+        //printf("\tSelf type = %d\n", type->oper_type.sot);
+
         llvm_self_expression_list(current->next_same, aux);
         llvm_final_expression(current->next_final, aux);
-       
     }else{
         llvm_final_expression(current->next_final, aux);
-    
-       
     }
 }
 
@@ -466,17 +477,12 @@ void llvm_final_expression(is_final_expression * ife, id_token* aux){
     switch (ife->type_final_expression){
         case d_intlit:
             //printf("\tInt: %s\n", ife->expr.u_intlit->intlit->id);
-            //llvm_load(aux);
-            printf("\t%%%d = add ", func_counter++);
-            llvm_print_type(aux->type);
-            printf(" %%idk, %s\n", ife->expr.u_intlit->intlit->id);
             break;
         case d_reallit:
             break;
         case d_id:
             //printf("\tID: %s\n", ife->expr.u_id->id->id);
-            // apenas store se for o 1º elemento da expressão
-            llvm_store(ife->expr.u_id->id, aux); // always store? idk;
+
             break;
         case d_func_inv:
             //llvm_func_invocation(ife->expr.ifi);
@@ -491,5 +497,9 @@ void llvm_final_expression(is_final_expression * ife, id_token* aux){
 }
 
 void llvm_func_invocation(is_function_invocation * ifi){
-    //return llvm_inv_parameters(ifi);
+    printf("\tcall ");
+    llvm_print_type(ifi->id->type);
+    printf(" @%s()\n", ifi->id->id);
+
+    //llvm_inv_parameters(ifi);
 }

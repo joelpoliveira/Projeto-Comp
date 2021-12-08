@@ -5,17 +5,21 @@
 
 int p;
 
-int factorial (int n) {
-
-    int abc = n + 3 + 1;
-
+int factorial (int n, int x) {
+    int abc = n + x + 3;
     return abc;
 }
 
 
 int main () {
+    bool a = 0;
+    bool b = 1;
+    bool c, d;
 
-   factorial(2);
+    c = a && b;
+    d = a || b;    
+
+    factorial(5, 6);
 
     return(0);
 }
