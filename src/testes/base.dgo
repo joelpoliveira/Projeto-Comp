@@ -7,7 +7,7 @@ func teste(a int, c int) int {
     var abc int;
     //var abcd float32;
   
-    abc = c + 3;
+    abc = c + 3 + 1;
 
     return abc;
 }

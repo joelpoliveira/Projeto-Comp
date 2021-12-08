@@ -1,6 +1,7 @@
 #include "structures.h"
 
 void llvm_store(id_token* a, id_token* b);
+void llvm_load(id_token* a);
 void llvm_print_type(parameter_type type);
 void llvm_program(is_program* ip);
 void llvm_declarations_list(is_declarations_list* idl);
@@ -19,13 +20,13 @@ void llvm_print_statement(is_print_statement* ips);
 void llvm_assign_statement(is_assign_statement* ias);
 void llvm_statements_list(is_statements_list* isl);
 void llvm_final_statement(is_final_statement* ifs);
-id_token* llvm_expression_or_list(is_expression_or_list* ieol);
-id_token* llvm_expression_and_list(is_expression_and_list* ieal);
-id_token* llvm_expression_comp_list(is_expression_comp_list * iecl);
-id_token* llvm_expression_sum_like_list(is_expression_sum_like_list * iesl);
-id_token* llvm_expression_star_like_list(is_expression_star_like_list * iestl);
-id_token* llvm_self_expression_list(is_self_expression_list * isel);
-id_token * llvm_final_expression(is_final_expression * ife);
+void llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux);
+void llvm_expression_and_list(is_expression_and_list* ieal, id_token* aux);
+void llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux);
+void llvm_expression_sum_like_list(is_expression_sum_like_list * iesl, id_token* aux);
+void llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_token* aux);
+void llvm_self_expression_list(is_self_expression_list * isel, id_token* aux);
+void llvm_final_expression(is_final_expression * ife, id_token* aux);
 void llvm_func_invocation(is_function_invocation * ifi);
 
 

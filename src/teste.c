@@ -7,13 +7,7 @@ int p;
 
 int factorial (int n) {
 
-    int abc = n;
-    int x;
-
-    x = abc;
-    abc = 3;
-
-    int o;
+    int abc = n + 3 + 1;
 
     return abc;
 }

@@ -22,6 +22,22 @@ void llvm_store(id_token* a, id_token* b){
 }
 
 
+// %<num> = load a->type, a->type* %a
+void llvm_load(id_token* a){
+    printf("\t%%%d = load ", func_counter++);
+    llvm_print_type(a->type);
+    printf(", ");
+    llvm_print_type(a->type);
+    printf("* %%%s\n", a->id);
+}
+
+
+// %<num> = add a->type, %a, %b
+// void llvm_add(id_token* a){
+
+// }
+
+
 void llvm_print_type(parameter_type type){
     switch (type) {
         case d_integer:
@@ -208,7 +224,7 @@ void llvm_statement( is_statement* is){
 void llvm_if_statement(is_if_statement* ifs){
     if (ifs == NULL) return;
 
-    // id_token * ltoken = llvm_expression_or_list(ifs->iel);
+    // id_token * llvm_expression_or_list(ifs->iel);
     // bool error_ocurred = llvm_or_err(ifs->iel);
 
     // if (ifs->iel != NULL) {
@@ -233,7 +249,7 @@ void llvm_else_statement(is_else_statement* ies){
 
 void llvm_for_statement(is_for_statement* ifs){
    
-    // id_token * ltoken = llvm_expression_or_list(ifs->iel);
+    // id_token * llvm_expression_or_list(ifs->iel);
     // bool error_ocurred = llvm_or_err(ifs->iel);
 
     // if (ifs->iel != NULL) {
@@ -252,7 +268,7 @@ void llvm_return_statement(is_return_statement* irs){
     // table_element* temp = search_symbol(*"return");
     //printf("-----RETURN----\n");
     
-    // id_token * ltoken = llvm_expression_or_list(irs->iel);
+    // id_token * llvm_expression_or_list(irs->iel);
     // bool error_ocurred = llvm_or_err(irs->iel);
     // if (temp != NULL && irs->iel != NULL){
     //     if ( ( 
@@ -304,9 +320,9 @@ void llvm_assign_statement(is_assign_statement* ias){
     id_token* token;
 
     //TODO caso em que vem expressão tipo c + 3
-    token = llvm_expression_or_list(ias->iel);
+    llvm_expression_or_list(ias->iel, ias->id);
 
-    llvm_store(token, ias->id);
+    //llvm_store(token, ias->id);
 
 }
 
@@ -328,165 +344,150 @@ void llvm_final_statement(is_final_statement* ifs){
 }
 
 
-id_token* llvm_expression_or_list(is_expression_or_list* ieol){
-    if (ieol == NULL) return NULL;
-
-    id_token * ltoken;
+void llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux){
+    if (ieol == NULL) return;
 
     if (ieol->is_operation!=NULL){
-        ltoken = llvm_expression_or_list(ieol->next_left);
-        llvm_expression_and_list(ieol->next_right);
+        llvm_expression_or_list(ieol->next_left, aux);
+        llvm_expression_and_list(ieol->next_right, aux);
 
-        return ltoken;
+    
     }else{
-        ltoken=llvm_expression_and_list(ieol->next_right);
-        return ltoken;
+        llvm_expression_and_list(ieol->next_right, aux);
+       
 
     } 
 }
 
 
-id_token* llvm_expression_and_list(is_expression_and_list* ieal){
-    if (ieal == NULL) return NULL;
+void llvm_expression_and_list(is_expression_and_list* ieal, id_token* aux){
+    if (ieal == NULL) return;
 
     is_expression_and_list* current = ieal;
     next_oper* type = current->is_operation;
     id_token*ltoken;
 
     if(type!=NULL){
-        ltoken = llvm_expression_and_list(current->next_left);
-        llvm_expression_comp_list(current->next_right);
+        llvm_expression_and_list(current->next_left, aux);
+        llvm_expression_comp_list(current->next_right, aux);
 
-        return ltoken;
+       
     }else{
-        ltoken=llvm_expression_comp_list(current->next_right);
+        llvm_expression_comp_list(current->next_right, aux);
 
-        return ltoken;
+       
     }    
 }
 
 
-id_token* llvm_expression_comp_list(is_expression_comp_list * iecl){
-    if (iecl == NULL) return NULL;
+void llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux){
+    if (iecl == NULL) return;
 
     next_oper *type = iecl->oper_comp;
     id_token* ltoken;
 
     if (type != NULL){
-        ltoken = llvm_expression_comp_list(iecl->next_left);
-        llvm_expression_sum_like_list(iecl->next_right);
+        llvm_expression_comp_list(iecl->next_left, aux);
+        llvm_expression_sum_like_list(iecl->next_right, aux);
 
-        return ltoken;
+       
         
     }else{
-        ltoken=llvm_expression_sum_like_list(iecl->next_right);
+        llvm_expression_sum_like_list(iecl->next_right, aux);
 
-        return ltoken;
+       
     }
 }
 
 
-id_token* llvm_expression_sum_like_list(is_expression_sum_like_list * iesl){
-    if (iesl == NULL) return NULL;
+void llvm_expression_sum_like_list(is_expression_sum_like_list * iesl, id_token* aux){
+    if (iesl == NULL) return;
 
     is_expression_sum_like_list * current = iesl;
     next_oper * type = current->oper_sum_like;
     id_token * ltoken;
 
     if (type != NULL){
-        ltoken=llvm_expression_sum_like_list(current->next_left);
-        llvm_expression_star_like_list(current->next_right);
+        llvm_expression_sum_like_list(current->next_left, aux);
+        llvm_expression_star_like_list(current->next_right, aux);
 
-        return ltoken;
+       
     }else{
-        ltoken=llvm_expression_star_like_list(current->next_right);
+        llvm_expression_star_like_list(current->next_right, aux);
         //llvm_expression_sum_like_list(current->next_left);
 
-        return ltoken;
+       
     }
 }
 
 
-id_token* llvm_expression_star_like_list(is_expression_star_like_list * iestl){
-    if (iestl == NULL) return NULL;
+void llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_token* aux){
+    if (iestl == NULL) return;
 
     is_expression_star_like_list * current = iestl;
     next_oper * type = current->oper_star_like;
     id_token*ltoken;
 
     if (type != NULL){
-        ltoken=llvm_expression_star_like_list(current->next_left);
-        llvm_self_expression_list(current->next_right);
-        return ltoken;
+        llvm_expression_star_like_list(current->next_left, aux);
+        llvm_self_expression_list(current->next_right, aux);
+       
 
     }else{
-        ltoken=llvm_self_expression_list(current->next_right);
-        return ltoken;
+        llvm_self_expression_list(current->next_right, aux);
+       
     }
 }
 
-id_token* llvm_self_expression_list(is_self_expression_list * isel){
-    if (isel == NULL) return NULL;
+void llvm_self_expression_list(is_self_expression_list * isel, id_token* aux){
+    if (isel == NULL) return;
 
     is_self_expression_list * current = isel;
     next_oper* type = current->self_oper_type;
     id_token*ltoken;
 
     if (type != NULL){
-        ltoken=llvm_self_expression_list(current->next_same);
-        llvm_final_expression(current->next_final);
-        return ltoken;
+        llvm_self_expression_list(current->next_same, aux);
+        llvm_final_expression(current->next_final, aux);
+       
     }else{
-        ltoken=llvm_final_expression(current->next_final);
+        llvm_final_expression(current->next_final, aux);
     
-        return ltoken;
+       
     }
 }
 
 
-id_token * llvm_final_expression(is_final_expression * ife){
-    if (ife == NULL) return NULL;
+void llvm_final_expression(is_final_expression * ife, id_token* aux){
+    if (ife == NULL) return;
     //{d_intlit, d_reallit, d_id, d_func_inv, d_expr_final} 
 
-    id_token * token;
 
     switch (ife->type_final_expression){
         case d_intlit:
-            #ifdef DEBUG
-            printf("======== llvm_final_expression(intlit) ========\n");
-            #endif
-            token = ife->expr.u_intlit->intlit;
-            return token;
+            //printf("\tInt: %s\n", ife->expr.u_intlit->intlit->id);
+            //llvm_load(aux);
+            printf("\t%%%d = add ", func_counter++);
+            llvm_print_type(aux->type);
+            printf(" %%idk, %s\n", ife->expr.u_intlit->intlit->id);
+            break;
         case d_reallit:
-            #ifdef DEBUG
-            printf("======== llvm_final_expression(reallit) ========\n");
-            #endif
-            token = ife->expr.u_reallit->reallit;
-            return token;
+            break;
         case d_id:
-            #ifdef DEBUG
-            printf("======== llvm_final_expression(id) ========\n");
-            #endif
-            token = ife->expr.u_id->id;
-            return token;
+            //printf("\tID: %s\n", ife->expr.u_id->id->id);
+            // apenas store se for o 1º elemento da expressão
+            llvm_store(ife->expr.u_id->id, aux); // always store? idk;
+            break;
         case d_func_inv:
-            #ifdef DEBUG
-            printf("======== llvm_final_expression(invocation) ========\n");
-            #endif
             //llvm_func_invocation(ife->expr.ifi);
-            token = ife->expr.ifi->id;
-            return token;
+            break;
         case d_expr_final:
-            #ifdef DEBUG
-            printf("======== llvm_final_expression(final) ========\n");
-            #endif
-            token = llvm_expression_or_list(ife->expr.ieol);
-            return token; 
+            //llvm_expression_or_list(ife->expr.ieol, aux);
+            break;
         default:
             printf("Erro llvm_final_expression\n");
             break;
     }
-    return NULL;
 }
 
 void llvm_func_invocation(is_function_invocation * ifi){
