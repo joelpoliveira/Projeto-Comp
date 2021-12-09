@@ -344,6 +344,7 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
 
     print_type type = ips->type_print; // {d_expression, d_str}
     id_token * token;
+    table_element* string;
     switch (type){
         case d_expression:
             #ifdef DEBUG
@@ -360,7 +361,7 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
             }
             break;
         case d_str:
-            table_element* string = (table_element*)malloc(sizeof(table_element));
+            string = (table_element*)malloc(sizeof(table_element));
             string->id = ips->print.id;
             string->is_string = 1;
             string->type = d_string;
