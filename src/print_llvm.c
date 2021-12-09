@@ -10,6 +10,8 @@
 extern is_program* program;
 int global_counter = 0;
 int func_counter = 0;
+int string_counter = 0;
+bool declare_print = 0, print_done = 0;
 
 // store b->type %a, b->type* %b
 // store a in b*
@@ -64,7 +66,7 @@ void llvm_print_type(parameter_type type){
             printf("i32");
             break;
         case d_string:
-            printf("i4");
+            printf("i8");
             break;
         case d_bool:
             printf("i1");
@@ -81,20 +83,86 @@ void llvm_print_type(parameter_type type){
 
 
 void llvm_program(is_program* ip){
-
+    int size;
     //print global variables
     for(table_element* current = ip->symtab; current != NULL; current = current->next) {
         if (current->type_dec == d_var_declaration){
-            printf("@%s = global ", current->id->id);
-            llvm_print_type(current->type);
-            printf(" 0");
-            printf("\n");
+            if (current->id->id[0] == '"'){
+                llvm_string_dec(current->id);
+            } else {
+                printf("@%s = global ", current->id->id);
+                llvm_print_type(current->type);
+                printf(" 0");
+                printf("\n");   
+            }
         }
     }
 
-    printf("\n");
 
+    string_counter = 0;
+    printf("\n");
     llvm_declarations_list(ip->idlist);
+}
+
+
+void llvm_string_dec(id_token* id){
+    regex_t regex;
+    int reti;
+
+    int size = strlen(id->id) - 2; // vem com aspas
+    char aux[size], tmp[size+5];
+    bool new_line = 0;
+    
+    strcpy(aux, id->id);
+
+    int i = 0;
+    int x = 0; // ofset para tmp se encontrar \n em aux pq tmp vai ter um char a mais
+    while (aux[i] != '\0') {
+        if (aux[i+1] != '\0'){
+            if (aux[i] == '\\' && aux[i+1] == 'n'){
+                tmp[i+x] = 0;
+                strcat(tmp, "\\0A");
+                i++;
+                x = 1;
+            } else
+                tmp[i + x] = aux[i];
+        }
+        
+        i++;
+    }
+
+    if (string_counter == 0)
+        printf("@.str");
+    else
+        printf("@.str.%d", string_counter); 
+
+    printf(" = private unnamed_addr constant [%d x i8] c%s", llvm_string_size(tmp), tmp);
+
+    if (new_line)
+        printf("\\0A");
+
+    printf("\\00\"\n");
+
+    string_counter++;
+}
+
+
+int llvm_string_size(char* s){
+    int size = 0;
+
+    for(int i = 0; i < strlen(s); i++){
+        if (s[i+2] != 0) {
+            if (s[i] == '\"') continue;
+
+            if(s[i] == '\\' && s[i] == '0' && s[i+2] == 'A'){
+                size++;
+            } else
+                size++;
+        }
+
+    }
+
+    return size;
 }
 
 
@@ -145,6 +213,12 @@ void llvm_func_declaration(is_func_dec* ifd){
         printf(" %d", symbol->type);
 
     printf("\n}\n\n");
+
+
+    if (declare_print && !print_done) {
+        print_done = 1;
+        printf("declare i32 @puts(i8*, ...)\n\n");
+    }
 }
 
 
@@ -222,7 +296,7 @@ void llvm_statement( is_statement* is){
             //llvm_return_statement(is->statement.u_return_state);
             break;
         case d_print:
-            //llvm_print_statement(is->statement.u_print_state);
+            llvm_print_statement(is->statement.u_print_state);
             break;
         case d_assign:
             llvm_assign_statement(is->statement.u_assign);
@@ -307,33 +381,35 @@ void llvm_return_statement(is_return_statement* irs){
 void llvm_print_statement(is_print_statement* ips){
     if (ips == NULL) return;
 
-    // print_type type = ips->type_print; // {d_expression, d_str}
-    // id_token * token;
-    // switch (type){
-    //     case d_expression:
-    //         #ifdef DEBUG
-    //         printf("======== llvm_print_statement(expression): %s ========\n", ips->print.id->id);
-    //         #endif
-            
-    //         token = llvm_expression_or_list(ips->print.iel);
-    //         llvm_or_err(ips->print.iel);
-    //         if (ips->print.iel->expression_type==d_undef){
-    //             printf("Line %d, column %d: Incompatible type ", token->line, token->col+1);
-    //             print_parameter_type_(ips->print.iel->expression_type);
-    //             printf(" in fmt.Println statement\n");
-    //             return;
-    //         }
-    //         break;
-    //     case d_str:
-    //         #ifdef DEBUG
-    //         printf("======== llvm_print_statement(d_str) ========\n");
-    //         #endif
-    //         break;
-    //     default:
-    //         printf("Erro llvm_print_statement\n");
-    //         break;
-    // }
+    declare_print = 1;
+
+    //print_type type = ips->type_print; // {d_expression, d_str}
+
+    switch (ips->type_print){
+        case d_expression:
+            break;
+        case d_str:
+            llvm_print(string_counter++, ips->print.id->id);
+            break;
+        default:
+            printf("Erro llvm_print_statement\n");
+            break;
+    }
 }
+
+
+void llvm_print(int num, char* string){
+    int size = strlen(string);
+
+    printf("\t%%%d = call i32(i8*, ...) ", func_counter++); 
+    printf("@puts(i8* getelementptr inbounds");
+    if (num == 0)
+        printf("([%d x i8], [%d x i8]* @.str)", size, size);
+    else
+        printf("([%d x i8], [%d x i8]* @.str.%d), ", size, size, num);
+    printf("i64 0, i64 0))\n");
+    
+}  
 
 
 void llvm_assign_statement(is_assign_statement* ias){

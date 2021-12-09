@@ -1,19 +1,18 @@
-package main;
+package main
 
 var x int;
 
-
 func teste(a int, c int) int {
-    var abc int;
-  
-    abc = a + c + 1;
+	var abc int;
 
-    return abc;
+	abc = a + c + 1;
+
+	return abc;
 }
 
 
-func teste_float() float32 {
-
+func teste_float() {
+	fmt.Println("123\n123\n123\n");
 }
 
 
@@ -22,11 +21,10 @@ func teste_void() {
 }
 
 
-func main () int {
-  teste(100, 100);
-    return teste(100, 100);
+func main() int {
+	teste(100, 100)
+	return teste(100, 100)
 }
-
 
 /*
 @x = global i32 0
