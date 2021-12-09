@@ -12,6 +12,10 @@ void teste () {
     string = "isto ser um teste"; 
     printf("p = %d\n", p);
     printf("ola\nola");
+    printf("ola\nola");
+    printf("ola\nola");
+    printf("ola\nola");
+    printf("ola\nola");
     printf("3\n");
     printf("%s", string);
 

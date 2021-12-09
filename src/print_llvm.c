@@ -106,30 +106,26 @@ void llvm_program(is_program* ip){
 
 
 void llvm_string_dec(id_token* id){
-    regex_t regex;
-    int reti;
-
     int size = strlen(id->id) - 2; // vem com aspas
-    char aux[size], tmp[size+5];
-    bool new_line = 0;
+    char aux[size];//, tmp[size*2];
+    char* tmp = (char*)calloc(sizeof(char), size*2); // TODO fix this. aumentar dinamicamente
     
     strcpy(aux, id->id);
 
     int i = 0;
     int x = 0; // ofset para tmp se encontrar \n em aux pq tmp vai ter um char a mais
     while (aux[i] != '\0') {
-        if (aux[i+1] != '\0'){
-            if (aux[i] == '\\' && aux[i+1] == 'n'){
-                tmp[i+x] = 0;
-                strcat(tmp, "\\0A");
-                i++;
-                x = 1;
-            } else
-                tmp[i + x] = aux[i];
-        }
-        
+
+        if (aux[i] == '\\' && aux[i+1] == 'n'){
+            strcat(tmp, "\\0A");
+            i++;
+            x++;
+        } else
+            tmp[i + x] = aux[i];
         i++;
     }
+
+    tmp[i+x-1] = 0;
 
     if (string_counter == 0)
         printf("@.str");
@@ -137,9 +133,6 @@ void llvm_string_dec(id_token* id){
         printf("@.str.%d", string_counter); 
 
     printf(" = private unnamed_addr constant [%d x i8] c%s", llvm_string_size(tmp), tmp);
-
-    if (new_line)
-        printf("\\0A");
 
     printf("\\00\"\n");
 
@@ -150,12 +143,16 @@ void llvm_string_dec(id_token* id){
 int llvm_string_size(char* s){
     int size = 0;
 
-    for(int i = 0; i < strlen(s); i++){
+    for(int i = 0; s[i] != 0; i++){
         if (s[i+2] != 0) {
             if (s[i] == '\"') continue;
 
-            if(s[i] == '\\' && s[i] == '0' && s[i+2] == 'A'){
+            if(s[i] == '\\' && s[i+1] == '0' && s[i+2] == 'A'){
                 size++;
+                i+=2;
+            } if (s[i] == '\\' && s[i+1] == '0' && s[i+2] == '0') {
+                size++;
+                i+=2;
             } else
                 size++;
         }

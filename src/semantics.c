@@ -366,6 +366,7 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
             string->is_string = 1;
             string->type = d_string;
             string->type_dec = d_var_declaration;
+            string->id->uses = 1;
             insert_symbol(&program->symtab, string);
             break;
         default:
