@@ -293,7 +293,7 @@ typedef struct _s1 {
         struct _s1 *next;
 } is_declarations_list;
 
-typedef struct _s0{
+typedef struct _s0 {
         table_element *symtab;
         is_declarations_list * idlist;
 } is_program;
@@ -311,6 +311,7 @@ typedef struct _s0{
 typedef struct _t1 {
         id_token* id;
         bool is_param;
+        bool is_string; // para escrever as strings em llvm
         parameter_type type; //return type
         declaration_type type_dec;
         union {

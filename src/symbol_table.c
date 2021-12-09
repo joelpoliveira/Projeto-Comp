@@ -42,8 +42,10 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
     if (*symtab) {
         for (aux = *symtab; aux; previous = aux, aux = aux->next) {
             //printf("++++++++ %s\n", aux->name);
+
             if (strcmp(aux->id->id, new_symbol->id->id) == 0) {
-                printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col+1, new_symbol->id->id);
+                if(!aux->is_string)
+                    printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col+1, new_symbol->id->id);
                 free(new_symbol);
                 return NULL;
             }
@@ -64,6 +66,7 @@ table_element *insert_func(table_element **symtab, id_token* id, is_parameter * 
 
     new_symbol->id = id;
     new_symbol->is_param = 0;
+    new_symbol->is_string = 0;
     new_symbol->type = return_type;
     new_symbol->type_dec = d_func_dec;
     new_symbol->next = NULL;
@@ -79,6 +82,7 @@ table_element *insert_func(table_element **symtab, id_token* id, is_parameter * 
     new_symbol = (table_element *)malloc(sizeof(table_element));
     new_symbol->id = create_token("return", 0, 0);
     new_symbol->is_param = 0;
+    new_symbol->is_string = 0;
     new_symbol->type = return_type;
     //new_symbol->type_dec = NULL;
     new_symbol->next = NULL;
@@ -93,6 +97,7 @@ table_element *insert_func(table_element **symtab, id_token* id, is_parameter * 
 
             new_symbol->id = current->val->id;
             new_symbol->is_param = 1;
+            new_symbol->is_string = 0;
             new_symbol->type = current->val->type_param;
             new_symbol->type_dec = d_var_declaration;
             new_symbol->next = NULL;
@@ -115,6 +120,7 @@ table_element *insert_var(table_element **symtab, id_token* id, parameter_type r
 
     new_symbol->id = id;
     new_symbol->is_param = 0;
+    new_symbol->is_string = 0;
     new_symbol->type = return_type;
     new_symbol->type_dec = d_var_declaration;
     new_symbol->next = NULL;
@@ -211,6 +217,7 @@ void print_function_params_type(table_element *symtab) {
 void print_global_table(table_element *symtab){
     table_element *aux;
     for (aux = symtab; aux != NULL; aux = aux->next){
+        if (aux->id->id[0] == '"') continue;
         printf("%s\t", aux->id->id);
 
         if (aux->type_dec == d_func_dec){
@@ -228,6 +235,7 @@ void print_function_table(table_element *symtab){
     table_element *aux;
 
     for (aux = symtab; aux != NULL; aux = aux->next){
+        if (aux->id->id[0] == '"') continue;
         printf("%s\t\t", aux->id->id); // id
         symbol_print_type(aux->type); //tipo
         if (aux->is_param)
@@ -288,7 +296,7 @@ void print_never_used_errors (table_element* symtab){
     for(; symtab; symtab = symtab->next) {
         if (strcmp(symtab->id->id, "return") == 0) continue; // ignore return 
 
-        if (symtab->id->uses == 0 && !symtab->is_param) {
+        if (symtab->id->uses == 0 && !symtab->is_param && !symtab->is_string) {
             printf("Line %d, column %d: Symbol %s declared but never used\n", symtab->id->line, symtab->id->col+1, symtab->id->id);
         } 
     }

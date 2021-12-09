@@ -183,7 +183,7 @@ void check_declarations_list(table_element** symtab, is_declarations_list* idl){
     for (table_element* aux = program->symtab; aux; aux = aux->next){
         if (aux->type_dec == d_func_dec){
             func_dec = get_function_declaration(program, aux->id->id);
-            check_function_body(&func_dec->symtab ,func_dec->ifb);
+            check_function_body(&func_dec->symtab, func_dec->ifb);
         }
     }
 
@@ -360,9 +360,13 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
             }
             break;
         case d_str:
-            #ifdef DEBUG
-            printf("======== check_print_statement(d_str) ========\n");
-            #endif
+            table_element* string = (table_element*)malloc(sizeof(table_element));
+            string->id = ips->print.id;
+            string->is_string = 1;
+            string->type = d_string;
+            string->type_dec = d_var_declaration;
+            string->id->uses = 1;
+            insert_symbol(&program->symtab, string);
             break;
         default:
             printf("Erro check_print_statement\n");
