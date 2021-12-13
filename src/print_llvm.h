@@ -30,7 +30,7 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
 char * llvm_expression_sum_like_list(is_expression_sum_like_list * iesl, id_token* aux, int);
 char * llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_token* aux, int);
 char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, int);
-char * llvm_final_expression(is_final_expression * ife, id_token* aux);
+char * llvm_final_expression(is_final_expression * ife, id_token* aux, int);
 void llvm_func_invocation(is_function_invocation * ifi);
 
 

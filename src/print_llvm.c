@@ -21,6 +21,19 @@ bool is_digit(char c){
     return (c>='0' && c<='9') || c=='%';
 }
 
+size_t ndigits(int number){
+    if (number == 0) return 1;
+
+    size_t digits = 0;
+    for (;number;number/=10)
+        digits++;
+    return digits;
+}
+
+int _max(int a, int b){
+    return (a>b)?a:b;
+}
+
 void llvm_store(id_token* a, id_token* b){
     printf("\tstore ");
     llvm_print_type(a->type);
@@ -29,6 +42,13 @@ void llvm_store(id_token* a, id_token* b){
     printf("* %%%s\n", b->id);
 }
 
+void llvm_expr_store(id_token* a, char* b){
+    printf("\tstore ");
+    llvm_print_type(a->type);
+    ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
+    llvm_print_type(a->type);
+    ( is_digit(a->id[0]) )? printf("* %s\n", a->id) : printf("* %%%s\n", a->id);
+}
 
 // %<num> = load a->type, a->type* %a
 void llvm_load(id_token* a){
@@ -378,7 +398,7 @@ void llvm_print_statement(is_print_statement* ips){
 
     switch (ips->type_print){
         case d_expression:
-            llvm_expression_or_list(ips->print.iel, NULL, 0);
+            llvm_expression_or_list(ips->print.iel, NULL, 1);
             break;
         case d_str:
             llvm_print(string_counter++, ips->print.id->id);
@@ -409,14 +429,16 @@ void llvm_assign_statement(is_assign_statement* ias){
     token = ias->id;
 
     char * res_token;
-    res_token = llvm_expression_or_list(ias->iel, ias->id, 0);
-    printf("\t%%%s = add ", token->id);
-    llvm_print_type(token->type);
-    (is_digit(res_token[0]))? printf(" %s, 0\n", res_token): printf(" %%%s, 0\n", res_token);
+    res_token = llvm_expression_or_list(ias->iel, ias->id, 1);
+    
+    
+    //printf("\t%%%s = add ", token->id);
+    //llvm_print_type(token->type);
+    //(is_digit(res_token[0]))? printf(" %s, 0\n", res_token): printf(" %%%s, 0\n", res_token);
 
     
-    sprintf(token->id, "%d", func_counter-1);
-    llvm_store(token, ias->id);
+    //sprintf(token->id, "%d", func_counter-1);
+    llvm_expr_store(token, res_token);
 }
 
 
@@ -443,17 +465,26 @@ char *  llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux, int 
     char * ltoken, * rtoken, *ret;
     if (ieol->is_operation!=NULL){
 
-        ltoken = llvm_expression_or_list(ieol->next_left, aux, nvar_now + 1);
-        rtoken = llvm_expression_and_list(ieol->next_right, aux, atoi( (ltoken+1) ) );   
+        ltoken = llvm_expression_or_list(ieol->next_left, aux, nvar_now);
+        rtoken = llvm_expression_and_list(ieol->next_right, aux, ltoken[0]!='%' ? nvar_now: atoi((ltoken+1)) + 1);   
         printf("\t");
+        int next;
+        if (ltoken[0]=='%' && rtoken[0]=='%')
+            next = _max(atoi( (rtoken + 1)) + 1, atoi( ( ltoken + 1 ) ) + 1);
+        else if (ltoken[0] == '%')
+            next = atoi(ltoken+1)+1;
+        else if (rtoken[0]=='%')
+            next = atoi(rtoken+1)+1;
+        else
+            next = nvar_now;
 
-        printf("%%%d = or ", nvar_now);
+        printf("%%%d = or ", next);
         llvm_print_type(ieol->expression_type);
         ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
         ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
         
-        ret = (char *) malloc( (int) log10(nvar_now) + 3 );
-        sprintf(ret, "%%%d", nvar_now);
+        ret = (char *) malloc( ndigits(next) + 2 );
+        sprintf(ret, "%%%d", next);
         return ret;
 
     }else{
@@ -471,17 +502,26 @@ char * llvm_expression_and_list(is_expression_and_list* ieal, id_token* aux, int
 
     if(type!=NULL){
 
-        ltoken = llvm_expression_and_list(current->next_left, aux, nvar_now + 1);
-        rtoken = llvm_expression_comp_list(current->next_right, aux, atoi( (ltoken+1) ) );
+        ltoken = llvm_expression_and_list(current->next_left, aux, nvar_now);
+        rtoken = llvm_expression_comp_list(current->next_right, aux,  ltoken[0]!='%' ? nvar_now: atoi((ltoken+1)) + 1);
         printf("\t");
+        int next;
+        if (ltoken[0]=='%' && rtoken[0]=='%')
+            next = _max(atoi( (rtoken + 1)) + 1, atoi( ( ltoken + 1 ) ) + 1);
+        else if (ltoken[0] == '%')
+            next = atoi(ltoken+1)+1;
+        else if (rtoken[0]=='%')
+            next = atoi(rtoken+1)+1;
+        else
+            next = nvar_now;
 
-        printf("%%%d = and ", nvar_now);
+        printf("%%%d = and ", next);
         llvm_print_type(current->expression_type);
         ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
         ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
         
-        ret = (char *) malloc( (int) log10(nvar_now) + 3 );
-        sprintf(ret, "%%%d", nvar_now);
+        ret = (char *) malloc( ndigits(next) + 2 );
+        sprintf(ret, "%%%d", next);
         return ret;
     }else{
         return llvm_expression_comp_list(current->next_right, aux, nvar_now);
@@ -499,12 +539,22 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
     if (type != NULL){
         //printf("\tComp type = %d\n", type->oper_type.ct);
 
-        ltoken = llvm_expression_comp_list(iecl->next_left, aux, nvar_now + 1);
-        rtoken = llvm_expression_sum_like_list(iecl->next_right, aux, atoi( (ltoken+1) ) ); 
-        printf("=======> %s", rtoken);
+        ltoken = llvm_expression_comp_list(iecl->next_left, aux, nvar_now);
+        rtoken = llvm_expression_sum_like_list(iecl->next_right, aux,  ltoken[0]!='%' ? nvar_now: atoi((ltoken+1)) + 1); 
         printf("\t");
 
-        printf("%%%d = icmp ", nvar_now);
+        int next;
+        if (ltoken[0]=='%' && rtoken[0]=='%')
+            next = _max(atoi( (rtoken + 1)) + 1, atoi( ( ltoken + 1 ) ) + 1);
+        else if (ltoken[0] == '%')
+            next = atoi(ltoken+1)+1;
+        else if (rtoken[0]=='%')
+            next = atoi(rtoken+1)+1;
+        else
+            next = nvar_now;
+
+
+        printf("%%%d = icmp ", next);
         switch (type->oper_type.ct)
         {
         case d_lt:
@@ -531,8 +581,8 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
         ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
         ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
         
-        ret = (char *) malloc( (int) log10(nvar_now) + 3 );
-        sprintf(ret, "%%%d", nvar_now);
+        ret = (char *) malloc( ndigits(next) + 2 );
+        sprintf(ret, "%%%d", next);
         return ret;
     }else{
         return llvm_expression_sum_like_list(iecl->next_right, aux, nvar_now);
@@ -549,22 +599,28 @@ char * llvm_expression_sum_like_list(is_expression_sum_like_list * iesl, id_toke
     char * ltoken, *rtoken, *ret;
 
     if (type != NULL){
-
-    
-        ltoken = llvm_expression_sum_like_list(current->next_left, aux, nvar_now+1);
-        rtoken = llvm_expression_star_like_list(current->next_right, aux, atoi( (ltoken+1) ));
+        ltoken = llvm_expression_sum_like_list(current->next_left, aux, nvar_now );
+        rtoken = llvm_expression_star_like_list(current->next_right, aux, (ltoken[0]!='%') ? nvar_now: atoi((ltoken+1)) + 1);
         printf("\t");
-
+        int next;
+        if (ltoken[0]=='%' && rtoken[0]=='%')
+            next = _max(atoi( (rtoken + 1)) + 1, atoi( ( ltoken + 1 ) ) + 1);
+        else if (ltoken[0] == '%')
+            next = atoi(ltoken+1)+1;
+        else if (rtoken[0]=='%')
+            next = atoi(rtoken+1)+1;
+        else
+            next = nvar_now;
         switch (type->oper_type.slt)
         {
         case d_plus:
-            (current->expression_type == d_integer)? printf("%%%d = add ", nvar_now): printf("%%%d = fadd ", nvar_now);
+            (current->expression_type == d_integer)? printf("%%%d = add ", next): printf("%%%d = fadd ", next);
             llvm_print_type(current->expression_type);
             ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
             ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
             break;
         case d_minus:
-            (current->expression_type == d_integer)? printf("%%%d = sub ", nvar_now): printf("%%%d = fsub ", nvar_now);
+            (current->expression_type == d_integer)? printf("%%%d = sub ", next): printf("%%%d = fsub ", next);
             llvm_print_type(current->expression_type);
             ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
             ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
@@ -573,12 +629,10 @@ char * llvm_expression_sum_like_list(is_expression_sum_like_list * iesl, id_toke
             break;
         }
 
-        ret = (char *) malloc(10);
-        printf("1=======> %d..\n", nvar_now);
+        ret = (char *) malloc( ndigits(next) + 2 );
 
-        sprintf(ret, "%%%d", nvar_now);
+        sprintf(ret, "%%%d", next);
 
-        printf("2=======> \n");
         return ret;
 
     }else{
@@ -594,30 +648,37 @@ char * llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_t
     is_expression_star_like_list * current = iestl;
     next_oper * type = current->oper_star_like;
     char * ltoken,* rtoken, *ret;
-
     if (type != NULL){
-        //printf("\tStar type = %d\n", type->oper_type.stlt);
-
-        ltoken = llvm_expression_star_like_list(current->next_left, aux, nvar_now + 1);
-        rtoken = llvm_self_expression_list(current->next_right, aux, atoi( (ltoken+1) ));
+        ltoken = llvm_expression_star_like_list(current->next_left, aux, nvar_now);
+        rtoken = llvm_self_expression_list(current->next_right, aux,  ltoken[0]!='%' ? nvar_now: atoi((ltoken+1)) + 1);
         printf("\t");
+
+        int next;
+        if (ltoken[0]=='%' && rtoken[0]=='%')
+            next = _max(atoi( (rtoken + 1)) + 1, atoi( ( ltoken + 1 ) ) + 1);
+        else if (ltoken[0] == '%')
+            next = atoi(ltoken+1)+1;
+        else if (rtoken[0]=='%')
+            next = atoi(rtoken+1)+1;
+        else
+            next = nvar_now;
 
         switch (type->oper_type.stlt)
         {
         case d_star:
-            (current->expression_type==d_integer)? printf("%%%d = mul ", nvar_now): printf("%%%d = fmul", nvar_now);
+            (current->expression_type==d_integer)? printf("%%%d = mul ", next): printf("%%%d = fmul", next);
             llvm_print_type(current->expression_type);
             ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
             ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
             break;
         case d_div:
-            (current->expression_type==d_integer)? printf("%%%d = sdiv ", nvar_now) : printf("%%%d = fdiv ", nvar_now);
+            (current->expression_type==d_integer)? printf("%%%d = sdiv ", next) : printf("%%%d = fdiv ", next);
             llvm_print_type(current->expression_type);
             ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
             ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
             break;
         case d_mod:
-            printf("%%%d = srem ", nvar_now);
+            printf("%%%d = srem ", next);
             llvm_print_type(current->expression_type);
             ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
             ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
@@ -626,8 +687,8 @@ char * llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_t
             break;
         }
 
-        ret = (char *) malloc( (int) log10(nvar_now) + 3 );
-        sprintf(ret, "%%%d", nvar_now);
+        ret = (char *) malloc( ndigits(next) + 2 );
+        sprintf(ret, "%%%d", next);
         return ret;
 
     }else{
@@ -638,15 +699,15 @@ char * llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_t
 
 char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, int nvar_now){
     if (isel == NULL) return NULL;
-
     is_self_expression_list * current = isel;
     next_oper* type = current->self_oper_type;
-    char * ltoken, *rtoken, *ret;
+    char * ltoken, *ret;
 
     if (type != NULL){
-        ltoken = llvm_self_expression_list(current->next_same, aux, nvar_now + 1);
-        rtoken = llvm_final_expression(current->next_final, aux);
+        ltoken = llvm_self_expression_list(current->next_same, aux, nvar_now);
         printf("\t");
+
+        int next = (ltoken[0]=='%') ? atoi(ltoken+1)+1 : nvar_now;
 
         switch (type->oper_type.sot)
         {
@@ -656,23 +717,23 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
         case d_self_plus:
             break;
         case d_self_minus:
-            printf("%%%d = mul ", nvar_now);
+            printf("%%%d = mul ", next);
             llvm_print_type(current->expression_type);
             ( is_digit(ltoken[0]) ) ? printf(" %s, -1\n", ltoken) : printf(" %%%s, -1\n", ltoken);
             break;
         }
         
-        ret = (char *) malloc( (int)log10(nvar_now) + 3 );
-        sprintf(ret, "%%%d", nvar_now);
+        ret = (char *) malloc( ndigits(next) + 2 );
+        sprintf(ret, "%%%d", next);
         return ret;
         
     }else{
-        return llvm_final_expression(current->next_final, aux);
+        return llvm_final_expression(current->next_final, aux, nvar_now);
     }
 }
 
 
-char * llvm_final_expression(is_final_expression * ife, id_token* aux){
+char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_now){
     if (ife == NULL) return NULL;
     //{d_intlit, d_reallit, d_id, d_func_inv, d_expr_final} 
     char * token;
@@ -687,8 +748,15 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux){
             sprintf(token, "%s", ife->expr.u_reallit->reallit->id);
             return token;
         case d_id:
-            token = (char * ) malloc(sizeof(  strlen(ife->expr.u_id->id->id) + 1) );
-            sprintf(token, "%s", ife->expr.u_id->id->id);
+            token = (char * ) malloc( ndigits(nvar_now) + 2);
+
+            printf("\t%%%d = load ", nvar_now);
+            llvm_print_type(ife->expr.u_id->id->type);
+            printf(", ");
+            llvm_print_type(ife->expr.u_id->id->type);
+            printf("* %%%s\n", ife->expr.u_id->id->id);
+
+            sprintf(token, "%%%d", nvar_now);
             return token;
         case d_func_inv:
             //token = (char * ) malloc(sizeof(  6 + strlen(ife->expr.u_id->id->id) + 1) );
