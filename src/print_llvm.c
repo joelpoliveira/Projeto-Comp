@@ -788,7 +788,7 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             //fprintf(token, "%s", ife->expr.u_id->id->id);
             //return token;
         case d_expr_final:
-            //llvm_expression_or_list(ife->expr.ieol, aux);
+            return llvm_expression_or_list(ife->expr.ieol, aux, nvar_now);
             break;
         default:
             printf("Erro llvm_final_expression\n");
