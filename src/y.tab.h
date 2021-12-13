@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.7.6.  */
+/* A Bison parser, made by GNU Bison 3.5.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -31,9 +31,8 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
-   especially those whose name start with YY_ or yy_.  They are
-   private implementation details that can be changed or removed.  */
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
 
 #ifndef YY_YY_Y_TAB_H_INCLUDED
 # define YY_YY_Y_TAB_H_INCLUDED
@@ -45,111 +44,102 @@
 extern int yydebug;
 #endif
 
-/* Token kinds.  */
+/* Token type.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    YYEMPTY = -2,
-    YYEOF = 0,                     /* "end of file"  */
-    YYerror = 256,                 /* error  */
-    YYUNDEF = 257,                 /* "invalid token"  */
-    SEMICOLON = 258,               /* SEMICOLON  */
-    COMMA = 259,                   /* COMMA  */
-    BLANKID = 260,                 /* BLANKID  */
-    ASSIGN = 261,                  /* ASSIGN  */
-    STAR = 262,                    /* STAR  */
-    DIV = 263,                     /* DIV  */
-    MINUS = 264,                   /* MINUS  */
-    PLUS = 265,                    /* PLUS  */
-    EQ = 266,                      /* EQ  */
-    GE = 267,                      /* GE  */
-    GT = 268,                      /* GT  */
-    LBRACE = 269,                  /* LBRACE  */
-    LE = 270,                      /* LE  */
-    LPAR = 271,                    /* LPAR  */
-    LSQ = 272,                     /* LSQ  */
-    LT = 273,                      /* LT  */
-    MOD = 274,                     /* MOD  */
-    NE = 275,                      /* NE  */
-    NOT = 276,                     /* NOT  */
-    AND = 277,                     /* AND  */
-    OR = 278,                      /* OR  */
-    RBRACE = 279,                  /* RBRACE  */
-    RPAR = 280,                    /* RPAR  */
-    RSQ = 281,                     /* RSQ  */
-    PACKAGE = 282,                 /* PACKAGE  */
-    RETURN = 283,                  /* RETURN  */
-    ELSE = 284,                    /* ELSE  */
-    FOR = 285,                     /* FOR  */
-    IF = 286,                      /* IF  */
-    VAR = 287,                     /* VAR  */
-    PRINT = 288,                   /* PRINT  */
-    PARSEINT = 289,                /* PARSEINT  */
-    FUNC = 290,                    /* FUNC  */
-    CMDARGS = 291,                 /* CMDARGS  */
-    INT = 292,                     /* INT  */
-    FLOAT32 = 293,                 /* FLOAT32  */
-    STRING = 294,                  /* STRING  */
-    BOOL = 295,                    /* BOOL  */
-    UNARY = 296,                   /* UNARY  */
-    ID = 297,                      /* ID  */
-    STRLIT = 298,                  /* STRLIT  */
-    INTLIT = 299,                  /* INTLIT  */
-    REALLIT = 300,                 /* REALLIT  */
-    RESERVED = 301                 /* RESERVED  */
+    SEMICOLON = 258,
+    COMMA = 259,
+    BLANKID = 260,
+    LBRACE = 261,
+    LPAR = 262,
+    LSQ = 263,
+    RBRACE = 264,
+    RPAR = 265,
+    RSQ = 266,
+    PACKAGE = 267,
+    RETURN = 268,
+    ELSE = 269,
+    FOR = 270,
+    IF = 271,
+    VAR = 272,
+    PRINT = 273,
+    FUNC = 274,
+    CMDARGS = 275,
+    INT = 276,
+    FLOAT32 = 277,
+    STRING = 278,
+    BOOL = 279,
+    UNARY = 280,
+    STAR = 281,
+    DIV = 282,
+    MINUS = 283,
+    PLUS = 284,
+    EQ = 285,
+    GE = 286,
+    GT = 287,
+    LE = 288,
+    LT = 289,
+    MOD = 290,
+    NE = 291,
+    NOT = 292,
+    AND = 293,
+    OR = 294,
+    ID = 295,
+    STRLIT = 296,
+    INTLIT = 297,
+    REALLIT = 298,
+    RESERVED = 299,
+    PARSEINT = 300,
+    ASSIGN = 301
   };
-  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Token kinds.  */
-#define YYEMPTY -2
-#define YYEOF 0
-#define YYerror 256
-#define YYUNDEF 257
+/* Tokens.  */
 #define SEMICOLON 258
 #define COMMA 259
 #define BLANKID 260
-#define ASSIGN 261
-#define STAR 262
-#define DIV 263
-#define MINUS 264
-#define PLUS 265
-#define EQ 266
-#define GE 267
-#define GT 268
-#define LBRACE 269
-#define LE 270
-#define LPAR 271
-#define LSQ 272
-#define LT 273
-#define MOD 274
-#define NE 275
-#define NOT 276
-#define AND 277
-#define OR 278
-#define RBRACE 279
-#define RPAR 280
-#define RSQ 281
-#define PACKAGE 282
-#define RETURN 283
-#define ELSE 284
-#define FOR 285
-#define IF 286
-#define VAR 287
-#define PRINT 288
-#define PARSEINT 289
-#define FUNC 290
-#define CMDARGS 291
-#define INT 292
-#define FLOAT32 293
-#define STRING 294
-#define BOOL 295
-#define UNARY 296
-#define ID 297
-#define STRLIT 298
-#define INTLIT 299
-#define REALLIT 300
-#define RESERVED 301
+#define LBRACE 261
+#define LPAR 262
+#define LSQ 263
+#define RBRACE 264
+#define RPAR 265
+#define RSQ 266
+#define PACKAGE 267
+#define RETURN 268
+#define ELSE 269
+#define FOR 270
+#define IF 271
+#define VAR 272
+#define PRINT 273
+#define FUNC 274
+#define CMDARGS 275
+#define INT 276
+#define FLOAT32 277
+#define STRING 278
+#define BOOL 279
+#define UNARY 280
+#define STAR 281
+#define DIV 282
+#define MINUS 283
+#define PLUS 284
+#define EQ 285
+#define GE 286
+#define GT 287
+#define LE 288
+#define LT 289
+#define MOD 290
+#define NE 291
+#define NOT 292
+#define AND 293
+#define OR 294
+#define ID 295
+#define STRLIT 296
+#define INTLIT 297
+#define REALLIT 298
+#define RESERVED 299
+#define PARSEINT 300
+#define ASSIGN 301
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -180,14 +170,12 @@ union YYSTYPE
     is_expression_star_like_list * iestl;
     is_self_expression_list * isel;
     is_final_expression * ife;
-    comp_type ct;
-    sum_like_type slt;
-    star_like_type stlt;
-    self_operation_type sot;
     is_func_dec * ifd;
     is_func_inv_expr_list * ifiel;
+    next_oper * nop;
+    location * loc;
 
-#line 191 "y.tab.h"
+#line 179 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -8,7 +8,7 @@ FILES = functions.c print_ast.c symbol_table.c semantics.c free_tree.c print_llv
 main:
 	flex gocompiler.l
 	yacc gocompiler.y $(Y_FLAGS)
-	gcc $(C_FLAGS) -o gocompiler $(LY_FILES) $(FILES)
+	clang-7	-lm $(C_FLAGS) -o gocompiler $(LY_FILES) $(FILES)
 
 .PHONY: clean
 clean:
