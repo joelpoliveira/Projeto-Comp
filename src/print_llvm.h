@@ -6,6 +6,8 @@ void llvm_add(id_token* a, id_token* b);
 void llvm_print(int num, char* string);
 void llvm_string_dec(id_token* id);
 int llvm_string_size(char* s);
+int string_size(char* s);
+int llvm_get_string_num(char* string);
 void llvm_print_type(parameter_type type);
 void llvm_program(is_program* ip);
 void llvm_declarations_list(is_declarations_list* idl);

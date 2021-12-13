@@ -83,19 +83,19 @@ void llvm_print_type(parameter_type type){
 
 
 void llvm_program(is_program* ip){
-    int size;
     //print global variables
     for(table_element* current = ip->symtab; current != NULL; current = current->next) {
         if (current->type_dec == d_var_declaration){
-            if (current->id->id[0] == '"'){
-                llvm_string_dec(current->id);
-            } else {
-                printf("@%s = global ", current->id->id);
-                llvm_print_type(current->type);
-                printf(" 0");
-                printf("\n");   
-            }
+            printf("@%s = global ", current->id->id);
+            llvm_print_type(current->type);
+            printf(" 0");
+            printf("\n");   
         }
+    }
+
+    //Print strings declarations
+    for(table_element* current = ip->strings_table; current != NULL; current = current->next){
+        llvm_string_dec(current->id);
     }
 
 
@@ -109,6 +109,7 @@ void llvm_string_dec(id_token* id){
     int size = strlen(id->id) - 2; // vem com aspas
     char aux[size];//, tmp[size*2];
     char* tmp = (char*)calloc(sizeof(char), size*2); // TODO fix this. aumentar dinamicamente
+    //table_element *str = search_symbol(program->strings_table, aux);
     
     strcpy(aux, id->id);
 
@@ -132,11 +133,14 @@ void llvm_string_dec(id_token* id){
     else
         printf("@.str.%d", string_counter); 
 
-    printf(" = private unnamed_addr constant [%d x i8] c%s", llvm_string_size(tmp), tmp);
+    printf(" = private unnamed_addr constant [%d x i8] c%s", string_size(aux), tmp);
 
     printf("\\00\"\n");
 
     string_counter++;
+
+    //Alterar a string da tabela para ter o /0A
+    //sprintf(id->id, "%s", tmp);
 }
 
 
@@ -162,10 +166,27 @@ int llvm_string_size(char* s){
     return size;
 }
 
+//abc\n123\n
+
+
+int string_size(char* s){
+    int size = 0;
+
+    for(int i = 0; s[i] != 0; i++){
+        if (s[i] == '\"') continue;
+        
+        if (s[i] == '\\' && s[i+1] == 'n'){
+            size += 2;
+            i+=2;
+        } else
+            size++;
+    }
+
+    return size;
+}
+
 
 void llvm_declarations_list(is_declarations_list* idl){
-    int counter = 0;
-
     for(is_declarations_list* current = idl; current != NULL; current = current->next) {
         switch (current->val->type_dec){
             case d_func_dec:
@@ -201,20 +222,11 @@ void llvm_func_declaration(is_func_dec* ifd){
     func_counter++;
     llvm_function_body(ifd->ifb);
 
-    //return
-    symbol = search_symbol(program->symtab ,ifd->id->id);
-    //llvm_load();
-    printf("\tret ");
-    llvm_print_type(ifd->type);
-    if (ifd->type != d_none)
-        printf(" %d", symbol->type);
-
     printf("\n}\n\n");
-
 
     if (declare_print && !print_done) {
         print_done = 1;
-        printf("declare i32 @puts(i8*, ...)\n\n");
+        printf("declare i32 @printf(i8*, ...)\n\n");
     }
 }
 
@@ -284,13 +296,13 @@ void llvm_statement( is_statement* is){
     //{d_if, d_for, d_return, d_print, d_assign, d_statement_list, d_final_statement
     switch (is->type_state){
         case d_if:
-            //llvm_if_statement(is->statement.u_if_state);
+            llvm_if_statement(is->statement.u_if_state);
             break;
         case d_for:
             //llvm_for_statement(is->statement.u_for_state);
             break;
         case d_return:
-            //llvm_return_statement(is->statement.u_return_state);
+            llvm_return_statement(is->statement.u_return_state);
             break;
         case d_print:
             llvm_print_statement(is->statement.u_print_state);
@@ -315,19 +327,15 @@ void llvm_statement( is_statement* is){
 void llvm_if_statement(is_if_statement* ifs){
     if (ifs == NULL) return;
 
-    // id_token * llvm_expression_or_list(ifs->iel);
-    // bool error_ocurred = llvm_or_err(ifs->iel);
+    //llvm_expression_or_list(ifs->iel);
+    // if x then else
+    printf("\tbr i1 %%x, label %%then, label %%else\n");
 
-    // if (ifs->iel != NULL) {
-    //     if(ifs->iel->expression_type != d_bool && !error_ocurred){
-    //         printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col+1);
-    //         symbol_print_type(ifs->iel->expression_type);
-    //         printf(" in if statement\n");
-    //     }
-    // }
+    printf("then:\n");
+    llvm_statements_list(ifs->isl);
 
-    // llvm_statements_list(ifs->isl);
-    // llvm_else_statement(ifs->ies);
+    printf("else\n");
+    llvm_else_statement(ifs->ies);
 }
 
 
@@ -356,21 +364,14 @@ void llvm_for_statement(is_for_statement* ifs){
 
 
 void llvm_return_statement(is_return_statement* irs){
-    // table_element* temp = search_symbol(*"return");
-    //printf("-----RETURN----\n");
-    
-    // id_token * llvm_expression_or_list(irs->iel);
-    // bool error_ocurred = llvm_or_err(irs->iel);
-    // if (temp != NULL && irs->iel != NULL){
-    //     if ( ( 
-    //             (irs->iel->expression_type != temp->type) 
-    //             || (irs->iel->expression_type == d_undef) 
-    //         ) && !error_ocurred){
-    //         printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col+1);
-    //         symbol_print_type(irs->iel->expression_type);
-    //         printf(" in return statement\n");
-    //     }   
-    // }
+    table_element* symbol;
+    //return
+    //symbol = search_symbol(program->symtab ,ifd->id->id);
+    //llvm_load();
+    printf("\tret 0");
+    // llvm_print_type(ifd->type);
+    // if (ifd->type != d_none)
+    //     printf(" %d", symbol->type);
 
 }
 
@@ -379,6 +380,7 @@ void llvm_print_statement(is_print_statement* ips){
     if (ips == NULL) return;
 
     declare_print = 1;
+    int num;
 
     //print_type type = ips->type_print; // {d_expression, d_str}
 
@@ -386,7 +388,11 @@ void llvm_print_statement(is_print_statement* ips){
         case d_expression:
             break;
         case d_str:
-            llvm_print(string_counter++, ips->print.id->id);
+            num = llvm_get_string_num(ips->print.id->id);
+            if (num != -1)
+                llvm_print(num, ips->print.id->id);
+            else
+                printf("Não existe\n");
             break;
         default:
             printf("Erro llvm_print_statement\n");
@@ -395,15 +401,34 @@ void llvm_print_statement(is_print_statement* ips){
 }
 
 
+int llvm_get_string_num(char* string){
+    table_element* aux;
+    int num = 0;
+
+    for (table_element* aux = program->strings_table; aux; aux = aux->next) {
+        if (strcmp(aux->id->id, string) == 0){
+            return num;
+        }
+        num++;
+    }
+
+    return -1;
+}
+
+
 void llvm_print(int num, char* string){
-    int size = strlen(string);
+    table_element *str = search_symbol(program->strings_table, string);
+    if(str == NULL) return;
+
+    int size = string_size(str->id->id);
 
     printf("\t%%%d = call i32(i8*, ...) ", func_counter++); 
-    printf("@puts(i8* getelementptr inbounds");
+    printf("@printf(i8* getelementptr inbounds");
+    printf("([%d x i8], [%d x i8]* ", size, size);
     if (num == 0)
-        printf("([%d x i8], [%d x i8]* @.str)", size, size);
+        printf(" @.str)");
     else
-        printf("([%d x i8], [%d x i8]* @.str.%d), ", size, size, num);
+        printf(" @.str.%d), ", num);
     printf("i64 0, i64 0))\n");
     
 }  
@@ -424,7 +449,7 @@ void llvm_statements_list(is_statements_list* isl){
     if (isl == NULL) return;
     
     for (is_statements_list * current = isl; current; current = current->next){
-        //llvm_statement(current->val);
+        llvm_statement(current->val);
     }
 
 }
@@ -456,7 +481,6 @@ void llvm_expression_and_list(is_expression_and_list* ieal, id_token* aux){
 
     is_expression_and_list* current = ieal;
     next_oper* type = current->is_operation;
-    id_token*ltoken;
 
     if(type!=NULL){
         //printf("\tAND\n");

@@ -12,11 +12,11 @@ func teste(a int, c int) int {
 
 
 func teste_float() {
-	fmt.Println("123\n123\n123\n123\n123\n123\n123\n");
-	fmt.Println("123\n123\n123\n123\n123\n123\n123\n");
-	fmt.Println("123\n123\n123\n123\n123\n123\n123\n");
-	fmt.Println("123\n123\n123\n123\n123\n123\n123\n");
-	fmt.Println("123\n123\n123\n123\n123\n123\n123\n");
+	fmt.Println("123\n");
+	fmt.Println("123\n");
+	fmt.Println("123\n");
+	fmt.Println("123\n");
+	fmt.Println("ola\n123\n");
 }
 
 
