@@ -295,6 +295,7 @@ typedef struct _s1 {
 
 typedef struct _s0 {
         table_element *symtab;
+        table_element *strings_table;
         is_declarations_list * idlist;
 } is_program;
 

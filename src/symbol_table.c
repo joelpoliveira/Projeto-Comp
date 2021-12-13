@@ -43,9 +43,14 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
         for (aux = *symtab; aux; previous = aux, aux = aux->next) {
             //printf("++++++++ %s\n", aux->name);
 
+            if (strcmp(aux->id->id, new_symbol->id->id) == 0 && aux->is_string) {
+                //printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col+1, new_symbol->id->id);
+                free(new_symbol);
+                return NULL;
+            }
+
             if (strcmp(aux->id->id, new_symbol->id->id) == 0) {
-                if(!aux->is_string)
-                    printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col+1, new_symbol->id->id);
+                printf("Line %d, column %d: Symbol %s already defined\n", new_symbol->id->line, new_symbol->id->col+1, new_symbol->id->id);
                 free(new_symbol);
                 return NULL;
             }
@@ -296,9 +301,11 @@ void print_never_used_errors (table_element* symtab){
     for(; symtab; symtab = symtab->next) {
         if (strcmp(symtab->id->id, "return") == 0) continue; // ignore return 
 
-        if (symtab->id->uses == 0 && !symtab->is_param && !symtab->is_string) {
+        if (symtab->id->uses == 0 && !symtab->is_param) {
             printf("Line %d, column %d: Symbol %s declared but never used\n", symtab->id->line, symtab->id->col+1, symtab->id->id);
         } 
     }
 }
+
+
 
