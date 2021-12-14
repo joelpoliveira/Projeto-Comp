@@ -72,12 +72,12 @@ void llvm_store(id_token* a, id_token* b){
     printf("* %%%s\n", b->id);
 }
 
-void llvm_expr_store(id_token* a, char* b){
+void llvm_expr_store(id_token* a, char* b, table_element ** symtab){
     printf("\tstore ");
     llvm_print_type(a->type);
     ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
     llvm_print_type(a->type);
-    ( is_digit(a->id[0]) )? printf("* %s\n", a->id) : printf("* %%%s\n", a->id);
+    ( is_digit(a->id[0]) )? printf("* %s\n", a->id) : ( search_var(*symtab, a->id) ? printf("* %%%s\n", a->id) : printf("* @%s", a->id) );
 }
 
 // %<num> = load a->type, a->type* %a
@@ -254,7 +254,6 @@ void llvm_declarations_list(is_declarations_list* idl){
 
 void llvm_func_declaration(is_func_dec* ifd){
     func_counter = 0;
-    table_element* symbol;
 
     printf("define ");
     llvm_print_type(ifd->type);
@@ -281,7 +280,7 @@ void llvm_func_declaration(is_func_dec* ifd){
 
 
 void llvm_function_body(is_func_body* ifb, table_element ** symtab){
-    llvm_vars_and_statements_list(ifb->ivsl, symtab);
+    llvm_vars_and_statements_list(ifb->ivsl, symtab, 1);
 }
 
 
@@ -298,7 +297,7 @@ void llvm_is_parameter(is_parameter * ip) {
 }
 
 
-void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl, table_element ** symtab){
+void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl, table_element ** symtab, int nvar_now){
     is_vars_and_statements_list* current;
 
     for(current = ivsl; current != NULL; current = current->next) {
@@ -308,7 +307,7 @@ void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl, table_elem
                 llvm_var_declaration(current->val->body.ivd);
                 break;
             case d_statement:
-                llvm_statement(current->val->body.is, symtab);
+                nvar_now = llvm_statement(current->val->body.is, symtab, nvar_now);
                 break;
         default:
             printf("Erro llvm_vars_and_statements_list");
@@ -336,26 +335,27 @@ void llvm_var_spec(is_var_spec* ivs){
 }
 
 
-void llvm_statement( is_statement* is, table_element ** symtab){
+int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now){
     //{d_if, d_for, d_return, d_print, d_assign, d_statement_list, d_final_statement
+    int next = 1;
     switch (is->type_state){
         case d_if:
-            llvm_if_statement(is->statement.u_if_state, symtab);
+            next = llvm_if_statement(is->statement.u_if_state, symtab, nvar_now);
             break;
         case d_for:
             //llvm_for_statement(is->statement.u_for_state, symtab);
             break;
         case d_return:
-            llvm_return_statement(is->statement.u_return_state, symtab);
+            next = llvm_return_statement(is->statement.u_return_state, symtab, nvar_now);
             break;
         case d_print:
-            llvm_print_statement(is->statement.u_print_state, symtab);
+            next = llvm_print_statement(is->statement.u_print_state, symtab, nvar_now);
             break;
         case d_assign:
-            llvm_assign_statement(is->statement.u_assign, symtab);
+            next = llvm_assign_statement(is->statement.u_assign, symtab, nvar_now);
             break;
         case d_statement_list:
-            //llvm_statements_list(is->statement.isl);
+            next = llvm_statements_list(is->statement.isl, symtab, nvar_now);
             break;
         case d_final_statement:
             //llvm_final_statement(is->statement.u_state);
@@ -365,28 +365,32 @@ void llvm_statement( is_statement* is, table_element ** symtab){
             printf("Erro llvm_statement\n");
             break;
     }
+    return next;
 }
 
 
-void llvm_if_statement(is_if_statement* ifs, table_element**symtab){
-    if (ifs == NULL) return;
+int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now){
+    if (ifs == NULL) return nvar_now;
 
-    //llvm_expression_or_list(ifs->iel, symtab);
+    char * token = llvm_expression_or_list(ifs->iel, NULL, nvar_now, symtab);
     // if x then else
     printf("\tbr i1 %%x, label %%then, label %%else\n");
 
     printf("then:\n");
-    llvm_statements_list(ifs->isl, symtab);
+    nvar_now = llvm_statements_list(ifs->isl, symtab, atoi(token+1)+1);
 
     printf("else\n");
-    llvm_else_statement(ifs->ies, symtab);
+    nvar_now = llvm_else_statement(ifs->ies, symtab, nvar_now);
+
+    return nvar_now;
 }
 
 
-void llvm_else_statement(is_else_statement* ies,table_element**symtab){
-    if (ies == NULL) return;
+int llvm_else_statement(is_else_statement* ies,table_element**symtab, int nvar_now){
+    if (ies == NULL) return nvar_now;
 
-    //llvm_statements_list(ies->isl, symtab);
+    nvar_now = llvm_statements_list(ies->isl, symtab, nvar_now);
+    return nvar_now;
 }
 
 
@@ -407,30 +411,30 @@ void llvm_for_statement(is_for_statement* ifs, table_element**symtab){
 }
 
 
-void llvm_return_statement(is_return_statement* irs, table_element**symtab){
-    table_element* symbol;
-    //return
-    //symbol = search_symbol(program->symtab ,ifd->id->id);
-    //llvm_load();
-    printf("\tret 0");
-    // llvm_print_type(ifd->type);
-    // if (ifd->type != d_none)
-    //     printf(" %d", symbol->type);
+int llvm_return_statement(is_return_statement* irs, table_element**symtab, int nvar_now){
+    //table_element* symbol;
 
+    char * token = llvm_expression_or_list(irs->iel, NULL, nvar_now, symtab);
+    printf("\tret ");
+    llvm_print_type(irs->iel->expression_type);
+    printf(" %s\n", token);
+
+    return atoi(token+1)+1;
 }
 
 
-void llvm_print_statement(is_print_statement* ips, table_element**symtab){
-    if (ips == NULL) return;
+int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nvar_now){
+    if (ips == NULL) return nvar_now;
 
     declare_print = 1;
     int num;
+    char * token = NULL;
 
     //print_type type = ips->type_print; // {d_expression, d_str}
 
     switch (ips->type_print){
         case d_expression:
-            llvm_expression_or_list(ips->print.iel, NULL, 1, symtab);
+            token = llvm_expression_or_list(ips->print.iel, NULL, nvar_now, symtab);
             break;
         case d_str:
             num = llvm_get_string_num(ips->print.id->id);
@@ -443,11 +447,11 @@ void llvm_print_statement(is_print_statement* ips, table_element**symtab){
             printf("Erro llvm_print_statement\n");
             break;
     }
+    return (token[0]=='%')?atoi(token+1)+1:nvar_now;
 }
 
 
 int llvm_get_string_num(char* string){
-    table_element* aux;
     int num = 0;
 
     for (table_element* aux = program->strings_table; aux; aux = aux->next) {
@@ -479,31 +483,26 @@ void llvm_print(int num, char* string){
 }  
 
 
-void llvm_assign_statement(is_assign_statement* ias, table_element**symtab){
+int llvm_assign_statement(is_assign_statement* ias, table_element**symtab, int nvar_now){
     id_token* token = (id_token*)malloc(sizeof(id_token));
     token = ias->id;
 
     char * res_token;
-    res_token = llvm_expression_or_list(ias->iel, ias->id, 1, symtab);
-    
-    
-    //printf("\t%%%s = add ", token->id);
-    //llvm_print_type(token->type);
-    //(is_digit(res_token[0]))? printf(" %s, 0\n", res_token): printf(" %%%s, 0\n", res_token);
+    res_token = llvm_expression_or_list(ias->iel, ias->id, nvar_now, symtab);
 
-    
-    //sprintf(token->id, "%d", func_counter-1);
-    llvm_expr_store(token, res_token);
+    llvm_expr_store(token, res_token, symtab);
+
+    return atoi(res_token+1)+1;
 }
 
 
-void llvm_statements_list(is_statements_list* isl, table_element**symtab){
-    if (isl == NULL) return;
+int llvm_statements_list(is_statements_list* isl, table_element**symtab, int nvar_now){
+    if (isl == NULL) return nvar_now;
     
     for (is_statements_list * current = isl; current; current = current->next){
-        llvm_statement(current->val, symtab);
+        nvar_now = llvm_statement(current->val, symtab, nvar_now);
     }
-
+    return nvar_now;
 }
 
 
