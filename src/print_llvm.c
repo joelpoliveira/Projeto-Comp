@@ -7,6 +7,11 @@
 #include <math.h>
 #include <stdbool.h>
 
+// TODO parece que o load só é preciso se for uma variável local. Operaçoes com argumentos da função não é preciso dar load
+// TODO return void nas funções que não têm um return
+// TODO return 0 no main quando não tem um return definido
+// TODO Functions calls (invocation)
+// TODO For Loops
 
 extern is_program* program;
 int global_counter = 0;
@@ -329,19 +334,17 @@ void llvm_var_declaration(is_var_dec* ivd){
 void llvm_var_spec(is_var_spec* ivs){
 
     for (is_id_list* current = ivs->iil; current; current = current->next){
-
         printf("\t%%%s = alloca ", current->val->id);
         llvm_print_type(current->val->type);
-        //printf("(%s)", current->val->id);
         printf("\n");
-
     }
 }
 
 
 int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int counter){
     //{d_if, d_for, d_return, d_print, d_assign, d_statement_list, d_final_statement
-    int next = 1;
+    int next = nvar_now;
+    //printf("================== Nvar = %d\n", nvar_now);
     switch (is->type_state){
         case d_if:
             next = llvm_if_statement(is->statement.u_if_state, symtab, nvar_now, counter);
@@ -374,11 +377,11 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
 
 
 int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now, int counter){
-    //if (ifs == NULL) return;
-    
     char* aux;
 
-    aux = llvm_expression_or_list(ifs->iel, NULL, func_counter, symtab);
+    //printf("================== (if) Nvar = %d", nvar_now);
+
+    aux = llvm_expression_or_list(ifs->iel, NULL, nvar_now, symtab);
 
     if (ifs->ies != NULL)
         printf("\tbr i1 %s, label %%then%d, label %%else%d\n", aux, counter, counter);
@@ -386,6 +389,7 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
         printf("\tbr i1 %s, label %%then%d, label %%ifcont%d\n", aux, counter, counter);
 
     printf("then%d:\n", counter);
+    //printf("======================== atoi: %d  aux: %s  aux[0]: %c\n", atoi(aux+1)+1, aux, aux[0]);
     nvar_now = llvm_statements_list(ifs->isl, symtab, aux[0] == '%' ? atoi(aux+1)+1 : nvar_now, counter + 1);
     printf("\tbr label %%ifcont%d\n", counter);
 
@@ -406,10 +410,10 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
 
 int llvm_else_statement(is_else_statement* ies,table_element**symtab, int nvar_now, int counter){
     if (ies == NULL) return nvar_now;
+
     nvar_now = llvm_statements_list(ies->isl, symtab, nvar_now, counter);
     return nvar_now;
 }
-
 
 
 void llvm_for_statement(is_for_statement* ifs, table_element**symtab){
@@ -651,7 +655,7 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
         else
             next = nvar_now;
 
-    
+
         printf("%%%d = icmp ", next);
         switch (type->oper_type.ct){
             case d_lt:
@@ -678,8 +682,8 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
         }
 
         llvm_print_type(iecl->expression_type);
-        ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
-        ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
+        ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf("%%%s, ", ltoken);
+        ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf("%%%s\n", rtoken);
         
         ret = (char *) malloc( ndigits(next) + 2 );
         sprintf(ret, "%%%d", next);
@@ -846,11 +850,12 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             return token;
         case d_id:
             token = (char * ) malloc( ndigits(nvar_now) + 2);
-
+            //printf("Final_expression\n");
             printf("\t%%%d = load ", nvar_now);
             llvm_print_type(ife->expr.u_id->id->type);
             printf(", ");
             llvm_print_type(ife->expr.u_id->id->type);
+
             search_var(*symtab, ife->expr.u_id->id->id)? printf("* %%%s\n", ife->expr.u_id->id->id) :  printf("* @%s\n", ife->expr.u_id->id->id);
 
             sprintf(token, "%%%d", nvar_now);
