@@ -323,5 +323,13 @@ typedef struct _t1 {
 } table_element;
 
 
+
+typedef struct _l1 {
+        char * var_id;
+        struct _l1 * next;
+} llvm_func_parameters;
+
+
+
 #endif
 
