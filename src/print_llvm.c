@@ -377,18 +377,16 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now)
     printf("\tbr i1 %%x, label %%then, label %%else\n");
 
     printf("then:\n");
-    nvar_now = llvm_statements_list(ifs->isl, symtab, atoi(token+1)+1);
+    nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now);
 
     printf("else\n");
     nvar_now = llvm_else_statement(ifs->ies, symtab, nvar_now);
-
     return nvar_now;
 }
 
 
 int llvm_else_statement(is_else_statement* ies,table_element**symtab, int nvar_now){
     if (ies == NULL) return nvar_now;
-
     nvar_now = llvm_statements_list(ies->isl, symtab, nvar_now);
     return nvar_now;
 }
@@ -419,7 +417,7 @@ int llvm_return_statement(is_return_statement* irs, table_element**symtab, int n
     llvm_print_type(irs->iel->expression_type);
     printf(" %s\n", token);
 
-    return atoi(token+1)+1;
+    return token[0] == '%'? atoi(token+1)+1:nvar_now;
 }
 
 
@@ -492,7 +490,7 @@ int llvm_assign_statement(is_assign_statement* ias, table_element**symtab, int n
 
     llvm_expr_store(token, res_token, symtab);
 
-    return atoi(res_token+1)+1;
+    return res_token[0] == '%'?atoi(res_token+1)+1:nvar_now;
 }
 
 
@@ -632,6 +630,8 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
         default:
             break;
         }
+
+        llvm_print_type(iecl->expression_type);
         ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
         ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
         
