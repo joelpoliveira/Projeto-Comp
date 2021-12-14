@@ -12,6 +12,7 @@ extern is_program* program;
 int global_counter = 0;
 int func_counter = 0;
 int string_counter = 0;
+int label_counter = 0;
 bool declare_print = 0, print_done = 0;
 
 // store b->type %a, b->type* %b
@@ -30,9 +31,11 @@ size_t ndigits(int number){
     return digits;
 }
 
+
 int _max(int a, int b){
     return (a>b)?a:b;
 }
+
 
 void llvm_store(id_token* a, id_token* b){
     printf("\tstore ");
@@ -224,7 +227,7 @@ void llvm_declarations_list(is_declarations_list* idl){
 
 void llvm_func_declaration(is_func_dec* ifd){
     func_counter = 0;
-    table_element* symbol;
+    label_counter = 1;
 
     printf("define ");
     llvm_print_type(ifd->type);
@@ -278,7 +281,7 @@ void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl){
                 llvm_var_declaration(current->val->body.ivd);
                 break;
             case d_statement:
-                llvm_statement(current->val->body.is);
+                llvm_statement(current->val->body.is, label_counter);
                 break;
         default:
             printf("Erro llvm_vars_and_statements_list");
@@ -306,14 +309,14 @@ void llvm_var_spec(is_var_spec* ivs){
 }
 
 
-void llvm_statement( is_statement* is){
+void llvm_statement(is_statement* is, int counter){
     //{d_if, d_for, d_return, d_print, d_assign, d_statement_list, d_final_statement
     switch (is->type_state){
         case d_if:
-            llvm_if_statement(is->statement.u_if_state);
+            llvm_if_statement(is->statement.u_if_state, counter);
             break;
         case d_for:
-            //llvm_for_statement(is->statement.u_for_state);
+            llvm_for_statement(is->statement.u_for_state);
             break;
         case d_return:
             llvm_return_statement(is->statement.u_return_state);
@@ -325,10 +328,10 @@ void llvm_statement( is_statement* is){
             llvm_assign_statement(is->statement.u_assign);
             break;
         case d_statement_list:
-            //llvm_statements_list(is->statement.isl);
+            llvm_statements_list(is->statement.isl, counter);
             break;
         case d_final_statement:
-            //llvm_final_statement(is->statement.u_state);
+            llvm_final_statement(is->statement.u_state);
             break;
         
         default:
@@ -338,25 +341,39 @@ void llvm_statement( is_statement* is){
 }
 
 
-void llvm_if_statement(is_if_statement* ifs){
+void llvm_if_statement(is_if_statement* ifs, int counter){
     if (ifs == NULL) return;
+    
+    char* aux;
 
-    //llvm_expression_or_list(ifs->iel);
-    // if x then else
-    printf("\tbr i1 %%x, label %%then, label %%else\n");
+    aux = llvm_expression_or_list(ifs->iel, NULL, func_counter);
 
-    printf("then:\n");
-    llvm_statements_list(ifs->isl);
+    if (ifs->ies != NULL)
+        printf("\tbr i1 %s, label %%then%d, label %%else%d\n", aux, counter, counter);
+    else
+        printf("\tbr i1 %s, label %%then%d, label %%ifcont%d\n", aux, counter, counter);
 
-    printf("else\n");
-    llvm_else_statement(ifs->ies);
+    printf("then%d:\n", counter);
+    llvm_statements_list(ifs->isl, counter + 1);
+    printf("\tbr label %%ifcont%d\n", counter);
+
+    if (ifs->ies != NULL){
+        printf("else%d:\n", counter);
+        llvm_else_statement(ifs->ies, counter + 1);
+        printf("\tbr label %%ifcont%d\n", counter);
+    }
+
+    printf("ifcont%d:\n", counter);
+    //printf("\t%%iftmp = phi i32 [ %%calltmp, %%then ], [ %%calltmp1, %%else ]\n");
+
+    label_counter+=counter;
 }
 
 
-void llvm_else_statement(is_else_statement* ies){
+void llvm_else_statement(is_else_statement* ies, int counter){
     if (ies == NULL) return;
 
-    //llvm_statements_list(ies->isl);
+    llvm_statements_list(ies->isl, counter);
 }
 
 
@@ -378,11 +395,10 @@ void llvm_for_statement(is_for_statement* ifs){
 
 
 void llvm_return_statement(is_return_statement* irs){
-    table_element* symbol;
     //return
     //symbol = search_symbol(program->symtab ,ifd->id->id);
     //llvm_load();
-    printf("\tret 0");
+    printf("\tret i32 0");
     // llvm_print_type(ifd->type);
     // if (ifd->type != d_none)
     //     printf(" %d", symbol->type);
@@ -417,7 +433,6 @@ void llvm_print_statement(is_print_statement* ips){
 
 
 int llvm_get_string_num(char* string){
-    table_element* aux;
     int num = 0;
 
     for (table_element* aux = program->strings_table; aux; aux = aux->next) {
@@ -437,14 +452,14 @@ void llvm_print(int num, char* string){
 
     int size = string_size(str->id->id);
 
-    printf("\t%%%d = call i32(i8*, ...) ", func_counter++); 
-    printf("@printf(i8* getelementptr inbounds");
+    printf("\tcall i32(i8*, ...) "); 
+    printf("@printf (i8* getelementptr inbounds");
     printf("([%d x i8], [%d x i8]* ", size, size);
     if (num == 0)
-        printf(" @.str)");
+        printf(" @.str, ");
     else
-        printf(" @.str.%d), ", num);
-    printf("i64 0, i64 0))\n");
+        printf(" @.str.%d, ", num);
+    printf("i32 0, i32 0))\n");
     
 }  
 
@@ -467,11 +482,11 @@ void llvm_assign_statement(is_assign_statement* ias){
 }
 
 
-void llvm_statements_list(is_statements_list* isl){
+void llvm_statements_list(is_statements_list* isl, int counter){
     if (isl == NULL) return;
     
     for (is_statements_list * current = isl; current; current = current->next){
-        llvm_statement(current->val);
+        llvm_statement(current->val, counter);
     }
 
 }
@@ -480,11 +495,33 @@ void llvm_statements_list(is_statements_list* isl){
 void llvm_final_statement(is_final_statement* ifs){
     if (ifs == NULL) return;
 
+     switch (ifs->type_state){
+        case d_function_invoc:
+            //print_anotation_type(ifs->statement.ifi->id);
+            //print_func_invocation(ifs->statement.ifi, depth +1);
+
+            break;
+        case d_arguments:
+            // print_dots(depth);
+            // printf("ParseArgs");
+            // print_anotation_type(ifs->statement.ipa->id);
+
+            // print_dots(depth+1);
+            // printf("Id(%s)", ifs->statement.ipa->id->id);
+            // print_anotation_type(ifs->statement.ipa->id);
+
+            // print_expression_or_list(ifs->statement.ipa->iel, depth+1);
+            break;
+        
+        default:
+            printf("Erro llvm_final_statement\n");
+            break;
+    }
     
 }
 
 
-char *  llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux, int nvar_now){
+char*  llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux, int nvar_now){
     if (ieol == NULL) return NULL;
     
     char * ltoken, * rtoken, *ret;
@@ -580,28 +617,27 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
 
 
         printf("%%%d = icmp ", next);
-        switch (type->oper_type.ct)
-        {
-        case d_lt:
-            (iecl->expression_type==d_integer)? printf("ult "):printf("slt ");
-            break;
-        case d_gt:
-            (iecl->expression_type==d_integer)? printf("ugt "):printf("sgt ");
-            break;
-        case d_ne:
-            printf("ne ");
-            break;
-        case d_eq:
-            printf("eq ");
-            break;
-        case d_le:
-            (iecl->expression_type==d_integer)? printf("ule "):printf("sle ");
-            break;
-        case d_ge:
-            (iecl->expression_type==d_integer)? printf("ugt "):printf("sgt ");
-            break;
-        default:
-            break;
+        switch (type->oper_type.ct){
+            case d_lt:
+                (iecl->expression_type==d_integer)? printf("ult "):printf("slt ");
+                break;
+            case d_gt:
+                (iecl->expression_type==d_integer)? printf("ugt "):printf("sgt ");
+                break;
+            case d_ne:
+                printf("ne ");
+                break;
+            case d_eq:
+                printf("eq i1");
+                break;
+            case d_le:
+                (iecl->expression_type==d_integer)? printf("ule "):printf("sle ");
+                break;
+            case d_ge:
+                (iecl->expression_type==d_integer)? printf("ugt "):printf("sgt ");
+                break;
+            default:
+                break;
         }
         ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
         ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
@@ -636,22 +672,21 @@ char * llvm_expression_sum_like_list(is_expression_sum_like_list * iesl, id_toke
             next = atoi(rtoken+1)+1;
         else
             next = nvar_now;
-        switch (type->oper_type.slt)
-        {
-        case d_plus:
-            (current->expression_type == d_integer)? printf("%%%d = add ", next): printf("%%%d = fadd ", next);
-            llvm_print_type(current->expression_type);
-            ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
-            ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
-            break;
-        case d_minus:
-            (current->expression_type == d_integer)? printf("%%%d = sub ", next): printf("%%%d = fsub ", next);
-            llvm_print_type(current->expression_type);
-            ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
-            ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
-            break;
-        default:
-            break;
+        switch (type->oper_type.slt){
+            case d_plus:
+                (current->expression_type == d_integer)? printf("%%%d = add ", next): printf("%%%d = fadd ", next);
+                llvm_print_type(current->expression_type);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
+                ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
+                break;
+            case d_minus:
+                (current->expression_type == d_integer)? printf("%%%d = sub ", next): printf("%%%d = fsub ", next);
+                llvm_print_type(current->expression_type);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
+                ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
+                break;
+            default:
+                break;
         }
 
         ret = (char *) malloc( ndigits(next) + 2 );
@@ -688,28 +723,27 @@ char * llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_t
         else
             next = nvar_now;
 
-        switch (type->oper_type.stlt)
-        {
-        case d_star:
-            (current->expression_type==d_integer)? printf("%%%d = mul ", next): printf("%%%d = fmul", next);
-            llvm_print_type(current->expression_type);
-            ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
-            ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
-            break;
-        case d_div:
-            (current->expression_type==d_integer)? printf("%%%d = sdiv ", next) : printf("%%%d = fdiv ", next);
-            llvm_print_type(current->expression_type);
-            ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
-            ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
-            break;
-        case d_mod:
-            printf("%%%d = srem ", next);
-            llvm_print_type(current->expression_type);
-            ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
-            ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
-            break;
-        default:
-            break;
+        switch (type->oper_type.stlt){
+            case d_star:
+                (current->expression_type==d_integer)? printf("%%%d = mul ", next): printf("%%%d = fmul", next);
+                llvm_print_type(current->expression_type);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
+                ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
+                break;
+            case d_div:
+                (current->expression_type==d_integer)? printf("%%%d = sdiv ", next) : printf("%%%d = fdiv ", next);
+                llvm_print_type(current->expression_type);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
+                ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
+                break;
+            case d_mod:
+                printf("%%%d = srem ", next);
+                llvm_print_type(current->expression_type);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
+                ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
+                break;
+            default:
+                break;
         }
 
         ret = (char *) malloc( ndigits(next) + 2 );
@@ -734,18 +768,17 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
 
         int next = (ltoken[0]=='%') ? atoi(ltoken+1)+1 : nvar_now;
 
-        switch (type->oper_type.sot)
-        {
-        case d_self_not:
+        switch (type->oper_type.sot){
+            case d_self_not:
 
-            break;
-        case d_self_plus:
-            break;
-        case d_self_minus:
-            printf("%%%d = mul ", next);
-            llvm_print_type(current->expression_type);
-            ( is_digit(ltoken[0]) ) ? printf(" %s, -1\n", ltoken) : printf(" %%%s, -1\n", ltoken);
-            break;
+                break;
+            case d_self_plus:
+                break;
+            case d_self_minus:
+                printf("%%%d = mul ", next);
+                llvm_print_type(current->expression_type);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, -1\n", ltoken) : printf(" %%%s, -1\n", ltoken);
+                break;
         }
         
         ret = (char *) malloc( ndigits(next) + 2 );
