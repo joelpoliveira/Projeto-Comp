@@ -34,6 +34,36 @@ int _max(int a, int b){
     return (a>b)?a:b;
 }
 
+llvm_func_parameters* append_param(llvm_func_parameters * head, char * string){
+    llvm_func_parameters*new = malloc(sizeof(llvm_func_parameters));
+    new->var_id = string;
+    new->next=NULL;
+
+    if (head == NULL)
+        return new;
+    for (;head->next; head = head->next);
+    head->next = new;
+    return head;
+}
+
+void free_param_list(llvm_func_parameters * head){
+    llvm_func_parameters * aux;
+    for (aux = head->next; aux; aux = aux->next){
+        free(head);
+        head = aux;
+    }
+}
+
+int get_next_var(llvm_func_parameters * head, int nvar_now){
+    int next = -1;
+    for (llvm_func_parameters * aux = head; aux; aux = aux->next){
+        if (aux->var_id[0] == '%'){
+            next = atoi(aux->var_id+1);
+        }
+    }
+    return next==-1?nvar_now:next+1;
+}
+
 void llvm_store(id_token* a, id_token* b){
     printf("\tstore ");
     llvm_print_type(a->type);
@@ -784,11 +814,32 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             sprintf(token, "%%%d", nvar_now);
             return token;
         case d_func_inv:
-            //token = (char * ) malloc(sizeof(  6 + strlen(ife->expr.u_id->id->id) + 1) );
-            //fprintf(token, "%s", ife->expr.u_id->id->id);
-            //return token;
+            token = (char * ) malloc(ndigits(nvar_now) + 2);
+
+            llvm_func_parameters * aux = NULL, *aux2;
+            for ( is_func_inv_expr_list * param = ife->expr.ifi->iel; param; param = param->next)
+                aux = append_param(aux, llvm_expression_or_list(param->val, NULL, nvar_now));
+            
+            int next = get_next_var(aux, nvar_now);
+            printf("\t%%%d = call ", next);
+            llvm_print_type(ife->expr.ifi->id->type);
+            printf("@%s(", ife->expr.ifi->id->id);
+
+            aux2 = aux;
+            for (is_func_inv_expr_list * param = ife->expr.ifi->iel ; param ; param = param->next, aux2 = aux2->next){
+                llvm_print_type(param->val->expression_type);
+                printf(" %s", aux2->var_id);
+                if(param->next!=NULL) printf(", ");
+            }
+            printf(")\n");
+
+            free_param_list(aux);
+
+            sprintf(token, "%%%d", next);
+            return token;
+
         case d_expr_final:
-            return llvm_expression_or_list(ife->expr.ieol, aux, nvar_now);
+            return llvm_expression_or_list(ife->expr.ieol, NULL, nvar_now);
             break;
         default:
             printf("Erro llvm_final_expression\n");
