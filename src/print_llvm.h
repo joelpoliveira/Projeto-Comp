@@ -20,7 +20,7 @@ void llvm_is_parameter(is_parameter * ip);
 int llvm_statement( is_statement* is,table_element**, int, int counter);
 int llvm_if_statement(is_if_statement* ifs,table_element**, int, int counter);
 int llvm_else_statement(is_else_statement* ies,table_element**, int, int counter);
-int llvm_for_statement(is_for_statement* ifs,table_element**, int);
+int llvm_for_statement(is_for_statement* ifs,table_element**, int, int counter);
 int llvm_return_statement(is_return_statement* irs,table_element**, int);
 int llvm_print_statement(is_print_statement* ips,table_element**, int);
 int llvm_assign_statement(is_assign_statement* ias,table_element**, int);
