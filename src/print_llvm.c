@@ -490,43 +490,17 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
             switch (ips->print.iel->expression_type){
                 case d_integer:
                     type = "\"%d\"";
-                    tmp = search_symbol(program->strings_table, type);
-                    if (tmp != NULL){
-                        num = llvm_get_string_num(tmp->id->id);
-                        if (num != -1)
-                            llvm_print(num, type, token);
-                        else
-                            printf("Nao existe!\n");
-                    } else 
-                        printf("ERRO search\n");
-
+                    llvm_print(type, token);
                     break;
 
                 case d_float32:
                     type = "\"%f\"";
-                    tmp = search_symbol(program->strings_table, type);
-                    if (tmp != NULL){
-                        num = llvm_get_string_num(tmp->id->id);
-                        if (num != -1)
-                            llvm_print(num, type, token);
-                        else
-                            printf("Nao existe!\n");
-                    } else 
-                        printf("ERRO search\n");
-
+                    llvm_print(type, token);
                     break;
 
                 case d_string:
                     type = "\"%s\"";
-                    tmp = search_symbol(program->strings_table, type);
-                    if (tmp != NULL){
-                        num = llvm_get_string_num(tmp->id->id);
-                        if (num != -1)
-                            llvm_print(num, type, token);
-                        else
-                            printf("Nao existe!\n");
-                    } else 
-                        printf("ERRO search\n");
+                    llvm_print(type, token);
                     break;
 
                  case d_bool:
@@ -540,11 +514,7 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
 
             break;
         case d_str:
-            num = llvm_get_string_num(ips->print.id->id);
-            if (num != -1)
-                llvm_print(num, ips->print.id->id, NULL);
-            else
-                printf("Nao existe\n");
+            llvm_print(ips->print.id->id, NULL);
             break;
         default:
             printf("Erro llvm_print_statement\n");
@@ -568,9 +538,11 @@ int llvm_get_string_num(char* string){
 }
 
 
-void llvm_print(int num, char* string, char* params){
+void llvm_print(char* string, char* params){
     table_element *str = search_symbol(program->strings_table, string);
     if(str == NULL) return;
+
+    int num = llvm_get_string_num(str->id->id);
 
     int size = string_size(str->id->id);
 
