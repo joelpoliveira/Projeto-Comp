@@ -86,7 +86,7 @@ void llvm_store(id_token* a, id_token* b){
 
 void llvm_expr_store(id_token* a, char* b, table_element ** symtab){
     table_element * temp;
-    char * new_id;
+    //char * new_id;
 
     if (is_digit(a->id[0])){
         printf("\tstore ");
@@ -494,6 +494,8 @@ int llvm_for_statement(is_for_statement* ifs, table_element**symtab, int nvar_no
 
     printf("endloop%d:\n", counter);
 
+    label_counter += counter;
+
     return nvar_now;
 }
 
@@ -518,10 +520,10 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
     if (ips == NULL) return nvar_now;
 
     declare_print = 1;
-    int num;
+    //int num;
     char * token = "";
     char* type;
-    table_element *tmp;
+    //table_element *tmp;
 
     //print_type type = ips->type_print; // {d_expression, d_str}
 
