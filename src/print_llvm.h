@@ -25,7 +25,7 @@ int llvm_return_statement(is_return_statement* irs,table_element**, int);
 int llvm_print_statement(is_print_statement* ips,table_element**, int);
 int llvm_assign_statement(is_assign_statement* ias,table_element**, int);
 int llvm_statements_list(is_statements_list* isl,table_element**, int, int counter);
-void llvm_final_statement(is_final_statement* ifs,table_element**);
+int llvm_final_statement(is_final_statement* ifs,table_element**, int);
 char * llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux, int,table_element**);
 char * llvm_expression_and_list(is_expression_and_list* ieal, id_token* aux, int,table_element**);
 char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, int,table_element**);

@@ -79,7 +79,7 @@ void llvm_expr_store(id_token* a, char* b, table_element ** symtab){
     llvm_print_type(a->type);
     ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
     llvm_print_type(a->type);
-    ( is_digit(a->id[0]) )? printf("* %s\n", a->id) : ( search_var(*symtab, a->id) ? printf("* %%%s\n", a->id) : printf("* @%s", a->id) );
+    ( is_digit(a->id[0]) )? printf("* %s\n", a->id) : ( search_var(*symtab, a->id) ? printf("* %%%s\n", a->id) : printf("* @%s\n", a->id) );
 }
 
 // %<num> = load a->type, a->type* %a
@@ -362,7 +362,7 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
             next = llvm_statements_list(is->statement.isl, symtab, nvar_now, counter);
             break;
         case d_final_statement:
-            llvm_final_statement(is->statement.u_state, symtab);
+            next = llvm_final_statement(is->statement.u_state, symtab, nvar_now);
             break;
         
         default:
@@ -373,20 +373,18 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
 }
 
 
-int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now, int counter){
-    //if (ifs == NULL) return;
-    
-    char* aux;
+int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now, int counter){    
+    char* token;
 
-    aux = llvm_expression_or_list(ifs->iel, NULL, func_counter, symtab);
+    token = llvm_expression_or_list(ifs->iel, NULL, nvar_now, symtab);
 
     if (ifs->ies != NULL)
-        printf("\tbr i1 %s, label %%then%d, label %%else%d\n", aux, counter, counter);
+        printf("\tbr i1 %s, label %%then%d, label %%else%d\n", token, counter, counter);
     else
-        printf("\tbr i1 %s, label %%then%d, label %%ifcont%d\n", aux, counter, counter);
+        printf("\tbr i1 %s, label %%then%d, label %%ifcont%d\n", token, counter, counter);
 
     printf("then%d:\n", counter);
-    nvar_now = llvm_statements_list(ifs->isl, symtab, aux[0] == '%' ? atoi(aux+1)+1 : nvar_now, counter + 1);
+    nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now, counter + 1);
     printf("\tbr label %%ifcont%d\n", counter);
 
     if (ifs->ies != NULL){
@@ -405,8 +403,8 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
 
 
 int llvm_else_statement(is_else_statement* ies,table_element**symtab, int nvar_now, int counter){
-    if (ies == NULL) return nvar_now;
     nvar_now = llvm_statements_list(ies->isl, symtab, nvar_now, counter);
+
     return nvar_now;
 }
 
@@ -528,8 +526,8 @@ int llvm_statements_list(is_statements_list* isl, table_element**symtab, int nva
 }
 
 
-void llvm_final_statement(is_final_statement* ifs, table_element**symtab){
-    if (ifs == NULL) return;
+int llvm_final_statement(is_final_statement* ifs, table_element**symtab, int nvar_now){
+    if (ifs == NULL) return nvar_now;
 
      switch (ifs->type_state){
         case d_function_invoc:
@@ -553,7 +551,7 @@ void llvm_final_statement(is_final_statement* ifs, table_element**symtab){
             printf("Erro llvm_final_statement\n");
             break;
     }
-    
+    return nvar_now;
 }
 
 
@@ -834,6 +832,7 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
     if (ife == NULL) return NULL;
     //{d_intlit, d_reallit, d_id, d_func_inv, d_expr_final} 
     char * token;
+    
 
     switch (ife->type_final_expression){
         case d_intlit:
@@ -846,12 +845,27 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             return token;
         case d_id:
             token = (char * ) malloc( ndigits(nvar_now) + 2);
+            table_element * temp_var = search_var(*symtab, ife->expr.u_id->id->id);
 
-            printf("\t%%%d = load ", nvar_now);
-            llvm_print_type(ife->expr.u_id->id->type);
-            printf(", ");
-            llvm_print_type(ife->expr.u_id->id->type);
-            search_var(*symtab, ife->expr.u_id->id->id)? printf("* %%%s\n", ife->expr.u_id->id->id) :  printf("* @%s\n", ife->expr.u_id->id->id);
+            if (temp_var == NULL){
+                printf("\t%%%d = load ", nvar_now);
+                llvm_print_type(ife->expr.u_id->id->type);
+                printf(", ");
+                llvm_print_type(ife->expr.u_id->id->type);
+                printf("* @%s\n", ife->expr.u_id->id->id);
+            }else{
+                if (temp_var->is_param){
+                    printf("\t%%%d = add ", nvar_now);
+                    llvm_print_type(ife->expr.u_id->id->type);
+                    printf(" %%%s, 0\n", ife->expr.u_id->id->id);
+                }else{
+                    printf("\t%%%d = load ", nvar_now);
+                    llvm_print_type(ife->expr.u_id->id->type);
+                    printf(", ");
+                    llvm_print_type(ife->expr.u_id->id->type);
+                    printf("* %%%s\n", ife->expr.u_id->id->id);
+                }
+            }
 
             sprintf(token, "%%%d", nvar_now);
             return token;
