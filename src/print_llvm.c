@@ -7,12 +7,12 @@
 #include <math.h>
 #include <stdbool.h>
 
-// TODO parece que o load só é preciso se for uma variável local. Operaçoes com argumentos da função não é preciso dar load
-// TODO return void nas funções que não têm um return
-// TODO return 0 no main quando não tem um return definido
+// // TODO parece que o load só é preciso se for uma variável local. Operaçoes com argumentos da função não é preciso dar load
+// // TODO return void nas funções que não têm um return
+// // TODO return 0 no main quando não tem um return definido
 // TODO Functions calls (invocation)
-// TODO For Loops
-// TODO Prints com parametros -> printf("%d", abc);
+// // TODO For Loops
+// // TODO Prints com parametros -> printf("%d", abc);
 
 extern is_program* program;
 int global_counter = 0;
@@ -335,7 +335,13 @@ void llvm_func_declaration(is_func_dec* ifd){
     func_counter++;
     llvm_function_body(ifd->ifb, &ifd->symtab);
 
-    printf("\n}\n\n");
+    table_element* tmp = search_symbol(ifd->symtab, "return");
+    //printf("=========== %d\n", tmp->type);
+    if (tmp->type == d_none){
+        printf("\tret void\n");
+    }
+
+    printf("}\n\n");
 
     if (declare_print && !print_done) {
         print_done = 1;
@@ -346,6 +352,7 @@ void llvm_func_declaration(is_func_dec* ifd){
         atoi_done = 1;
         printf("declare i32 @atoi(i8*, ...)\n\n");
     }
+
 }
 
 
@@ -494,7 +501,7 @@ int llvm_for_statement(is_for_statement* ifs, table_element**symtab, int nvar_no
 int llvm_return_statement(is_return_statement* irs, table_element**symtab, int nvar_now){
 
     if (irs->iel == NULL){
-        printf("\tret void");
+        //printf("\tret void");
         return nvar_now;
     }
 
