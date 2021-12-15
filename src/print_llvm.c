@@ -411,7 +411,7 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
             next = llvm_if_statement(is->statement.u_if_state, symtab, nvar_now, counter);
             break;
         case d_for:
-            llvm_for_statement(is->statement.u_for_state, symtab);
+            next = llvm_for_statement(is->statement.u_for_state, symtab, nvar_now, counter);
             break;
         case d_return:
             next = llvm_return_statement(is->statement.u_return_state, symtab, nvar_now);
@@ -460,7 +460,7 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
     printf("ifcont%d:\n", counter);
     //printf("\t%%iftmp = phi i32 [ %%calltmp, %%then ], [ %%calltmp1, %%else ]\n");
 
-    label_counter+=counter;
+    label_counter += counter;
 
     return nvar_now;
 }
@@ -473,20 +473,21 @@ int llvm_else_statement(is_else_statement* ies,table_element**symtab, int nvar_n
 }
 
 
-void llvm_for_statement(is_for_statement* ifs, table_element**symtab){
-   
-    // id_token * llvm_expression_or_list(ifs->iel);
-    // bool error_ocurred = llvm_or_err(ifs->iel);
+int llvm_for_statement(is_for_statement* ifs, table_element**symtab, int nvar_now, int counter){
+    printf("\tbr label %%startloop%d\n", counter);
+    printf("startloop%d:\n", counter);    
 
-    // if (ifs->iel != NULL) {
-    //     if (ifs->iel->expression_type != d_bool && !error_ocurred){
-    //         printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col + 1);
-    //         symbol_print_type(ifs->iel->expression_type);
-    //         printf(" in for statement\n");
-    //     }
-    // }
-    
-    // llvm_statements_list(ifs->isl);
+    char* token = llvm_expression_or_list(ifs->iel, NULL, nvar_now, symtab);
+    printf("\tbr i1 %s, label %%loop%d, label %%endloop%d\n", token, counter, counter);
+
+    printf("loop%d:\n", counter);
+
+    nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now, counter+1);
+    printf("\tbr label %%startloop%d\n", counter);
+
+    printf("endloop%d:\n", counter);
+
+    return nvar_now;
 }
 
 
@@ -548,7 +549,7 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
 
             break;
         case d_str:
-            llvm_print(ips->print.id->id, NULL, nvar_now);
+            llvm_print(ips->print.id->id, "", nvar_now);
             break;
         default:
             printf("Erro llvm_print_statement\n");
