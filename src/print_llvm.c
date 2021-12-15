@@ -202,14 +202,14 @@ void llvm_program(is_program* ip){
 
     //inserir strings para dar print a variáveis
     table_element* string = (table_element*) malloc(sizeof(table_element));
-    id_token* aux = create_token("\"%d\"", 0, 0);
+    id_token* aux = create_token("\"%d\\n\"", 0, 0);
     string->id = aux;
     string->is_string = 1;
     string->type_dec = d_var_declaration;
     insert_symbol(&program->strings_table, string);
 
     string = (table_element*) malloc (sizeof(table_element));
-    aux = create_token("\"%f\"", 0, 0);
+    aux = create_token("\"%f\\n\"", 0, 0);
     string->id = aux;
     insert_symbol(&program->strings_table, string);
 
@@ -411,7 +411,7 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
             next = llvm_if_statement(is->statement.u_if_state, symtab, nvar_now, counter);
             break;
         case d_for:
-            llvm_for_statement(is->statement.u_for_state, symtab);
+            llvm_for_statement(is->statement.u_for_state, symtab, nvar_now);
             break;
         case d_return:
             next = llvm_return_statement(is->statement.u_return_state, symtab, nvar_now);
@@ -473,7 +473,7 @@ int llvm_else_statement(is_else_statement* ies,table_element**symtab, int nvar_n
 }
 
 
-void llvm_for_statement(is_for_statement* ifs, table_element**symtab){
+int llvm_for_statement(is_for_statement* ifs, table_element**symtab, int nvar_now){
    
     // id_token * llvm_expression_or_list(ifs->iel);
     // bool error_ocurred = llvm_or_err(ifs->iel);
@@ -523,12 +523,12 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
             
             switch (ips->print.iel->expression_type){
                 case d_integer:
-                    type = "\"%d\"";
+                    type = "\"%d\\n\"";
                     nvar_now = llvm_print(type, token, nvar_now);
                     break;
 
                 case d_float32:
-                    type = "\"%f\"";
+                    type = "\"%f\\n\"";
                     nvar_now = llvm_print(type, token, nvar_now);
                     break;
 
@@ -574,7 +574,7 @@ int llvm_get_string_num(char* string){
 
 int llvm_print(char* string, char* params, int nvar_now){
     table_element *str = search_symbol(program->strings_table, string);
-    if(str == NULL) return nvar_now;
+    if(str == NULL) return params[0]=='%'? atoi(params+1)+1:nvar_now;
     int num = llvm_get_string_num(str->id->id);
 
     int size = string_size(str->id->id);
@@ -589,7 +589,7 @@ int llvm_print(char* string, char* params, int nvar_now){
         printf(" @.str.%d, ", num);
     printf("i32 0, i32 0)");
 
-    if (params != NULL){
+    if ( strcmp(params, "") ){
         printf(", ");
         //type
         printf("i32 ");
@@ -751,7 +751,7 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
         printf("%%%d = icmp ", next);
         switch (type->oper_type.ct){
             case d_lt:
-                (iecl->expression_type==d_integer) ? printf("ult ") : printf("slt ");
+                (iecl->next_left==d_integer) ? printf("ult ") : printf("slt ");
                 break;
             case d_gt:
                 (iecl->expression_type==d_integer) ? printf("ugt ") : printf("sgt ");
@@ -763,10 +763,10 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
                 printf("eq ");
                 break;
             case d_le:
-                (iecl->expression_type==d_integer) ? printf("ule ") : printf("sle ");
+                (iecl->next_left->expression_type==d_integer) ? printf("ule ") : printf("sle ");
                 break;
             case d_ge:
-                (iecl->expression_type==d_integer) ? printf("ugt ") : printf("sgt ");
+                (iecl->next_left->expression_type==d_integer) ? printf("ugt ") : printf("sgt ");
                 break;
             default:
                 printf("Erro llvm_expression_comp_list\n");

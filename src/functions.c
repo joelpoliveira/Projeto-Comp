@@ -237,7 +237,19 @@ is_statement * insert_print_str_statement(id_token* id){
     is_print_statement * ips = (is_print_statement *) malloc(sizeof(is_print_statement));
 
     ips->type_print = d_str;
+
+    char * new_str = (char*) malloc(strlen(id->id)+3);
+    sprintf(new_str, "%s", id->id);
+
+    new_str[strlen(id->id) - 1] = '\\';
+    new_str[strlen(id->id)] = 'n';
+    new_str[strlen(id->id) + 1] = '"';
+    new_str[strlen(id->id) + 2] = '\0';
+
+    free(id->id);
+    id->id=new_str;
     ips->print.id = id;
+
 
     is->type_state = d_print;
     is->statement.u_print_state = ips;
