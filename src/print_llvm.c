@@ -674,7 +674,7 @@ char *  llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux, int 
             next = nvar_now;
 
         printf("%%%d = or ", next);
-        llvm_print_type(ieol->expression_type);
+        llvm_print_type(ieol->next_left->expression_type);
         ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
         ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
         
@@ -711,7 +711,7 @@ char * llvm_expression_and_list(is_expression_and_list* ieal, id_token* aux, int
             next = nvar_now;
 
         printf("%%%d = and ", next);
-        llvm_print_type(current->expression_type);
+        llvm_print_type(current->next_left->expression_type);
         ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
         ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
         
@@ -774,7 +774,7 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
                 break;
         }
 
-        llvm_print_type(iecl->expression_type);
+        llvm_print_type(iecl->next_left->expression_type);
         ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf("%%%s, ", ltoken);
         ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf("%%%s\n", rtoken);
         
@@ -811,13 +811,13 @@ char * llvm_expression_sum_like_list(is_expression_sum_like_list * iesl, id_toke
         switch (type->oper_type.slt){
             case d_plus:
                 (current->expression_type == d_integer)? printf("%%%d = add ", next): printf("%%%d = fadd ", next);
-                llvm_print_type(current->expression_type);
+                llvm_print_type(current->next_left->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
                 ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
                 break;
             case d_minus:
                 (current->expression_type == d_integer)? printf("%%%d = sub ", next): printf("%%%d = fsub ", next);
-                llvm_print_type(current->expression_type);
+                llvm_print_type(current->next_left->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
                 ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
                 break;
@@ -862,19 +862,19 @@ char * llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_t
         switch (type->oper_type.stlt){
             case d_star:
                 (current->expression_type==d_integer)? printf("%%%d = mul ", next): printf("%%%d = fmul", next);
-                llvm_print_type(current->expression_type);
+                llvm_print_type(current->next_left->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
                 ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
                 break;
             case d_div:
                 (current->expression_type==d_integer)? printf("%%%d = sdiv ", next) : printf("%%%d = fdiv ", next);
-                llvm_print_type(current->expression_type);
+                llvm_print_type(current->next_left->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
                 ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
                 break;
             case d_mod:
                 printf("%%%d = srem ", next);
-                llvm_print_type(current->expression_type);
+                llvm_print_type(current->next_left->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
                 ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
                 break;
@@ -913,7 +913,7 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
                 break;
             case d_self_minus:
                 printf("%%%d = mul ", next);
-                llvm_print_type(current->expression_type);
+                llvm_print_type(current->next_same->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, -1\n", ltoken) : printf(" %%%s, -1\n", ltoken);
                 break;
         }
