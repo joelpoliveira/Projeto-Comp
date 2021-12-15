@@ -525,17 +525,17 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
             switch (ips->print.iel->expression_type){
                 case d_integer:
                     type = "\"%d\"";
-                    llvm_print(type, token, nvar_now);
+                    nvar_now = llvm_print(type, token, nvar_now);
                     break;
 
                 case d_float32:
                     type = "\"%f\"";
-                    llvm_print(type, token, nvar_now);
+                    nvar_now = llvm_print(type, token, nvar_now);
                     break;
 
                 case d_string:
                     type = "\"%s\"";
-                    llvm_print(type, token, nvar_now);
+                    nvar_now = llvm_print(type, token, nvar_now);
                     break;
 
                  case d_bool:
@@ -549,13 +549,13 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
 
             break;
         case d_str:
-            llvm_print(ips->print.id->id, "", nvar_now);
+            nvar_now = llvm_print(ips->print.id->id, "", nvar_now);
             break;
         default:
             printf("Erro llvm_print_statement\n");
             break;
     }
-    return (token[0] == '%') ? atoi(token+1) + 1 : nvar_now;
+    return nvar_now;
 }
 
 
@@ -576,12 +576,11 @@ int llvm_get_string_num(char* string){
 int llvm_print(char* string, char* params, int nvar_now){
     table_element *str = search_symbol(program->strings_table, string);
     if(str == NULL) return nvar_now;
-
     int num = llvm_get_string_num(str->id->id);
 
     int size = string_size(str->id->id);
 
-    params[0]=='%'? printf("\t%s", params) : printf("\t%%%d", nvar_now);
+    params[0]=='%'? printf("\t%%%d", atoi(params+1)+1) : printf("\t%%%d", nvar_now);
     printf(" = call i32(i8*, ...) "); 
     printf("@printf (i8* getelementptr inbounds");
     printf("([%d x i8], [%d x i8]* ", size, size);
@@ -600,7 +599,7 @@ int llvm_print(char* string, char* params, int nvar_now){
 
     printf(")\n");
 
-    return params[0]=='%'? atoi(params+1)+1: nvar_now +1 ;
+    return params[0]=='%'? atoi(params+1)+2: nvar_now + 1;
 }  
   
 
