@@ -7,12 +7,9 @@
 #include <math.h>
 #include <stdbool.h>
 
-// // TODO parece que o load só é preciso se for uma variável local. Operaçoes com argumentos da função não é preciso dar load
-// // TODO return void nas funções que não têm um return
-// // TODO return 0 no main quando não tem um return definido
+
 // TODO Functions calls (invocation)
-// // TODO For Loops
-// // TODO Prints com parametros -> printf("%d", abc);
+
 
 extern is_program* program;
 int global_counter = 0;
@@ -21,6 +18,7 @@ int string_counter = 0;
 int label_counter = 0;
 bool declare_print = 0, print_done = 0;
 bool declare_atoi = 0, atoi_done = 0;
+bool return_in_statement = 0;
 
 
 void llvm_atoi(){
@@ -59,6 +57,8 @@ llvm_func_parameters* append_param(llvm_func_parameters * head, char * string){
 }
 
 void free_param_list(llvm_func_parameters * head){
+    if (head == NULL) return;
+
     llvm_func_parameters * aux;
     for (aux = head->next; aux; aux = aux->next){
         free(head);
@@ -68,12 +68,14 @@ void free_param_list(llvm_func_parameters * head){
 
 int get_next_var(llvm_func_parameters * head, int nvar_now){
     int next = -1;
+
     for (llvm_func_parameters * aux = head; aux; aux = aux->next){
         if (aux->var_id[0] == '%'){
             next = atoi(aux->var_id+1);
         }
     }
-    return next==-1?nvar_now:next+1;
+
+    return next == -1 ? nvar_now : next + 1;
 }
 
 void llvm_store(id_token* a, id_token* b){
@@ -97,9 +99,8 @@ void llvm_expr_store(id_token* a, char* b, table_element ** symtab){
         printf("* %s\n", a->id);
     }
     else{
-        if ( (temp=search_var(*symtab, a->id)) ){
+        if ((temp=search_var(*symtab, a->id))){
             if (temp->is_param){
-                
                 
                 printf("\t%%%s%d = add ", a->id, ++temp->llvm_count);
                 llvm_print_type(a->type);
@@ -129,38 +130,6 @@ void llvm_expr_store(id_token* a, char* b, table_element ** symtab){
         }
     }
 }
-
-// %<num> = load a->type, a->type* %a
-void llvm_load(id_token* a){
-    printf("\t%%%d = load ", func_counter++);
-    llvm_print_type(a->type);
-    printf(", ");
-    llvm_print_type(a->type);
-    printf("* %%%s\n", a->id);
-}
-
-
-// %<num> = add a->type, %a, %b
-void llvm_add(id_token* a, id_token* b){
-    printf("\t%%%d = add ", func_counter++);
-    llvm_print_type(a->type);
-    printf(" %%%s, %%%s\n", b->id, a->id);
-}
-
-
-void llvm_mul(id_token* a){
-    printf("\t%%%d = mul ", func_counter++);
-    llvm_print_type(a->type);
-    printf(" %%%d, %s\n", func_counter - 2, a->id);
-}
-
-
-void llvm_div(id_token* a){
-    printf("\t%%%d = div ", func_counter++);
-    llvm_print_type(a->type);
-    printf(" %%%d, %s\n", func_counter - 2, a->id);
-}
-
 
 
 void llvm_print_type(parameter_type type){
@@ -195,7 +164,10 @@ void llvm_program(is_program* ip){
         if (current->type_dec == d_var_declaration){
             printf("@%s = global ", current->id->id);
             llvm_print_type(current->type);
-            printf(" 0");
+            if (current->type == d_float32)
+                printf(" 0.0");
+            else
+                printf(" 0");
             printf("\n");   
         }
     }
@@ -403,6 +375,7 @@ void llvm_var_spec(is_var_spec* ivs){
 
     for (is_id_list* current = ivs->iil; current; current = current->next){
         printf("\t%%%s = alloca ", current->val->id);
+        //printf("\nTYPE = %d\n", current->val->type);
         llvm_print_type(current->val->type);
         printf("\n");
     }
@@ -456,7 +429,9 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
 
     printf("then%d:\n", counter);
     nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now, counter + 1);
-    printf("\tbr label %%ifcont%d\n", counter);
+
+    if (!return_in_statement)
+        printf("\tbr label %%ifcont%d\n", counter);
 
     if (ifs->ies != NULL){
         printf("else%d:\n", counter);
@@ -468,6 +443,7 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
     //printf("\t%%iftmp = phi i32 [ %%calltmp, %%then ], [ %%calltmp1, %%else ]\n");
 
     label_counter += counter;
+    return_in_statement = 0;
 
     return nvar_now;
 }
@@ -511,6 +487,8 @@ int llvm_return_statement(is_return_statement* irs, table_element**symtab, int n
     printf("\tret ");
     llvm_print_type(irs->iel->expression_type);
     printf(" %s\n", token);
+
+    return_in_statement = 1;
 
     return token[0] == '%'? atoi(token+1)+1 : nvar_now;
 }
@@ -619,6 +597,7 @@ int llvm_assign_statement(is_assign_statement* ias, table_element**symtab, int n
     char * res_token;
     res_token = llvm_expression_or_list(ias->iel, ias->id, nvar_now, symtab);
 
+    //printf("TOKEN = %s\n", token->id);
     llvm_expr_store(token, res_token, symtab);
 
     return res_token[0] == '%' ? atoi(res_token+1)+1 : nvar_now;
@@ -961,7 +940,7 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             table_element * temp_var = search_var(*symtab, ife->expr.u_id->id->id);
 
             if (temp_var == NULL){
-                printf("\t%%%d = load ", nvar_now);
+                //printf("\t%%%d = load ", nvar_now);
                 llvm_print_type(ife->expr.u_id->id->type);
                 printf(", ");
                 llvm_print_type(ife->expr.u_id->id->type);
@@ -969,6 +948,7 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             }else{
                 if (temp_var->is_param){
                     printf("\t%%%d = add ", nvar_now);
+                    //printf("ife: %d    aux: %d\n", ife->expr.u_id->id->type, aux->type);
                     llvm_print_type(ife->expr.u_id->id->type);
                     if (temp_var->llvm_count == 0)
                         printf(" %%%s, 0\n", ife->expr.u_id->id->id);
@@ -976,6 +956,7 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
                         printf(" %%%s%d, 0\n", ife->expr.u_id->id->id, temp_var->llvm_count);
                 }else{
                     printf("\t%%%d = load ", nvar_now);
+                    //printf("\nife: %d    aux: %d\n", ife->expr.u_id->id->type, aux->type);
                     llvm_print_type(ife->expr.u_id->id->type);
                     printf(", ");
                     llvm_print_type(ife->expr.u_id->id->type);
