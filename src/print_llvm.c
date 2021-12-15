@@ -75,11 +75,49 @@ void llvm_store(id_token* a, id_token* b){
 }
 
 void llvm_expr_store(id_token* a, char* b, table_element ** symtab){
-    printf("\tstore ");
-    llvm_print_type(a->type);
-    ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
-    llvm_print_type(a->type);
-    ( is_digit(a->id[0]) )? printf("* %s\n", a->id) : ( search_var(*symtab, a->id) ? printf("* %%%s\n", a->id) : printf("* @%s\n", a->id) );
+    table_element * temp;
+    char * new_id;
+
+    if (is_digit(a->id[0])){
+        printf("\tstore ");
+        llvm_print_type(a->type);
+        ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
+        llvm_print_type(a->type);
+
+        printf("* %s\n", a->id);
+    }
+    else{
+        if ( (temp=search_var(*symtab, a->id)) ){
+            if (temp->is_param){
+                
+                
+                printf("\t%%%s%d = add ", a->id, ++temp->llvm_count);
+                llvm_print_type(a->type);
+
+                if (temp->llvm_count == 1){
+                    printf(" %%%s,", a->id);
+                }else
+                    printf(" %%%s%d,", a->id, temp->llvm_count-1);
+
+                ( is_digit( b[0] ) ) ? printf(" %s\n", b) : printf(" %%%s\n", b);
+
+            }else{
+                printf("\tstore ");
+                llvm_print_type(a->type);
+                ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
+                llvm_print_type(a->type);
+
+                printf("* %%%s\n", a->id);
+            }
+        }else{
+            printf("\tstore ");
+            llvm_print_type(a->type);
+            ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
+            llvm_print_type(a->type);
+
+            printf("* @%s\n", a->id);
+        }
+    }
 }
 
 // %<num> = load a->type, a->type* %a
@@ -857,7 +895,10 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
                 if (temp_var->is_param){
                     printf("\t%%%d = add ", nvar_now);
                     llvm_print_type(ife->expr.u_id->id->type);
-                    printf(" %%%s, 0\n", ife->expr.u_id->id->id);
+                    if (temp_var->llvm_count == 0)
+                        printf(" %%%s, 0\n", ife->expr.u_id->id->id);
+                    else
+                        printf(" %%%s%d, 0\n", ife->expr.u_id->id->id, temp_var->llvm_count);
                 }else{
                     printf("\t%%%d = load ", nvar_now);
                     llvm_print_type(ife->expr.u_id->id->type);

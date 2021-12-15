@@ -38,7 +38,7 @@ location * create_location(int line, int col){
 table_element* insert_symbol(table_element **symtab,  table_element* new_symbol){
     table_element *aux = (table_element*) malloc(sizeof(table_element));
     table_element *previous;
-
+    aux->llvm_count = 0;
     if (*symtab) {
         for (aux = *symtab; aux; previous = aux, aux = aux->next) {
             //printf("++++++++ %s\n", aux->name);

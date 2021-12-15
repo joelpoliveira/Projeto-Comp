@@ -311,6 +311,7 @@ typedef struct _s0 {
 
 typedef struct _t1 {
         id_token* id;
+        int llvm_count;
         bool is_param;
         bool is_string; // para escrever as strings em llvm
         parameter_type type; //return type
