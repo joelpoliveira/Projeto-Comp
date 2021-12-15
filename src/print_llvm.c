@@ -524,17 +524,17 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
             switch (ips->print.iel->expression_type){
                 case d_integer:
                     type = "\"%d\"";
-                    llvm_print(type, token);
+                    llvm_print(type, token, nvar_now);
                     break;
 
                 case d_float32:
                     type = "\"%f\"";
-                    llvm_print(type, token);
+                    llvm_print(type, token, nvar_now);
                     break;
 
                 case d_string:
                     type = "\"%s\"";
-                    llvm_print(type, token);
+                    llvm_print(type, token, nvar_now);
                     break;
 
                  case d_bool:
@@ -548,7 +548,7 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
 
             break;
         case d_str:
-            llvm_print(ips->print.id->id, NULL);
+            llvm_print(ips->print.id->id, NULL, nvar_now);
             break;
         default:
             printf("Erro llvm_print_statement\n");
@@ -572,15 +572,16 @@ int llvm_get_string_num(char* string){
 }
 
 
-void llvm_print(char* string, char* params){
+int llvm_print(char* string, char* params, int nvar_now){
     table_element *str = search_symbol(program->strings_table, string);
-    if(str == NULL) return;
+    if(str == NULL) return nvar_now;
 
     int num = llvm_get_string_num(str->id->id);
 
     int size = string_size(str->id->id);
 
-    printf("\tcall i32(i8*, ...) "); 
+    params[0]=='%'? printf("\t%s", params) : printf("\t%%%d", nvar_now);
+    printf(" = call i32(i8*, ...) "); 
     printf("@printf (i8* getelementptr inbounds");
     printf("([%d x i8], [%d x i8]* ", size, size);
     if (num == 0)
@@ -598,7 +599,7 @@ void llvm_print(char* string, char* params){
 
     printf(")\n");
 
-    
+    return params[0]=='%'? atoi(params+1)+1: nvar_now +1 ;
 }  
   
 
