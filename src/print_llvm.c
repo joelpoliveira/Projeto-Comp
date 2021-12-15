@@ -46,19 +46,22 @@ int _max(int a, int b){
     return (a>b)?a:b;
 }
 
-llvm_func_parameters* append_param(llvm_func_parameters * head, char * string){
-    llvm_func_parameters*new = malloc(sizeof(llvm_func_parameters));
+llvm_func_parameters* append_param(llvm_func_parameters * head, char * string, int * nvar_now){
+    if (string[0] == '%') *nvar_now = atoi(string+1)+1;
+    llvm_func_parameters*new = malloc(sizeof(llvm_func_parameters)), *aux;
     new->var_id = string;
     new->next=NULL;
 
     if (head == NULL)
         return new;
-    for (;head->next; head = head->next);
-    head->next = new;
+
+    for (aux = head ; aux->next; aux = aux->next);
+    aux->next = new;
     return head;
 }
 
 void free_param_list(llvm_func_parameters * head){
+    if (head == NULL) return;
     llvm_func_parameters * aux;
     for (aux = head->next; aux; aux = aux->next){
         free(head);
@@ -988,11 +991,12 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             token = (char * ) malloc(ndigits(nvar_now) + 2);
 
             llvm_func_parameters * aux = NULL, *aux2;
-            for ( is_func_inv_expr_list * param = ife->expr.ifi->iel; param; param = param->next)
-                aux = append_param(aux, llvm_expression_or_list(param->val, NULL, nvar_now, symtab));
+            for ( is_func_inv_expr_list * param = ife->expr.ifi->iel; param ; param = param->next)
+                aux = append_param(aux, llvm_expression_or_list(param->val, NULL, nvar_now, symtab), &nvar_now);
             
             int next = get_next_var(aux, nvar_now);
             printf("\t%%%d = call ", next);
+
             llvm_print_type(ife->expr.ifi->id->type);
             printf("@%s(", ife->expr.ifi->id->id);
 
