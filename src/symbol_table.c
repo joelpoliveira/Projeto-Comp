@@ -159,6 +159,8 @@ table_element *search_var(table_element *symtab, char *str) {
 
     return NULL;
 }
+
+
 // Procura um identificador, devolve NULL caso nao exista
 table_element *search_symbol(table_element *symtab, char *str) {
 

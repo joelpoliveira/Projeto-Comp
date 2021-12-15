@@ -1,14 +1,23 @@
 package main
 
-var x int;
+func teste_void() {
+	fmt.Println("123\n");
+	fmt.Println("123\n");
+	fmt.Println("123\n");
+	fmt.Println("123\n");
+}
 
-func teste(a int, c int, d bool) int {
+
+func main() int {
 	var abc int;
+	var c int;
 
-	if 1 == 1 && 2 == 2 {
+	c = 3;
 
-		if 3 == 3 && d{
-			abc = a + c + 1;
+	if (1 == 1 || 2 == 2) {
+
+		if 3 == 3 {
+			abc =  c + 1;
 		}
 
 		abc = 1
@@ -17,25 +26,20 @@ func teste(a int, c int, d bool) int {
 		abc = 3
 	}
 
-	if 1 == 1{
+	if 1 == 1 {
 		
 	}
 
-	return abc;
-}
+	var x float32;
+	x = 2.1;
 
+	fmt.Println("abc = ");
+	fmt.Println(abc)
+	fmt.Println("\n")
 
-func teste_void() {
-	fmt.Println("123\n");
-	fmt.Println("123\n");
-	fmt.Println("123\n");
-	fmt.Println("123\n");
-	fmt.Println("ola\n123\n");
-}
+	fmt.Println("x = ");
+	fmt.Println(x)
+	fmt.Println("\n")
 
-
-func main() int {
 	teste_void();
-	teste(100, 100, 1==1)
-	return 
 }

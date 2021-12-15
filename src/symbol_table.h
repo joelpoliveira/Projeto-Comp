@@ -1,5 +1,6 @@
 #include "structures.h"
 
+id_token *create_token(char *id, int line, int col);
 table_element* insert_symbol(table_element **symtab, table_element* new_symbol);
 table_element *insert_func(table_element **symtab, id_token* id, is_parameter * ip, parameter_type return_type, is_func_dec*);
 table_element *insert_var(table_element **symtab, id_token* id, parameter_type return_type);
