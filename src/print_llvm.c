@@ -31,6 +31,20 @@ bool is_digit(char c){
     return (c>='0' && c<='9') || c=='%';
 }
 
+bool is_exponent(char * n){
+    for (int i = 0; n[i]!='\0'; i++)
+        if (n[i]=='e' || n[i]=='E')
+            return 1;
+    return 0;
+}
+
+bool has_point(char * n){
+    for ( int i = 0; n[i]!='\0'; i++)
+        if (n[i]=='.')
+            return 1;
+    return 0;
+}
+
 size_t ndigits(int number){
     if (number == 0) return 1;
 
@@ -103,8 +117,8 @@ void llvm_expr_store(id_token* a, char* b, table_element ** symtab){
     else{
         if ((temp=search_var(*symtab, a->id))){
             if (temp->is_param){
-                
-                printf("\t%%%s%d = add ", a->id, ++temp->llvm_count);
+                printf("\t%%%s%d = ", a->id, ++temp->llvm_count);
+                a->type==d_float32? printf("fadd "):printf("add ");
                 llvm_print_type(a->type);
 
                 if (temp->llvm_count == 1){
@@ -681,7 +695,7 @@ int llvm_final_statement(is_final_statement* ifs, table_element**symtab, int nva
 
      switch (ifs->type_state){
         case d_function_invoc:
-            llvm_func_invocation(ifs->statement.ifi);
+            nvar_now = llvm_func_invocation(ifs->statement.ifi, symtab, nvar_now);
             break;
         
         case d_arguments:
@@ -973,9 +987,10 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
                 return ret;
 
             case d_self_plus:
-                printf("%%%d = add ", next);
+                current->next_same->expression_type==d_float32? printf("%%%d = fadd ",next):printf("%%%d = add ", next);
                 llvm_print_type(isel->next_same->expression_type);
-                ( is_digit(ltoken[0]) ) ? printf(" %s, 0\n", ltoken) : printf(" %%%s, 0\n", ltoken);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, 0", ltoken) : printf(" %%%s, 0", ltoken);
+                ( current->next_same->expression_type==d_float32 ) ? printf(".0\n") : printf("\n"); 
 
                 ret = (char *) malloc( ndigits(next) + 2 );
                 sprintf(ret, "%%%d", next);
@@ -1010,7 +1025,7 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
     switch (ife->type_final_expression){
         case d_intlit:
             token = (char * ) malloc(strlen(ife->expr.u_intlit->intlit->id) + 2);
-            if (ife->expr.u_intlit->intlit->id[0] == '0' && ife->expr.u_intlit->intlit->id[0] == 'x'){
+            if (ife->expr.u_intlit->intlit->id[0] == '0' && (ife->expr.u_intlit->intlit->id[1] == 'x' || ife->expr.u_intlit->intlit->id[1] == 'X')){
                 int octal = strtol(ife->expr.u_intlit->intlit->id, NULL, 8);
                 sprintf(token, "%d", octal);
             }else if (ife->expr.u_intlit->intlit->id[0] == '0' && ife->expr.u_intlit->intlit->id[0] != '\0'){
@@ -1021,8 +1036,17 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             return token;
 
         case d_reallit:
-            token = (char * ) malloc(strlen(ife->expr.u_reallit->reallit->id) + 1);
-            sprintf(token, "%s", ife->expr.u_reallit->reallit->id);
+            token = (char * ) malloc(33);
+            if (is_exponent(ife->expr.u_reallit->reallit->id)){
+                double real = strtof(ife->expr.u_reallit->reallit->id, NULL);
+                sprintf(token, "%f", real);
+                
+            }else{
+                if (has_point(ife->expr.u_reallit->reallit->id))
+                    sprintf(token, "%s", ife->expr.u_reallit->reallit->id);
+                else
+                    sprintf(token, "%s.0", ife->expr.u_reallit->reallit->id);
+            }
             return token;
 
         case d_id:
@@ -1037,12 +1061,16 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
                 printf("* @%s\n", ife->expr.u_id->id->id);
             }else{
                 if (temp_var->is_param){
-                    printf("\t%%%d = add ", nvar_now);
+                    (ife->expr.u_id->id->type==d_float32) ? printf("\t%%%d = fadd ", nvar_now) : printf("\t%%%d = add ", nvar_now);
                     llvm_print_type(ife->expr.u_id->id->type);
-                    if (temp_var->llvm_count == 0)
-                        printf(" %%%s, 0\n", ife->expr.u_id->id->id);
-                    else
-                        printf(" %%%s%d, 0\n", ife->expr.u_id->id->id, temp_var->llvm_count);
+                    if (temp_var->llvm_count == 0){
+                        printf(" %%%s, 0", ife->expr.u_id->id->id);
+                        (ife->expr.u_id->id->type==d_float32) ? printf(".0\n"):printf("\n");
+                    }
+                    else{
+                        printf(" %%%s%d, 0", ife->expr.u_id->id->id, temp_var->llvm_count);
+                        (ife->expr.u_id->id->type==d_float32) ? printf(".0\n"):printf("\n");
+                    }
                 }else{
                     printf("\t%%%d = load ", nvar_now);
                     //printf("\nife: %d    aux: %d\n", ife->expr.u_id->id->type, aux->type);
@@ -1093,12 +1121,33 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
 }
 
 
-void llvm_func_invocation(is_function_invocation * ifi){
-    printf("\tcall ");
-    llvm_print_type(ifi->id->type);
-    printf(" @%s()\n", ifi->id->id);
+int llvm_func_invocation(is_function_invocation * ifi, table_element ** symtab, int nvar_now){
 
-    //llvm_inv_parameters(ifi);
+    llvm_func_parameters * aux = NULL, *aux2;
+    for ( is_func_inv_expr_list * param = ifi->iel; param ; param = param->next)
+        aux = append_param(aux, llvm_expression_or_list(param->val, NULL, nvar_now, symtab), &nvar_now);
+    
+    int next = get_next_var(aux, nvar_now);
+    if (ifi->id->type!=d_none)
+        printf("\t%%%d = ",next);
+    else
+        printf("\t");
+
+    printf("call ");
+    llvm_print_type(ifi->id->type);
+    printf(" @%s(", ifi->id->id);
+
+    aux2 = aux;
+    for (is_func_inv_expr_list * param = ifi->iel ; param ; param = param->next, aux2 = aux2->next){
+        llvm_print_type(param->val->expression_type);
+        printf(" %s", aux2->var_id);
+        if(param->next!=NULL) printf(", ");
+    }
+    printf(")\n");
+
+    free_param_list(aux);
+
+    return (ifi->id->type!=d_none)? next+1:next;
 }
 
 
