@@ -314,6 +314,7 @@ typedef struct _t1 {
         int llvm_count;
         bool is_param;
         bool is_string; // para escrever as strings em llvm
+        bool is_declared;
         parameter_type type; //return type
         declaration_type type_dec;
         union {

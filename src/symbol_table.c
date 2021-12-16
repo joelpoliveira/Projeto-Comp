@@ -39,6 +39,7 @@ table_element* insert_symbol(table_element **symtab,  table_element* new_symbol)
     table_element *aux = (table_element*) malloc(sizeof(table_element));
     table_element *previous;
     aux->llvm_count = 0;
+    aux->is_declared = 0;
     if (*symtab) {
         for (aux = *symtab; aux; previous = aux, aux = aux->next) {
             //printf("++++++++ %s\n", aux->name);

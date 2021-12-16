@@ -392,7 +392,7 @@ void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl, table_elem
         //{d_var_dec, d_statement} var_or_statement;
         switch (current->val->type){
             case d_var_dec:
-                llvm_var_declaration(current->val->body.ivd);
+                llvm_var_declaration(symtab, current->val->body.ivd);
                 break;
             case d_statement:
                 nvar_now = llvm_statement(current->val->body.is, symtab, nvar_now, label_counter);
@@ -405,16 +405,19 @@ void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl, table_elem
 }
 
 
-void llvm_var_declaration(is_var_dec* ivd){
-    llvm_var_spec(ivd->ivs);
+void llvm_var_declaration(table_element ** symtab, is_var_dec* ivd){
+    llvm_var_spec(symtab, ivd->ivs);
 }
 
 
-void llvm_var_spec(is_var_spec* ivs){
-
+void llvm_var_spec(table_element ** symtab, is_var_spec* ivs){
+    table_element * temp;
     for (is_id_list* current = ivs->iil; current; current = current->next){
         printf("\t%%%s = alloca ", current->val->id);
-        //printf("\nTYPE = %d\n", current->val->type);
+        
+        temp = search_var(*symtab, current->val->id);
+        temp->is_declared = 1;
+
         llvm_print_type(current->val->type);
         printf("\n");
     }
@@ -1018,9 +1021,10 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
                 return ret;
 
             case d_self_minus:
-                printf("%%%d = mul ", next);
+                (current->next_same->expression_type==d_float32) ? printf("%%%d = fmul ", next) : printf("%%%d = mul ", next);
                 llvm_print_type(current->next_same->expression_type);
-                ( is_digit(ltoken[0]) ) ? printf(" %s, -1\n", ltoken) : printf(" %%%s, -1\n", ltoken);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, -1\n", ltoken) : printf(" %%%s, -1", ltoken);
+                (current->next_same->expression_type == d_float32) ? printf(".0\n") : printf("\n");
 
                 ret = (char *) malloc( ndigits(next) + 2 );
                 sprintf(ret, "%%%d", next);
@@ -1085,19 +1089,26 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
                 printf("* @%s\n", ife->expr.u_id->id->id);
             }else{
                 if (temp_var->is_param){
-                    (ife->expr.u_id->id->type==d_float32) ? printf("\t%%%d = fadd ", nvar_now) : printf("\t%%%d = add ", nvar_now);
-                    llvm_print_type(ife->expr.u_id->id->type);
-                    if (temp_var->llvm_count == 0){
-                        printf(" %%%s, 0", ife->expr.u_id->id->id);
-                        (ife->expr.u_id->id->type==d_float32) ? printf(".0\n"):printf("\n");
-                    }
-                    else{
-                        printf(" %%%s%d, 0", ife->expr.u_id->id->id, temp_var->llvm_count);
-                        (ife->expr.u_id->id->type==d_float32) ? printf(".0\n"):printf("\n");
+                    if (temp_var->is_declared){
+                        (ife->expr.u_id->id->type==d_float32) ? printf("\t%%%d = fadd ", nvar_now) : printf("\t%%%d = add ", nvar_now);
+                        llvm_print_type(ife->expr.u_id->id->type);
+                        if (temp_var->llvm_count == 0){
+                            printf(" %%%s, 0", ife->expr.u_id->id->id);
+                            (ife->expr.u_id->id->type==d_float32) ? printf(".0\n"):printf("\n");
+                        }
+                        else{
+                            printf(" %%%s%d, 0", ife->expr.u_id->id->id, temp_var->llvm_count);
+                            (ife->expr.u_id->id->type==d_float32) ? printf(".0\n") : printf("\n");
+                        }
+                    }else{
+                        printf("\t%%%d = load ", nvar_now);
+                        llvm_print_type(ife->expression_type);
+                        printf(", ");
+                        llvm_print_type(ife->expression_type);
+                        printf("* @%s\n", ife->expr.u_id->id->id);
                     }
                 }else{
                     printf("\t%%%d = load ", nvar_now);
-                    //printf("\nife: %d    aux: %d\n", ife->expr.u_id->id->type, aux->type);
                     llvm_print_type(ife->expr.u_id->id->type);
                     printf(", ");
                     llvm_print_type(ife->expr.u_id->id->type);
