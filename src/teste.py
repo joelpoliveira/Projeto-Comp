@@ -42,7 +42,7 @@ def run_tests():
     test_files = []
     failed = 0
     passed = []
-    flags = ["", "-l", "-t", "-s", ]  # used in flags[meta] to select flag
+    flags = ["", "-l", "-t", "-s", ""]  # used in flags[meta] to select flag
 
     # Create outputs dir
     if not os.path.exists(f"meta{meta}/outputs"):
@@ -65,9 +65,14 @@ def run_tests():
 
     # run tests
     for test in test_files:
-        os.system(
-            f"./gocompiler {flags[meta]} < meta{meta}/{test}.dgo | diff meta{meta}/{test}.out - > meta{meta}/outputs/{test}.txt"
-        )
+        if meta != 4:
+            os.system(
+                f"./gocompiler {flags[meta]} < meta{meta}/{test}.dgo | diff meta{meta}/{test}.out - > meta{meta}/outputs/{test}.txt"
+            )
+        else:
+            os.system(f"./gocompiler < meta{meta}/{test}.dgo > temp.ll")
+            os.system(f"lli temp.ll | diff meta{meta}/{test}.out - > meta{meta}/outputs/{test}.txt")
+            os.system("rm temp.ll")
 
         # output result
         if os.stat(f"meta{meta}/outputs/{test}.txt").st_size != 0:
