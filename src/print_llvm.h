@@ -3,7 +3,7 @@
 void llvm_store(id_token* a, id_token* b);
 void llvm_load(id_token* a);
 void llvm_add(id_token* a, id_token* b);
-int llvm_print(char* string, char* param, int);
+int llvm_print(char* string, char* param, int, parameter_type);
 void llvm_string_dec(id_token* id);
 int llvm_string_size(char* s);
 int string_size(char* s);

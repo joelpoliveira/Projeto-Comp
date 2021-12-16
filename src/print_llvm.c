@@ -521,21 +521,21 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
             switch (ips->print.iel->expression_type){
                 case d_integer:
                     type = "\"%d\\n\"";
-                    nvar_now = llvm_print(type, token, nvar_now);
+                    nvar_now = llvm_print(type, token, nvar_now, ips->print.iel->expression_type);
                     break;
 
                 case d_float32:
                     type = "\"%f\\n\"";
-                    nvar_now = llvm_print(type, token, nvar_now);
+                    nvar_now = llvm_print(type, token, nvar_now, ips->print.iel->expression_type);
                     break;
 
                 case d_string:
                     type = "\"%s\"";
-                    nvar_now = llvm_print(type, token, nvar_now);
+                    nvar_now = llvm_print(type, token, nvar_now, ips->print.iel->expression_type);
                     break;
 
                  case d_bool:
-                    nvar_now = llvm_print("", token, nvar_now);
+                    nvar_now = llvm_print("", token, nvar_now, ips->print.iel->expression_type);
                     break;
                 
                 default:
@@ -545,7 +545,7 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
 
             break;
         case d_str:
-            nvar_now = llvm_print(ips->print.id->id, "", nvar_now);
+            nvar_now = llvm_print(ips->print.id->id, "", nvar_now, d_string);
             break;
         default:
             printf("Erro llvm_print_statement\n");
@@ -569,9 +569,10 @@ int llvm_get_string_num(char* string){
 }
 
 
-int llvm_print(char* string, char* params, int nvar_now){
+int llvm_print(char* string, char* params, int nvar_now, parameter_type type){
     if ( !strcmp(string, "") && strcmp(params, "") ){
         // é boolean
+        
         printf("\tbr i1 %s, label %%print_true%s, label %%print_false%s\n", params, params+1, params+1);
 
         printf("print_true%s:\n", params+1);
@@ -639,8 +640,8 @@ int llvm_print(char* string, char* params, int nvar_now){
         if ( strcmp(params, "") ){
             printf(", ");
             //type
-            printf("i32 ");
-            printf("%s", params);
+            llvm_print_type(type);
+            printf(" %s", params);
         }
 
         printf(")\n");
@@ -910,7 +911,7 @@ char * llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_t
 
         switch (type->oper_type.stlt){
             case d_star:
-                (current->expression_type==d_integer)? printf("%%%d = mul ", next): printf("%%%d = fmul", next);
+                (current->expression_type==d_integer)? printf("%%%d = mul ", next): printf("%%%d = fmul ", next);
                 llvm_print_type(current->next_left->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
                 ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
@@ -956,20 +957,41 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
 
         switch (type->oper_type.sot){
             case d_self_not:
+                printf("\tbr i1 %s, label %%not_true%d, label %%not_false%d\n", ltoken, next, next);
+                printf("not_true%d:\n", next);
+                printf("\t%%%d = icmp eq i32 1, 1\n", next);
+                printf("\tbr label %%continue_expr%d\n", next);
 
-                break;
+                printf("not_false%d:\n",next);
+                printf("\t%%%d = icmp eq i32 1, 0\n", next+1);
+                printf("\tbr label %%continue_expr%d\n", next);
+
+                printf("continue_expr%d:\n", next);
+
+                ret = (char *) malloc( ndigits(next + 1) + 2 );
+                sprintf(ret, "%%%d", next+1);
+                return ret;
+
             case d_self_plus:
-                break;
+                printf("%%%d = add ", next);
+                llvm_print_type(isel->next_same->expression_type);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, 0\n", ltoken) : printf(" %%%s, 0\n", ltoken);
+
+                ret = (char *) malloc( ndigits(next) + 2 );
+                sprintf(ret, "%%%d", next);
+                return ret;
+
             case d_self_minus:
                 printf("%%%d = mul ", next);
                 llvm_print_type(current->next_same->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, -1\n", ltoken) : printf(" %%%s, -1\n", ltoken);
-                break;
+
+                ret = (char *) malloc( ndigits(next) + 2 );
+                sprintf(ret, "%%%d", next);
+                return ret;
         }
         
-        ret = (char *) malloc( ndigits(next) + 2 );
-        sprintf(ret, "%%%d", next);
-        return ret;
+        
         
     }else{
         return llvm_final_expression(current->next_final, aux, nvar_now, symtab);
@@ -988,7 +1010,14 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
     switch (ife->type_final_expression){
         case d_intlit:
             token = (char * ) malloc(strlen(ife->expr.u_intlit->intlit->id) + 2);
-            sprintf(token, "%s", ife->expr.u_intlit->intlit->id);
+            if (ife->expr.u_intlit->intlit->id[0] == '0' && ife->expr.u_intlit->intlit->id[0] == 'x'){
+                int octal = strtol(ife->expr.u_intlit->intlit->id, NULL, 8);
+                sprintf(token, "%d", octal);
+            }else if (ife->expr.u_intlit->intlit->id[0] == '0' && ife->expr.u_intlit->intlit->id[0] != '\0'){
+                int hexa = strtol(ife->expr.u_intlit->intlit->id, NULL, 16);
+                sprintf(token, "%d", hexa);
+            }else
+                sprintf(token, "%s", ife->expr.u_intlit->intlit->id);
             return token;
 
         case d_reallit:
