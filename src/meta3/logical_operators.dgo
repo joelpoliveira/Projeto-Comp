@@ -38,4 +38,5 @@ func main () {
 
     fmt.Println(s);
     i,_ = strconv.Atoi(os.Args[1]);
+    fmt.Println(i);
 }
