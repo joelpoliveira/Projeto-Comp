@@ -231,15 +231,11 @@ void check_var_declaration(table_element** symtab, is_var_dec* ivd){
 
 
 void check_var_spec(table_element** symtab, is_var_spec* ivs){
-    /* table_element* new_symbol = NULL; */
     parameter_type type = ivs->type;
     //printf("Type: %d \n", type);
     for (is_id_list* current = ivs->iil; current != NULL; current = current->next){
-        /* new_symbol =  */insert_var(symtab, current->val, type);
-
-        /* if (new_symbol == NULL){
-            print_already_defined(current->val->id, current->val->line, current->val->col);
-        } */
+        current->val->type = type;
+        insert_var(symtab, current->val, type);
     }
 }
 
