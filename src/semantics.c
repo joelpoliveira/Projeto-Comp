@@ -831,6 +831,7 @@ id_token * check_final_expression(table_element** symtab, is_final_expression * 
             #endif
             ife->expression_type = get_var_id_type(symtab, ife->expr.u_id->id);
             //ife->expr.u_id->id->uses++;
+            ife->expr.u_id->id->type = ife->expression_type;
             token = ife->expr.u_id->id;
             return token;
         case d_func_inv:
