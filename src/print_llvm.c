@@ -12,8 +12,6 @@
 // TODO Functions calls (invocation)
 // TODO se for float/double + float/double temos de usar fadd em vez de add
 
-extern char** args;
-extern int arg_counter;
 extern is_program* program;
 int global_counter = 0;
 int func_counter = 0;
@@ -209,17 +207,6 @@ void llvm_program(is_program* ip){
     string->id = aux;
     insert_symbol(&program->strings_table, string);
 
-    if (arg_counter > 1){
-        for (int x = 1; x < arg_counter; x++){
-            string = (table_element*) malloc (sizeof(table_element));
-            //printf("%s, %s\n", args[0], args[1]);
-            char* tmp = (char*)calloc(sizeof(char), strlen(args[x])*2);
-            sprintf(tmp, "\"%s\"", args[x]);
-            aux = create_token(tmp, 0, 0);
-            string->id = aux;
-            insert_symbol(&program->strings_table, string);
-        }
-    }
 
     //Print strings declarations
     for(table_element* current = ip->strings_table; current != NULL; current = current->next){
@@ -332,7 +319,10 @@ void llvm_func_declaration(is_func_dec* ifd){
     printf(" @%s(", ifd->id->id);
 
     //parametros
-    llvm_is_parameter(&ifd->symtab, ifd->ipl);
+    if (strcmp(ifd->id->id, "main") == 0)
+        printf("i32 %%argc, i8** %%argv");
+    else
+        llvm_is_parameter(&ifd->symtab, ifd->ipl);
 
     printf(") {\n");
 
@@ -357,7 +347,7 @@ void llvm_func_declaration(is_func_dec* ifd){
 
     if (declare_atoi && !atoi_done) {
         atoi_done = 1;
-        printf("declare i32 @atoi(i8*)\n\n");
+        printf("declare i32 @atoi(...)\n\n");
     }
 
 }
@@ -710,8 +700,7 @@ int llvm_statements_list(is_statements_list* isl, table_element**symtab, int nva
 int llvm_final_statement(is_final_statement* ifs, table_element**symtab, int nvar_now){
     if (ifs == NULL) return nvar_now;
     char* token;
-    int num;
-    char* str, *tmp;
+    int next;
 
     switch (ifs->type_state){
         case d_function_invoc:
@@ -719,19 +708,15 @@ int llvm_final_statement(is_final_statement* ifs, table_element**symtab, int nva
             break;
         
         case d_arguments:
+            // token -> valor em os.Args[token]
+            declare_atoi = 1;
             token = llvm_expression_or_list(ifs->statement.ipa->iel, NULL, nvar_now, symtab);
-            str = (char*) calloc(sizeof(char), 20);
-            tmp = (char*) calloc(sizeof(char), 20);
-            sprintf(tmp, "\"%s\"", args[1]);
-            num = llvm_get_string_num(tmp);
-            if (num == -1) {
-                printf("NOT FOUND\n");
-                break;
-            }
-            (num == 0) ? sprintf(str, "@.str") : sprintf(str, "@.str.%d", num);
-            printf("\t%%%s = load i8*, i8** %s\n", token, str);
-            if (arg_counter > 1)
-                llvm_atoi(token, str, string_size(tmp));
+            next = (token[0]=='%') ? atoi(token+1)+1 : nvar_now;
+            printf("\t%%%d = getelementptr i8*, i8** %%argv, i32 %s\n", next, token);
+            printf("\t%%%d = load i8*, i8** %%%d\n", next+1, next);
+            printf("\t%%%d = call i32 (i8*, ...) bitcast (i32 (...)* @atoi to i32 (i8*, ...)*)(i8* %%%d)\n", next+2, next+1);
+            printf("\tstore i32 %%%d, i32* %%%s\n", next+2, ifs->statement.ipa->id->id);
+            nvar_now = next + 3;
             break;
         
         default:
@@ -744,8 +729,8 @@ int llvm_final_statement(is_final_statement* ifs, table_element**symtab, int nva
 
 void llvm_atoi(char* token, char* s, int size){
     declare_atoi = 1;
-    printf("\t%%%s = call i32 (i32) @atoi([%d x i8*] %s)\n", token, size, s);
-    //printf("\t%%%s = call i32 (i8*, ...) bitcast (i32 (...)* @atoi to i32 (i8*, ...)*)(i8* %s)\n", token, s);
+    //printf("\t%%%s = call i32 (i32) @atoi([%d x i8*] %s)\n", token, size, s);
+    printf("\t%%%s = call i32 (i8*, ...) bitcast (i32 (...)* @atoi to i32 (i8*, ...)*)(i8* %s)\n", token, s);
 }
 
 char *  llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux, int nvar_now, table_element**symtab){
@@ -1055,11 +1040,11 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
         case d_intlit:
             token = (char * ) malloc(strlen(ife->expr.u_intlit->intlit->id) + 2);
             if (ife->expr.u_intlit->intlit->id[0] == '0' && (ife->expr.u_intlit->intlit->id[1] == 'x' || ife->expr.u_intlit->intlit->id[1] == 'X')){
-                int octal = strtol(ife->expr.u_intlit->intlit->id, NULL, 8);
-                sprintf(token, "%d", octal);
-            }else if (ife->expr.u_intlit->intlit->id[0] == '0' && ife->expr.u_intlit->intlit->id[0] != '\0'){
                 int hexa = strtol(ife->expr.u_intlit->intlit->id, NULL, 16);
                 sprintf(token, "%d", hexa);
+            }else if (ife->expr.u_intlit->intlit->id[0] == '0' && ife->expr.u_intlit->intlit->id[0] != '\0'){
+                int octal = strtol(ife->expr.u_intlit->intlit->id, NULL, 8);
+                sprintf(token, "%d", octal);
             }else
                 sprintf(token, "%s", ife->expr.u_intlit->intlit->id);
             return token;
