@@ -66,6 +66,11 @@ is_var_spec * insert_var_specifications(id_token* id, is_id_list * iis, paramete
     new_head->next = iis;
 
     ivs->iil = new_head;
+
+    id->type = type;
+    for (is_id_list * aux = iis; aux; aux = aux->next)
+        aux->val->type = type;
+        
     ivs->type = type;
     return ivs;
 }

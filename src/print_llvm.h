@@ -16,7 +16,7 @@ void llvm_function_body(is_func_body* ifb, table_element**);
 void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl,table_element**, int);
 void llvm_var_declaration(is_var_dec* ivd);
 void llvm_var_spec(is_var_spec* ivs);
-void llvm_is_parameter(is_parameter * ip);
+void llvm_is_parameter(table_element ** , is_parameter * ip);
 int llvm_statement( is_statement* is,table_element**, int, int counter);
 int llvm_if_statement(is_if_statement* ifs,table_element**, int, int counter);
 int llvm_else_statement(is_else_statement* ies,table_element**, int, int counter);
