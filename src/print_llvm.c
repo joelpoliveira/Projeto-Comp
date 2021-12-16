@@ -454,7 +454,7 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
 
 int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now, int counter){    
     char* token;
-
+    
     token = llvm_expression_or_list(ifs->iel, NULL, nvar_now, symtab);
 
     if (ifs->ies != NULL)
@@ -462,23 +462,26 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
     else
         printf("\tbr i1 %s, label %%then%d, label %%ifcont%d\n", token, counter, counter);
 
+    return_in_statement = 0;
     printf("then%d:\n", counter);
     nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now, counter + 1);
 
     if (!return_in_statement)
         printf("\tbr label %%ifcont%d\n", counter);
 
+
     if (ifs->ies != NULL){
+        return_in_statement = 0;
         printf("else%d:\n", counter);
         nvar_now = llvm_else_statement(ifs->ies, symtab, nvar_now, counter + 1);
-        printf("\tbr label %%ifcont%d\n", counter);
+        if (!return_in_statement)
+            printf("\tbr label %%ifcont%d\n", counter);
     }
 
     printf("ifcont%d:\n", counter);
     //printf("\t%%iftmp = phi i32 [ %%calltmp, %%then ], [ %%calltmp1, %%else ]\n");
 
     label_counter += counter;
-    return_in_statement = 0;
 
     return nvar_now;
 }
