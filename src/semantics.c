@@ -237,7 +237,7 @@ void check_var_spec(table_element** symtab, is_var_spec* ivs){
         current->val->type = type;
         insert_var(symtab, current->val, type);
     }
-}
+}   
 
 
 void check_statement(table_element** symtab, is_statement* is){
