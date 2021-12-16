@@ -21,6 +21,7 @@ int string_counter = 0;
 int label_counter = 0;
 bool declare_print = 0, print_done = 0;
 bool declare_atoi = 0, atoi_done = 0;
+bool declare_not = 0, not_done = 0;
 bool return_in_statement = 0;
 
 
@@ -359,6 +360,22 @@ void llvm_func_declaration(is_func_dec* ifd){
         atoi_done = 1;
         printf("declare i32 @atoi(i8*)\n\n");
     }
+
+    if (declare_not && !not_done) {
+        not_done = 1;
+        printf("define i1 @.not(i1 %%in){\n");
+        printf("\tbr i1 %%in, label %%not_true, label %%not_false\n");
+
+        printf("not_true:\n");
+        printf("\t%%1 = icmp eq i1 1, 0\n");
+        printf("\tret i1 %%1\n");
+
+        printf("not_false:\n");
+        printf("\t%%2 = icmp eq i1 1, 1\n");
+        printf("\tret i1 %%2\n}\n");
+
+    }
+
 
 }
 
@@ -1001,7 +1018,9 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
 
         switch (type->oper_type.sot){
             case d_self_not:
-                printf("\tbr i1 %s, label %%not_true%d, label %%not_false%d\n", ltoken, next, next);
+                declare_not = 1;
+                printf("%%%d = call i1 @.not(i1 %s)\n", next, ltoken);
+                /* printf("\tbr i1 %s, label %%not_true%d, label %%not_false%d\n", ltoken, next, next);
                 printf("not_true%d:\n", next);
                 printf("\t%%%d = icmp eq i32 1, 1\n", next);
                 printf("\tbr label %%continue_expr%d\n", next);
@@ -1010,10 +1029,10 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
                 printf("\t%%%d = icmp eq i32 1, 0\n", next+1);
                 printf("\tbr label %%continue_expr%d\n", next);
 
-                printf("continue_expr%d:\n", next);
+                printf("continue_expr%d:\n", next); */
 
-                ret = (char *) malloc( ndigits(next + 1) + 2 );
-                sprintf(ret, "%%%d", next+1);
+                ret = (char *) malloc( ndigits(next) + 2 );
+                sprintf(ret, "%%%d", next);
                 return ret;
 
             case d_self_plus:
@@ -1054,12 +1073,13 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
     switch (ife->type_final_expression){
         case d_intlit:
             token = (char * ) malloc(strlen(ife->expr.u_intlit->intlit->id) + 2);
+            //printf("===== %s ===== \n", ife->expr.u_intlit->intlit->id);
             if (ife->expr.u_intlit->intlit->id[0] == '0' && (ife->expr.u_intlit->intlit->id[1] == 'x' || ife->expr.u_intlit->intlit->id[1] == 'X')){
-                int octal = strtol(ife->expr.u_intlit->intlit->id, NULL, 8);
-                sprintf(token, "%d", octal);
-            }else if (ife->expr.u_intlit->intlit->id[0] == '0' && ife->expr.u_intlit->intlit->id[0] != '\0'){
                 int hexa = strtol(ife->expr.u_intlit->intlit->id, NULL, 16);
                 sprintf(token, "%d", hexa);
+            }else if (ife->expr.u_intlit->intlit->id[0] == '0' && ife->expr.u_intlit->intlit->id[1] != '\0'){
+                int octa = strtol(ife->expr.u_intlit->intlit->id, NULL, 8);
+                sprintf(token, "%d", octa);
             }else
                 sprintf(token, "%s", ife->expr.u_intlit->intlit->id);
             return token;
