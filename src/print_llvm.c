@@ -110,24 +110,33 @@ void llvm_expr_store(id_token* a, char* b, table_element ** symtab){
     else{
         if ((temp=search_var(*symtab, a->id))){
             if (temp->is_param){
-                printf("\t%%%s%d = ", a->id, ++temp->llvm_count);
-                a->type==d_float32? printf("fadd "):printf("add ");
-                llvm_print_type(a->type);
+                
+                    printf("\t%%%s%d = ", a->id, ++temp->llvm_count);
+                    a->type==d_float32? printf("fadd "):printf("add ");
+                    llvm_print_type(a->type);
 
-                if (temp->llvm_count == 1){
-                    printf(" %%%s,", a->id);
-                }else
-                    printf(" %%%s%d,", a->id, temp->llvm_count-1);
+                    if (temp->llvm_count == 1){
+                        printf(" %%%s,", a->id);
+                    }else
+                        printf(" %%%s%d,", a->id, temp->llvm_count-1);
 
-                ( is_digit( b[0] ) ) ? printf(" %s\n", b) : printf(" %%%s\n", b);
-
+                    ( is_digit( b[0] ) ) ? printf(" %s\n", b) : printf(" %%%s\n", b);   
             }else{
-                printf("\tstore ");
-                llvm_print_type(a->type);
-                ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
-                llvm_print_type(a->type);
+                if(temp->is_declared){
+                    printf("\tstore ");
+                    llvm_print_type(a->type);
+                    ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
+                    llvm_print_type(a->type);
 
-                printf("* %%%s\n", a->id);
+                    printf("* %%%s\n", a->id);
+                }else{
+                    printf("\tstore ");
+                    llvm_print_type(a->type);
+                    ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
+                    llvm_print_type(a->type);
+
+                    printf("* @%s\n", a->id);
+                }
             }
         }else{
             printf("\tstore ");
@@ -848,25 +857,25 @@ char * llvm_expression_comp_list(is_expression_comp_list * iecl, id_token* aux, 
             next = nvar_now;
 
 
-        (iecl->next_left->expression_type==d_integer) ? printf("%%%d = icmp ", next) : printf("%%%d = fcmp ", next);
+        (iecl->next_left->expression_type!=d_float32) ? printf("%%%d = icmp ", next) : printf("%%%d = fcmp ", next);
         switch (type->oper_type.ct){
             case d_lt:
-                (iecl->next_left->expression_type==d_integer) ? printf("slt ") : printf("ult ");
+                (iecl->next_left->expression_type!=d_float32) ? printf("slt ") : printf("ult ");
                 break;
             case d_gt:
-                (iecl->next_left->expression_type==d_integer) ? printf("sgt ") : printf("ugt ");
+                (iecl->next_left->expression_type!=d_float32) ? printf("sgt ") : printf("ugt ");
                 break;
             case d_ne:
-                (iecl->next_left->expression_type==d_integer) ? printf("ne ") : printf("une ");
+                (iecl->next_left->expression_type!=d_float32) ? printf("ne ") : printf("une ");
                 break;
             case d_eq:
-                (iecl->next_left->expression_type==d_integer) ? printf("eq ") : printf("ueq ");
+                (iecl->next_left->expression_type!=d_float32) ? printf("eq ") : printf("ueq ");
                 break;
             case d_le:
-                (iecl->next_left->expression_type==d_integer) ? printf("sle ") : printf("ule ");
+                (iecl->next_left->expression_type!=d_float32) ? printf("sle ") : printf("ule ");
                 break;
             case d_ge:
-                (iecl->next_left->expression_type==d_integer) ? printf("sgt ") : printf("ugt ");
+                (iecl->next_left->expression_type!=d_float32) ? printf("sgt ") : printf("ugt ");
                 break;
             default:
                 printf("Erro llvm_expression_comp_list\n");
@@ -909,13 +918,13 @@ char * llvm_expression_sum_like_list(is_expression_sum_like_list * iesl, id_toke
             next = nvar_now;
         switch (type->oper_type.slt){
             case d_plus:
-                (current->expression_type == d_integer)? printf("%%%d = add ", next): printf("%%%d = fadd ", next);
+                (current->expression_type != d_float32)? printf("%%%d = add ", next): printf("%%%d = fadd ", next);
                 llvm_print_type(current->next_left->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
                 ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
                 break;
             case d_minus:
-                (current->expression_type == d_integer)? printf("%%%d = sub ", next): printf("%%%d = fsub ", next);
+                (current->expression_type != d_float32)? printf("%%%d = sub ", next): printf("%%%d = fsub ", next);
                 llvm_print_type(current->next_left->expression_type);
                 ( is_digit(ltoken[0]) ) ? printf(" %s, ", ltoken) : printf(" %%%s, ", ltoken);
                 ( is_digit(rtoken[0]) ) ? printf(" %s\n", rtoken) : printf(" %%%s\n", rtoken);
@@ -1092,17 +1101,25 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
                 printf("* @%s\n", ife->expr.u_id->id->id);
             }else{
                 if (temp_var->is_param){
+                    
+                    (ife->expr.u_id->id->type==d_float32) ? printf("\t%%%d = fadd ", nvar_now) : printf("\t%%%d = add ", nvar_now);
+                    llvm_print_type(ife->expr.u_id->id->type);
+                    if (temp_var->llvm_count == 0){
+                        printf(" %%%s, 0", ife->expr.u_id->id->id);
+                        (ife->expr.u_id->id->type==d_float32) ? printf(".0\n"):printf("\n");
+                    }
+                    else{
+                        printf(" %%%s%d, 0", ife->expr.u_id->id->id, temp_var->llvm_count);
+                        (ife->expr.u_id->id->type==d_float32) ? printf(".0\n") : printf("\n");
+                    }
+                    
+                }else{
                     if (temp_var->is_declared){
-                        (ife->expr.u_id->id->type==d_float32) ? printf("\t%%%d = fadd ", nvar_now) : printf("\t%%%d = add ", nvar_now);
+                        printf("\t%%%d = load ", nvar_now);
                         llvm_print_type(ife->expr.u_id->id->type);
-                        if (temp_var->llvm_count == 0){
-                            printf(" %%%s, 0", ife->expr.u_id->id->id);
-                            (ife->expr.u_id->id->type==d_float32) ? printf(".0\n"):printf("\n");
-                        }
-                        else{
-                            printf(" %%%s%d, 0", ife->expr.u_id->id->id, temp_var->llvm_count);
-                            (ife->expr.u_id->id->type==d_float32) ? printf(".0\n") : printf("\n");
-                        }
+                        printf(", ");
+                        llvm_print_type(ife->expr.u_id->id->type);
+                        printf("* %%%s\n", ife->expr.u_id->id->id);
                     }else{
                         printf("\t%%%d = load ", nvar_now);
                         llvm_print_type(ife->expression_type);
@@ -1110,12 +1127,6 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
                         llvm_print_type(ife->expression_type);
                         printf("* @%s\n", ife->expr.u_id->id->id);
                     }
-                }else{
-                    printf("\t%%%d = load ", nvar_now);
-                    llvm_print_type(ife->expr.u_id->id->type);
-                    printf(", ");
-                    llvm_print_type(ife->expr.u_id->id->type);
-                    printf("* %%%s\n", ife->expr.u_id->id->id);
                 }
             }
 
