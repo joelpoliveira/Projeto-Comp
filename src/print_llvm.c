@@ -10,6 +10,7 @@
 
 
 // TODO Functions calls (invocation)
+// TODO se for float/double + float/double temos de usar fadd em vez de add
 
 extern char** args;
 extern int arg_counter;
