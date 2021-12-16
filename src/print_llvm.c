@@ -9,9 +9,6 @@
 #include <stdbool.h>
 
 
-// TODO Functions calls (invocation)
-// TODO se for float/double + float/double temos de usar fadd em vez de add
-
 extern is_program* program;
 int global_counter = 0;
 int func_counter = 0;
