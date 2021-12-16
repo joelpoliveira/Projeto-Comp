@@ -211,6 +211,7 @@ void llvm_program(is_program* ip){
 
     string = (table_element*) malloc (sizeof(table_element));
     aux = create_token("\"false\\n\"", 0, 0);
+    aux->uses = 99;
     string->id = aux;
     insert_symbol(&program->strings_table, string);
 
@@ -229,18 +230,25 @@ void llvm_string_dec(id_token* id){
     int size = strlen(id->id) - 2; // vem com aspas
     char aux[size];//, tmp[size*2];
     char* tmp = (char*)calloc(sizeof(char), size*3); // TODO fix this. aumentar dinamicamente
-
+    bool olp = 1;
     strcpy(aux, id->id);
 
+    printf("================= %s\n", id->id);
+
+    if (strcmp(id->id, "\"%d\\n\"") == 0)
+        olp = 0;
+
+    if (strcmp(id->id, "\"%f\\n\"") == 0)
+       olp = 0;
+    
     int i = 0;
     int x = 0; // ofset para tmp se encontrar \n em aux pq tmp vai ter um char a mais
     while (aux[i] != '\0') {
-
         if (aux[i] == '\\' && aux[i+1] == 'n'){
             strcat(tmp, "\\0A");
             i++;
             x++;
-        } else if (aux[i] == '%'){
+        } else if (aux[i] == '%' && aux[i+1] != '%' && olp){
             strcat(tmp, "%%");
             x++;
         } else
@@ -248,8 +256,9 @@ void llvm_string_dec(id_token* id){
         i++;
     }
 
-    tmp[i+x-1] = 0;
+    tmp[i+x-1] = 0;    
 
+    
     if (string_counter == 0)
         printf("@.str");
     else
@@ -265,34 +274,19 @@ void llvm_string_dec(id_token* id){
     //sprintf(id->id, "%s", tmp);
 }
 
-
-int llvm_string_size(char* s){
-    int size = 0;
-
-    for(int i = 0; s[i] != 0; i++){
-        if (s[i+2] != 0) {
-            if (s[i] == '\"') continue;
-
-            if(s[i] == '\\' && s[i+1] == '0' && s[i+2] == 'A'){
-                size++;
-                i+=2;
-            } else if (s[i] == '\\' && s[i+1] == '0' && s[i+2] == '0') {
-                size++;
-                i+=2;
-            } else
-                size++;
-        }
-
-    }
-
-    return size;
-}
-
 //abc\n123\n
-
 
 int string_size(char* s){
     int size = 0;
+    bool olp = 0;
+
+    if (strcmp(s, "\"%d\\n\"") == 0) {
+        olp = 1;
+    }
+
+    if (strcmp(s, "\"%f\\n\"") == 0) {
+        olp = 1;
+    }
 
     for(int i = 0; s[i] != 0; i++){
         if (s[i] == '\"') continue;
@@ -300,13 +294,14 @@ int string_size(char* s){
         if (s[i] == '\\' && s[i+1] == 'n'){
             size++;
             i+=2;
-        } else if (s[i] == '%' && s[i+1] == '%'){
-            size++;
-            i+=2;
+        } else if (s[i] == '%'){
+            size += 2;
+            if (olp)
+                i++;
         } else
             size++;
     }
-    //printf("string_size (%s) = %d\n", s, size);
+    //printf("\nstring_size (%s) = %d\n", s, size);
     return size+1;
 }
 
