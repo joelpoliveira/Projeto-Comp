@@ -1026,7 +1026,7 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
             case d_self_minus:
                 (current->next_same->expression_type==d_float32) ? printf("%%%d = fmul ", next) : printf("%%%d = mul ", next);
                 llvm_print_type(current->next_same->expression_type);
-                ( is_digit(ltoken[0]) ) ? printf(" %s, -1\n", ltoken) : printf(" %%%s, -1", ltoken);
+                ( is_digit(ltoken[0]) ) ? printf(" %s, -1", ltoken) : printf(" %%%s, -1", ltoken);
                 (current->next_same->expression_type == d_float32) ? printf(".0\n") : printf("\n");
 
                 ret = (char *) malloc( ndigits(next) + 2 );
