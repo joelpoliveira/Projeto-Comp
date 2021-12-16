@@ -10,8 +10,10 @@
 
 
 // TODO Functions calls (invocation)
+// TODO se for float/double + float/double temos de usar fadd em vez de add
 
-
+extern char** args;
+extern int arg_counter;
 extern is_program* program;
 int global_counter = 0;
 int func_counter = 0;
@@ -21,10 +23,6 @@ bool declare_print = 0, print_done = 0;
 bool declare_atoi = 0, atoi_done = 0;
 bool return_in_statement = 0;
 
-
-void llvm_atoi(){
-    declare_atoi = 1;
-}
 
 
 bool is_digit(char c){
@@ -211,6 +209,18 @@ void llvm_program(is_program* ip){
     string->id = aux;
     insert_symbol(&program->strings_table, string);
 
+    if (arg_counter > 1){
+        for (int x = 1; x < arg_counter; x++){
+            string = (table_element*) malloc (sizeof(table_element));
+            //printf("%s, %s\n", args[0], args[1]);
+            char* tmp = (char*)calloc(sizeof(char), strlen(args[x])*2);
+            sprintf(tmp, "\"%s\"", args[x]);
+            aux = create_token(tmp, 0, 0);
+            string->id = aux;
+            insert_symbol(&program->strings_table, string);
+        }
+    }
+
     //Print strings declarations
     for(table_element* current = ip->strings_table; current != NULL; current = current->next){
         llvm_string_dec(current->id);
@@ -347,7 +357,7 @@ void llvm_func_declaration(is_func_dec* ifd){
 
     if (declare_atoi && !atoi_done) {
         atoi_done = 1;
-        printf("declare i32 @atoi(i8*, ...)\n\n");
+        printf("declare i32 @atoi(i8*)\n\n");
     }
 
 }
@@ -692,22 +702,29 @@ int llvm_statements_list(is_statements_list* isl, table_element**symtab, int nva
 
 int llvm_final_statement(is_final_statement* ifs, table_element**symtab, int nvar_now){
     if (ifs == NULL) return nvar_now;
+    char* token;
+    int num;
+    char* str, *tmp;
 
-     switch (ifs->type_state){
+    switch (ifs->type_state){
         case d_function_invoc:
             nvar_now = llvm_func_invocation(ifs->statement.ifi, symtab, nvar_now);
             break;
         
         case d_arguments:
-            // print_dots(depth);
-            // printf("ParseArgs");
-            // print_anotation_type(ifs->statement.ipa->id);
-
-            // print_dots(depth+1);
-            // printf("Id(%s)", ifs->statement.ipa->id->id);
-            // print_anotation_type(ifs->statement.ipa->id);
-
-            // print_expression_or_list(ifs->statement.ipa->iel, depth+1);
+            token = llvm_expression_or_list(ifs->statement.ipa->iel, NULL, nvar_now, symtab);
+            str = (char*) calloc(sizeof(char), 20);
+            tmp = (char*) calloc(sizeof(char), 20);
+            sprintf(tmp, "\"%s\"", args[1]);
+            num = llvm_get_string_num(tmp);
+            if (num == -1) {
+                printf("NOT FOUND\n");
+                break;
+            }
+            (num == 0) ? sprintf(str, "@.str") : sprintf(str, "@.str.%d", num);
+            printf("\t%%%s = load i8*, i8** %s\n", token, str);
+            if (arg_counter > 1)
+                llvm_atoi(token, str, string_size(tmp));
             break;
         
         default:
@@ -717,6 +734,12 @@ int llvm_final_statement(is_final_statement* ifs, table_element**symtab, int nva
     return nvar_now;
 }
 
+
+void llvm_atoi(char* token, char* s, int size){
+    declare_atoi = 1;
+    printf("\t%%%s = call i32 (i32) @atoi([%d x i8*] %s)\n", token, size, s);
+    //printf("\t%%%s = call i32 (i8*, ...) bitcast (i32 (...)* @atoi to i32 (i8*, ...)*)(i8* %s)\n", token, s);
+}
 
 char *  llvm_expression_or_list(is_expression_or_list* ieol, id_token* aux, int nvar_now, table_element**symtab){
     if (ieol == NULL) return NULL;
@@ -1006,11 +1029,10 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
                 return ret;
         }
         
-        
-        
-    }else{
-        return llvm_final_expression(current->next_final, aux, nvar_now, symtab);
-    }
+    } 
+
+    return llvm_final_expression(current->next_final, aux, nvar_now, symtab);
+
 }
 
 

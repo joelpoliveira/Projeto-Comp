@@ -29,6 +29,9 @@
     extern is_program * program;
     //extern table_element* symtab;
 
+    char** args;
+    int arg_counter;
+
     /*
         Submissão no Mooshak:
         ====Meta 1====
@@ -190,6 +193,10 @@ whispace (" "|\t)
 %%
 
 int main(int argc, char *argv[]){
+
+    args = argv;
+    arg_counter = argc;
+
     if(argv[1] != 0 && !strcmp(argv[1], "-l"))
         flag_1 = 1;
     
@@ -219,8 +226,6 @@ int main(int argc, char *argv[]){
 
             if(!flag_1 && !flag_2 && !flag_3)
                 llvm_program(program);
-            
-            return 0;
         }
 
     } else
