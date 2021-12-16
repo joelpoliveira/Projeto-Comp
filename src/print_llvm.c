@@ -1020,16 +1020,6 @@ char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, 
             case d_self_not:
                 declare_not = 1;
                 printf("%%%d = call i1 @.not(i1 %s)\n", next, ltoken);
-                /* printf("\tbr i1 %s, label %%not_true%d, label %%not_false%d\n", ltoken, next, next);
-                printf("not_true%d:\n", next);
-                printf("\t%%%d = icmp eq i32 1, 1\n", next);
-                printf("\tbr label %%continue_expr%d\n", next);
-
-                printf("not_false%d:\n",next);
-                printf("\t%%%d = icmp eq i32 1, 0\n", next+1);
-                printf("\tbr label %%continue_expr%d\n", next);
-
-                printf("continue_expr%d:\n", next); */
 
                 ret = (char *) malloc( ndigits(next) + 2 );
                 sprintf(ret, "%%%d", next);
