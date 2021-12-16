@@ -455,9 +455,10 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
 int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now, int counter){    
     char* token;
     
+    bool _bef_if = 0, _if = 0, _else = 0;
     token = llvm_expression_or_list(ifs->iel, NULL, nvar_now, symtab);
 
-    if (ifs->ies != NULL)
+    if ( (_bef_if = (ifs->ies != NULL)) )
         printf("\tbr i1 %s, label %%then%d, label %%else%d\n", token, counter, counter);
     else
         printf("\tbr i1 %s, label %%then%d, label %%ifcont%d\n", token, counter, counter);
@@ -466,7 +467,7 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
     printf("then%d:\n", counter);
     nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now, counter + 1);
 
-    if (!return_in_statement)
+    if ( (_if = !return_in_statement) )
         printf("\tbr label %%ifcont%d\n", counter);
 
 
@@ -474,11 +475,14 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
         return_in_statement = 0;
         printf("else%d:\n", counter);
         nvar_now = llvm_else_statement(ifs->ies, symtab, nvar_now, counter + 1);
-        if (!return_in_statement)
+        if ((_else = !return_in_statement) )
             printf("\tbr label %%ifcont%d\n", counter);
     }
 
-    printf("ifcont%d:\n", counter);
+    if ( _if || _else || !_bef_if)
+        printf("ifcont%d:\n", counter);
+    //
+
     //printf("\t%%iftmp = phi i32 [ %%calltmp, %%then ], [ %%calltmp1, %%else ]\n");
 
     label_counter += counter;
@@ -1067,9 +1071,12 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
                 sprintf(token, "%f", real);
                 
             }else{
-                if (has_point(ife->expr.u_reallit->reallit->id))
-                    sprintf(token, "%s", ife->expr.u_reallit->reallit->id);
-                else
+                if (has_point(ife->expr.u_reallit->reallit->id)){
+                    if (ife->expr.u_reallit->reallit->id[0]!='.')
+                        sprintf(token, "%s", ife->expr.u_reallit->reallit->id);
+                    else
+                        sprintf(token, "0%s", ife->expr.u_reallit->reallit->id);
+                }else
                     sprintf(token, "%s.0", ife->expr.u_reallit->reallit->id);
             }
             return token;
