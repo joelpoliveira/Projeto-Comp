@@ -1,7 +1,7 @@
 #include "structures.h"
 
 void llvm_atoi(char* token, char* s, int size);
-int llvm_print(char* string, char* param, int);
+int llvm_print(char* string, char* param, int, parameter_type);
 void llvm_string_dec(id_token* id);
 int llvm_string_size(char* s);
 int string_size(char* s);
