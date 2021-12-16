@@ -20,7 +20,6 @@ bool declare_not = 0, not_done = 0;
 bool return_in_statement = 0;
 
 
-
 bool is_digit(char c){
     return (c>='0' && c<='9') || c=='%';
 }
@@ -182,6 +181,7 @@ void llvm_program(is_program* ip){
         }
     }
 
+
     //inserir strings para dar print a variáveis
     table_element* string = (table_element*) malloc(sizeof(table_element));
     id_token* aux = create_token("\"%d\\n\"", 0, 0);
@@ -205,12 +205,10 @@ void llvm_program(is_program* ip){
     string->id = aux;
     insert_symbol(&program->strings_table, string);
 
-
     //Print strings declarations
     for(table_element* current = ip->strings_table; current != NULL; current = current->next){
         llvm_string_dec(current->id);
     }
-
 
     string_counter = 0;
     printf("\n");
@@ -221,9 +219,8 @@ void llvm_program(is_program* ip){
 void llvm_string_dec(id_token* id){
     int size = strlen(id->id) - 2; // vem com aspas
     char aux[size];//, tmp[size*2];
-    char* tmp = (char*)calloc(sizeof(char), size*2); // TODO fix this. aumentar dinamicamente
-    //table_element *str = search_symbol(program->strings_table, aux);
-    
+    char* tmp = (char*)calloc(sizeof(char), size*3); // TODO fix this. aumentar dinamicamente
+
     strcpy(aux, id->id);
 
     int i = 0;
@@ -233,6 +230,9 @@ void llvm_string_dec(id_token* id){
         if (aux[i] == '\\' && aux[i+1] == 'n'){
             strcat(tmp, "\\0A");
             i++;
+            x++;
+        } else if (aux[i] == '%'){
+            strcat(tmp, "%%");
             x++;
         } else
             tmp[i + x] = aux[i];
@@ -267,7 +267,7 @@ int llvm_string_size(char* s){
             if(s[i] == '\\' && s[i+1] == '0' && s[i+2] == 'A'){
                 size++;
                 i+=2;
-            } if (s[i] == '\\' && s[i+1] == '0' && s[i+2] == '0') {
+            } else if (s[i] == '\\' && s[i+1] == '0' && s[i+2] == '0') {
                 size++;
                 i+=2;
             } else
@@ -289,7 +289,10 @@ int string_size(char* s){
         if (s[i] == '\"') continue;
         
         if (s[i] == '\\' && s[i+1] == 'n'){
-            size += 1;
+            size++;
+            i+=2;
+        } else if (s[i] == '%' && s[i+1] == '%'){
+            size++;
             i+=2;
         } else
             size++;

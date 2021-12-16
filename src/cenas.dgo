@@ -1,0 +1,10 @@
+package main
+
+func teste(a int, b int) int {
+
+    return 0
+}
+
+func main() {
+    fmt.Println("Print123%d%f%.08fTesting%s");
+}
