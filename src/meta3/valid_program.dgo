@@ -22,7 +22,7 @@ func fcd() float32 {
 
 func fce() string {
     var strfce string;
-    return strfce;
+    return strfce; 
 }
 
 func fcf() bool {
