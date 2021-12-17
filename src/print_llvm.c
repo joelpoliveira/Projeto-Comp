@@ -128,17 +128,12 @@ void llvm_expr_store(id_token* a, char* b, table_element ** symtab){
     else{
         if ((temp=search_var(*symtab, a->id))){
             if (temp->is_param){
-                
-                    printf("\t%%%s%d = ", a->id, ++temp->llvm_count);
-                    a->type==d_float32? printf("fadd "):printf("add ");
+                    printf("\tstore ");
+                    llvm_print_type(a->type);
+                    ( is_digit(b[0]) )? printf(" %s, ", b) : printf(" %%%s, ", b);
                     llvm_print_type(a->type);
 
-                    if (temp->llvm_count == 1){
-                        printf(" %%%s,", a->id);
-                    }else
-                        printf(" %%%s%d,", a->id, temp->llvm_count-1);
-
-                    ( is_digit( b[0] ) ) ? printf(" %s\n", b) : printf(" %%%s\n", b);   
+                    printf("* %%%s_\n", a->id);   
             }else{
                 if(temp->is_declared){
                     printf("\tstore ");
@@ -396,6 +391,9 @@ void llvm_func_declaration(is_func_dec* ifd){
 
     printf(") {\n");
 
+    if(strcmp(ifd->id->id, "main"))
+        llvm_alloc_parameter(&ifd->symtab, ifd->ipl);
+
     //printf("entry:\n");
 
     //body
@@ -458,6 +456,22 @@ void llvm_is_parameter(table_element ** symtab, is_parameter * ip) {
             printf(", ");
     }
 
+}
+
+void llvm_alloc_parameter(table_element ** symtab, is_parameter * ip){
+    if (ip == NULL) return;
+
+    for (is_id_type_list* temp = ip->val; temp; temp = temp->next){
+        printf("\t%%%s_ = alloca ", temp->val->id->id);
+        llvm_print_type(get_var_id_type(symtab, temp->val->id));
+        printf("\n");
+
+        printf("\tstore ");
+        llvm_print_type(get_var_id_type(symtab, temp->val->id));
+        printf(" %%%s, ", temp->val->id->id);
+        llvm_print_type(get_var_id_type(symtab, temp->val->id));
+        printf("* %%%s_\n", temp->val->id->id);
+    }
 }
 
 
@@ -1227,16 +1241,11 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             }else{
                 if (temp_var->is_param){
                     
-                    (ife->expr.u_id->id->type==d_float32) ? printf("\t%%%d = fadd ", nvar_now) : printf("\t%%%d = add ", nvar_now);
+                    printf("\t%%%d = load ", nvar_now);
                     llvm_print_type(ife->expr.u_id->id->type);
-                    if (temp_var->llvm_count == 0){
-                        printf(" %%%s, 0", ife->expr.u_id->id->id);
-                        (ife->expr.u_id->id->type==d_float32) ? printf(".0\n"):printf("\n");
-                    }
-                    else{
-                        printf(" %%%s%d, 0", ife->expr.u_id->id->id, temp_var->llvm_count);
-                        (ife->expr.u_id->id->type==d_float32) ? printf(".0\n") : printf("\n");
-                    }
+                    printf(", ");
+                    llvm_print_type(ife->expr.u_id->id->type);
+                    printf("* %%%s_\n", ife->expr.u_id->id->id);
                     
                 }else{
                     if (temp_var->is_declared){
