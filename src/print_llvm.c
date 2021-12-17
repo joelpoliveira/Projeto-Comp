@@ -18,6 +18,7 @@ bool declare_print = 0, print_done = 0;
 bool declare_atoi = 0, atoi_done = 0;
 bool declare_not = 0, not_done = 0;
 bool return_in_statement = 0;
+bool is_unreachable = 0;
 
 
 bool is_digit(char c){
@@ -277,7 +278,7 @@ void llvm_string_dec(id_token* id){
 //abc\n123\n
 
 int string_size(char* s){
-    int size = 0;
+    int size = 1;
     bool olp = 0;
 
     if (strcmp(s, "\"%d\\n\"") == 0) {
@@ -288,10 +289,8 @@ int string_size(char* s){
         olp = 1;
     }
 
-    for(int i = 0; s[i] != 0; i++){
-        if (s[i] == '\"') continue;
-        
-        if (s[i] == '\\' && s[i+1] == 'n'){
+    for(int i = 1; s[i] != '\0'; i++){        
+        if (s[i] == '\\'){
             size++;
             i++;
         } else if (s[i] == '\\' && s[i+1] == 't'){
@@ -317,7 +316,7 @@ int string_size(char* s){
             size++;
     }
     //printf("\nstring_size (%s) = %d\n", s, size);
-    return size+1;
+    return size;
 }
 
 
@@ -678,6 +677,7 @@ int llvm_print(char* string, char* params, int nvar_now, parameter_type type){
         printf("keep%s:\n", params+1);
 
         return params[0]=='%'? atoi(params+1)+3: nvar_now + 2;
+
     }else{
         table_element *str = search_symbol(program->strings_table, string);
         if(str == NULL) return params[0]=='%'? atoi(params+1)+1:nvar_now;
