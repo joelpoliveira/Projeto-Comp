@@ -31,6 +31,7 @@ bool declare_atoi = 0, atoi_done = 0;
 bool declare_not = 0, not_done = 0;
 bool return_in_statement = 0;
 bool is_unreachable = 0;
+bool main_declared = 0;
 
 
 bool is_digit(char c){
@@ -362,6 +363,11 @@ void llvm_declarations_list(is_declarations_list* idl){
             llvm_func_declaration(current->val->dec.ifd);
         }
     }
+    if (!main_declared){
+        printf("define i32 @main(i32 %%argc, i8** %%argv){\n");
+        printf("\treturn i32 0\n");
+        printf("}\n");
+    }
 }
 
 
@@ -370,8 +376,10 @@ void llvm_func_declaration(is_func_dec* ifd){
     label_counter = 1;
 
     printf("define ");
-    if (strcmp(ifd->id->id, "main") == 0)
+    if (strcmp(ifd->id->id, "main") == 0){
         printf("i32");
+        main_declared = 1;
+    }
     else
         llvm_print_type(ifd->type);
     printf(" @%s(", ifd->id->id);
