@@ -4,11 +4,11 @@ func gcd(n1 int, n2 int) int {
 	var gcd int;
 	var i int;
 
-	if n1 < 0{
+	if n1 < 0 {
 		n1 = -n1
 	}
 
-	if n2 < 0{
+	if n2 < 0 {
 		n2 = -n2
 	} 
 
@@ -23,9 +23,33 @@ func gcd(n1 int, n2 int) int {
 	return gcd;
 }
 
+
+func gcd_2(a int, b int) int {
+
+	if a < 0 {
+		a = -a
+	}
+
+	if b < 0 {
+		b = -b
+	}
+
+
+    if a == 0{
+		return b
+	}
+	
+    return gcd_2(b%a, a);
+}
+
 func main(){
 	fmt.Println(gcd(10, 20));
 	fmt.Println(gcd(-10, -20));
 	fmt.Println(gcd(10, -20));
 	fmt.Println(gcd(-10, 20));
+
+	fmt.Println(gcd_2(10, 20));
+	fmt.Println(gcd_2(-10, -20));
+	fmt.Println(gcd_2(10, -20));
+	fmt.Println(gcd_2(-10, 20));
 }
