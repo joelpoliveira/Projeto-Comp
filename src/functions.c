@@ -68,9 +68,11 @@ is_var_spec * insert_var_specifications(id_token* id, is_id_list * iis, paramete
     ivs->iil = new_head;
 
     id->type = type;
-    for (is_id_list * aux = iis; aux; aux = aux->next)
+
+    for (is_id_list * aux = iis; aux; aux = aux->next){
         aux->val->type = type;
-        
+    }
+
     ivs->type = type;
     return ivs;
 }
@@ -243,17 +245,17 @@ is_statement * insert_print_str_statement(id_token* id){
 
     ips->type_print = d_str;
 
-    char * new_str = (char*) malloc(strlen(id->id)+3);
-    sprintf(new_str, "%s", id->id);
+    // char * new_str = (char*) malloc(strlen(id->id)+3);
+    // sprintf(new_str, "%s", id->id);
 
-    new_str[strlen(id->id) - 1] = '\\';
-    new_str[strlen(id->id)] = 'n';
-    new_str[strlen(id->id) + 1] = '"';
-    new_str[strlen(id->id) + 2] = '\0';
+    // new_str[strlen(id->id) - 1] = '\\';
+    // new_str[strlen(id->id)] = 'n';
+    // new_str[strlen(id->id) + 1] = '"';
+    // new_str[strlen(id->id) + 2] = '\0';
 
-    free(id->id);
-    id->id=new_str;
-    ips->print.id = id;
+    // free(id->id);
+    // id->id=new_str;
+    ips->print.id = id; 
 
 
     is->type_state = d_print;
