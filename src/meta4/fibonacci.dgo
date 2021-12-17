@@ -4,7 +4,7 @@ func main() {
 
   var i, n int;
   i = 3;
-  n = 10; // number of terms
+  n = 45; // number of terms
 
   var t1, t2 int;
   t1 = 0;
