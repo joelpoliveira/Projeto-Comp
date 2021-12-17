@@ -233,7 +233,7 @@ void llvm_string_dec(id_token* id){
     bool olp = 1;
     strcpy(aux, id->id);
 
-    printf("================= %s\n", id->id);
+    //printf("================= %s\n", id->id);
 
     if (strcmp(id->id, "\"%d\\n\"") == 0)
         olp = 0;
@@ -277,7 +277,7 @@ void llvm_string_dec(id_token* id){
 //abc\n123\n
 
 int string_size(char* s){
-    int size = 0;
+    int size = 1;
     bool olp = 0;
 
     if (strcmp(s, "\"%d\\n\"") == 0) {
@@ -288,12 +288,10 @@ int string_size(char* s){
         olp = 1;
     }
 
-    for(int i = 0; s[i] != 0; i++){
-        if (s[i] == '\"') continue;
-        
-        if (s[i] == '\\' && s[i+1] == 'n'){
+    for(int i = 1; s[i] != '\0'; i++){        
+        if (s[i] == '\\'){
             size++;
-            i+=2;
+            i+=1;
         } else if (s[i] == '%'){
             size += 2;
             if (olp)
@@ -302,7 +300,7 @@ int string_size(char* s){
             size++;
     }
     //printf("\nstring_size (%s) = %d\n", s, size);
-    return size+1;
+    return size;
 }
 
 
@@ -663,7 +661,9 @@ int llvm_print(char* string, char* params, int nvar_now, parameter_type type){
         printf("keep%s:\n", params+1);
 
         return params[0]=='%'? atoi(params+1)+3: nvar_now + 2;
+
     }else{
+        printf("-- %s -- \n __ \n", string);
         table_element *str = search_symbol(program->strings_table, string);
         if(str == NULL) return params[0]=='%'? atoi(params+1)+1:nvar_now;
 
