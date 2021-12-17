@@ -36,7 +36,7 @@ bool declare_not = 0, not_done = 0;
 bool return_in_statement = 0;
 bool is_unreachable = 0;
 bool main_declared = 0;
-
+bool last_was_label = 0;
 
 bool is_digit(char c){
     return (c>='0' && c<='9') || c=='%';
@@ -400,6 +400,13 @@ void llvm_func_declaration(is_func_dec* ifd){
     func_counter++;
     llvm_function_body(ifd->ifb, &ifd->symtab);
 
+    if (last_was_label && strcmp(ifd->id->id, "main")){
+        printf("\tret ");
+        llvm_print_type(ifd->type);
+        printf(" 0");
+        ifd->type==d_float32?printf(".0\n"):printf("\n");
+    }
+
     table_element* tmp = search_symbol(ifd->symtab, "return");
     //printf("=========== %d\n", tmp->type);
 
@@ -495,6 +502,7 @@ void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl, table_elem
             break;
         }
     }
+
 }
 
 
@@ -539,22 +547,27 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
                 break;
             case d_for:
                 next = llvm_for_statement(is->statement.u_for_state, symtab, nvar_now, counter);
+                last_was_label = 0;
                 break;
             case d_return:
                 is_unreachable = 1;
                 next = llvm_return_statement(is->statement.u_return_state, symtab, nvar_now);
+                last_was_label = 0;
                 break;
             case d_print:
                 next = llvm_print_statement(is->statement.u_print_state, symtab, nvar_now);
+                last_was_label = 0;
                 break;
             case d_assign:
                 next = llvm_assign_statement(is->statement.u_assign, symtab, nvar_now);
+                last_was_label = 0;
                 break;
             case d_statement_list:
                 next = llvm_statements_list(is->statement.isl, symtab, nvar_now, counter);
                 break;
             case d_final_statement:
                 next = llvm_final_statement(is->statement.u_state, symtab, nvar_now);
+                last_was_label = 0;
                 break;
         
             default:
@@ -599,8 +612,12 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
 
     
 
-    if ( _if || _else || !_bef_if)
+    if ( _if || _else || !_bef_if){
         printf("ifcont%d:\n", counter);
+        last_was_label = 1;
+    }else{
+        last_was_label = 0;
+    }
     
     label_counter += counter;
 

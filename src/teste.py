@@ -71,7 +71,7 @@ def run_tests():
             )
         else:
             os.system(f"./gocompiler < meta{meta}/{test}.dgo > temp.ll")
-            os.system(f"lli temp.ll | diff meta{meta}/{test}.out - > meta{meta}/outputs/{test}.txt")
+            os.system(f"lli-7 temp.ll | diff meta{meta}/{test}.out - > meta{meta}/outputs/{test}.txt")
             os.system("rm temp.ll")
 
         # output result
