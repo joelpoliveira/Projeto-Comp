@@ -11,8 +11,8 @@
 /*
     Submissão no Mooshak:
         ====Meta 4====
-        A -> 137/250    :: All 
-        B -> 24/41      :: Printing, variable declaration, assignment
+        A -> 146/250    :: All 
+        B -> 33/41      :: Printing, variable declaration, assignment
         C -> 18/59      :: Expressions
         D -> 6/54       :: Statements if and for 
         E -> 55/55      :: Functions, Calls, return, expressions 
@@ -265,7 +265,27 @@ void llvm_string_dec(id_token* id){
             strcat(tmp, "\\0A");
             i++;
             x++;
-        } else if (aux[i] == '%' && aux[i+1] != '%' && olp){
+        }else if (aux[i] == '\\' && aux[i+1] == '\"'){
+            strcat(tmp, "\\22");
+            i++;
+            x++;
+        } else if (aux[i] == '\\' && aux[i+1] == 't'){
+            strcat(tmp, "\\09");
+            i++;
+            x++;
+        }else if (aux[i] == '\\' && aux[i+1] == 'r'){
+            strcat(tmp, "\\0D");
+            i++;
+            x++;
+        }else if (aux[i] == '\\' && aux[i+1] == 'f'){
+            strcat(tmp, "\\0C");
+            i++;
+            x++;
+        } else if (aux[i] == '\\' && aux[i+1] == '\\'){
+            strcat(tmp, "\\5C");
+            i++;
+            x++;
+        }else if (aux[i] == '%' && aux[i+1] != '%' && olp){
             strcat(tmp, "%%");
             x++;
         } else
@@ -310,19 +330,19 @@ int string_size(char* s){
             size++;
             i++;
         } else if (s[i] == '\\' && s[i+1] == 't'){
-            size+=2;
+            size++;
             i++;
         } else if (s[i] == '\\' && s[i+1] == 'f'){
-            size+=2;
+            size++;
             i++;
         } else if (s[i] == '\\' && s[i+1] == '\\'){
             size++;
             i++;
         } else if (s[i] == '\\' && s[i+1] == '\"'){
-            size+=2;
+            size++;
             i++;
         } else if (s[i] == '\\' && s[i+1] == 'r'){
-            size+=2;
+            size++;
             i++;
         }else if (s[i] == '%'){
             size += 2;
