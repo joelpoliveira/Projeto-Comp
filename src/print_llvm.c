@@ -310,7 +310,7 @@ int string_size(char* s){
             size++;
     }
     //printf("\nstring_size (%s) = %d\n", s, size);
-    return size;
+    return size - 1;
 }
 
 
@@ -403,6 +403,8 @@ void llvm_is_parameter(table_element ** symtab, is_parameter * ip) {
 void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl, table_element ** symtab, int nvar_now){
     is_vars_and_statements_list* current;
 
+    is_unreachable = 0;
+
     for(current = ivsl; current != NULL; current = current->next) {
         //{d_var_dec, d_statement} var_or_statement;
         switch (current->val->type){
@@ -410,6 +412,7 @@ void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl, table_elem
                 llvm_var_declaration(symtab, current->val->body.ivd);
                 break;
             case d_statement:
+                
                 nvar_now = llvm_statement(current->val->body.is, symtab, nvar_now, label_counter);
                 break;
         default:
@@ -442,34 +445,41 @@ void llvm_var_spec(table_element ** symtab, is_var_spec* ivs){
 int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int counter){
     //{d_if, d_for, d_return, d_print, d_assign, d_statement_list, d_final_statement
     int next = nvar_now;
-    //printf("================== Nvar = %d\n", nvar_now);
-    switch (is->type_state){
-        case d_if:
-            next = llvm_if_statement(is->statement.u_if_state, symtab, nvar_now, counter);
-            break;
-        case d_for:
-            next = llvm_for_statement(is->statement.u_for_state, symtab, nvar_now, counter);
-            break;
-        case d_return:
-            next = llvm_return_statement(is->statement.u_return_state, symtab, nvar_now);
-            break;
-        case d_print:
-            next = llvm_print_statement(is->statement.u_print_state, symtab, nvar_now);
-            break;
-        case d_assign:
-            next = llvm_assign_statement(is->statement.u_assign, symtab, nvar_now);
-            break;
-        case d_statement_list:
-            next = llvm_statements_list(is->statement.isl, symtab, nvar_now, counter);
-            break;
-        case d_final_statement:
-            next = llvm_final_statement(is->statement.u_state, symtab, nvar_now);
-            break;
+
+    //is_unreachable = 0;
+    //printf("__%d__\n", is_unreachable);
+    if (!is_unreachable){
+        switch (is->type_state){
+            case d_if:
+                next = llvm_if_statement(is->statement.u_if_state, symtab, nvar_now, counter);
+                break;
+            case d_for:
+                next = llvm_for_statement(is->statement.u_for_state, symtab, nvar_now, counter);
+                break;
+            case d_return:
+                is_unreachable = 1;
+                next = llvm_return_statement(is->statement.u_return_state, symtab, nvar_now);
+                break;
+            case d_print:
+                next = llvm_print_statement(is->statement.u_print_state, symtab, nvar_now);
+                break;
+            case d_assign:
+                next = llvm_assign_statement(is->statement.u_assign, symtab, nvar_now);
+                break;
+            case d_statement_list:
+                next = llvm_statements_list(is->statement.isl, symtab, nvar_now, counter);
+                break;
+            case d_final_statement:
+                next = llvm_final_statement(is->statement.u_state, symtab, nvar_now);
+                break;
         
-        default:
-            printf("Erro llvm_statement\n");
-            break;
+            default:
+                printf("Erro llvm_statement\n");
+                break;
+        }
     }
+
+    //printf("__%d__\n", is_unreachable);
     return next;
 }
 
@@ -488,6 +498,7 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
     return_in_statement = 0;
     printf("then%d:\n", counter);
     nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now, counter + 1);
+    is_unreachable = 0;
 
     if ( (_if = !return_in_statement) )
         printf("\tbr label %%ifcont%d\n", counter);
@@ -497,16 +508,16 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
         return_in_statement = 0;
         printf("else%d:\n", counter);
         nvar_now = llvm_else_statement(ifs->ies, symtab, nvar_now, counter + 1);
+        is_unreachable = 0;
         if ((_else = !return_in_statement) )
             printf("\tbr label %%ifcont%d\n", counter);
     }
 
+    
+
     if ( _if || _else || !_bef_if)
         printf("ifcont%d:\n", counter);
-    //
-
-    //printf("\t%%iftmp = phi i32 [ %%calltmp, %%then ], [ %%calltmp1, %%else ]\n");
-
+    
     label_counter += counter;
 
     return nvar_now;
@@ -543,7 +554,6 @@ int llvm_for_statement(is_for_statement* ifs, table_element**symtab, int nvar_no
 int llvm_return_statement(is_return_statement* irs, table_element**symtab, int nvar_now){
 
     if (irs->iel == NULL){
-        //printf("\tret void");
         return nvar_now;
     }
 
@@ -553,7 +563,6 @@ int llvm_return_statement(is_return_statement* irs, table_element**symtab, int n
     printf(" %s\n", token);
 
     return_in_statement = 1;
-
     return token[0] == '%'? atoi(token+1)+1 : nvar_now;
 }
 
@@ -604,6 +613,7 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
             printf("Erro llvm_print_statement\n");
             break;
     }
+
     return nvar_now;
 }
 
@@ -726,6 +736,7 @@ int llvm_statements_list(is_statements_list* isl, table_element**symtab, int nva
     for (is_statements_list * current = isl; current; current = current->next){
         nvar_now = llvm_statement(current->val, symtab, nvar_now, counter);
     }
+
     return nvar_now;
 }
 
