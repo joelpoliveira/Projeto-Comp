@@ -18,6 +18,7 @@ bool declare_print = 0, print_done = 0;
 bool declare_atoi = 0, atoi_done = 0;
 bool declare_not = 0, not_done = 0;
 bool return_in_statement = 0;
+bool is_unreachable = 0;
 
 
 bool is_digit(char c){
@@ -672,7 +673,6 @@ int llvm_print(char* string, char* params, int nvar_now, parameter_type type){
         return params[0]=='%'? atoi(params+1)+3: nvar_now + 2;
 
     }else{
-        printf("-- %s -- \n __ \n", string);
         table_element *str = search_symbol(program->strings_table, string);
         if(str == NULL) return params[0]=='%'? atoi(params+1)+1:nvar_now;
 
