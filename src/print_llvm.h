@@ -32,3 +32,4 @@ char * llvm_expression_star_like_list(is_expression_star_like_list * iestl, id_t
 char * llvm_self_expression_list(is_self_expression_list * isel, id_token* aux, int,table_element**);
 char * llvm_final_expression(is_final_expression * ife, id_token* aux, int,table_element**);
 int llvm_func_invocation(is_function_invocation * ifi, table_element**, int);
+void llvm_alloc_parameter(table_element ** symtab, is_parameter * ip);
