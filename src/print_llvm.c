@@ -293,17 +293,23 @@ int string_size(char* s){
         
         if (s[i] == '\\' && s[i+1] == 'n'){
             size++;
-            i+=1;
+            i++;
         } else if (s[i] == '\\' && s[i+1] == 't'){
             size++;
-            i+=1;
+            i++;
         } else if (s[i] == '\\' && s[i+1] == 'f'){
             size++;
-            i+=1;
+            i++;
         } else if (s[i] == '\\' && s[i+1] == '\\'){
             size++;
-            i+=1;
-        } else if (s[i] == '%'){
+            i++;
+        } else if (s[i] == '\\' && s[i+1] == '\"'){
+            size++;
+            i++;
+        } else if (s[i] == '\\' && s[i+1] == 'r'){
+            size++;
+            i++;
+        }else if (s[i] == '%'){
             size += 2;
             if (olp)
                 i++;
