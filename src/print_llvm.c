@@ -233,7 +233,7 @@ void llvm_string_dec(id_token* id){
     bool olp = 1;
     strcpy(aux, id->id);
 
-    printf("================= %s\n", id->id);
+    //printf("================= %s\n", id->id);
 
     if (strcmp(id->id, "\"%d\\n\"") == 0)
         olp = 0;
@@ -293,7 +293,16 @@ int string_size(char* s){
         
         if (s[i] == '\\' && s[i+1] == 'n'){
             size++;
-            i+=2;
+            i+=1;
+        } else if (s[i] == '\\' && s[i+1] == 't'){
+            size++;
+            i+=1;
+        } else if (s[i] == '\\' && s[i+1] == 'f'){
+            size++;
+            i+=1;
+        } else if (s[i] == '\\' && s[i+1] == '\\'){
+            size++;
+            i+=1;
         } else if (s[i] == '%'){
             size += 2;
             if (olp)
