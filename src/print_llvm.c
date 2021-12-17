@@ -206,14 +206,14 @@ void llvm_program(is_program* ip){
 
     //inserir strings para dar print a variáveis
     table_element* string = (table_element*) malloc(sizeof(table_element));
-    id_token* aux = create_token("\"%d\\n\"", 0, 0);
+    id_token* aux = create_token("\"%d\"", 0, 0);
     string->id = aux;
     string->is_string = 1;
     string->type_dec = d_var_declaration;
     insert_symbol(&program->strings_table, string);
 
     string = (table_element*) malloc (sizeof(table_element));
-    aux = create_token("\"%.08f\\n\"", 0, 0);
+    aux = create_token("\"%.08f\"", 0, 0);
     string->id = aux;
     insert_symbol(&program->strings_table, string);
 
@@ -224,7 +224,11 @@ void llvm_program(is_program* ip){
 
     string = (table_element*) malloc (sizeof(table_element));
     aux = create_token("\"false\\n\"", 0, 0);
-    aux->uses = 99;
+    string->id = aux;
+    insert_symbol(&program->strings_table, string);
+
+    string = (table_element*) malloc (sizeof(table_element));
+    aux = create_token("\"\\n\"", 0, 0);
     string->id = aux;
     insert_symbol(&program->strings_table, string);
 
@@ -248,10 +252,10 @@ void llvm_string_dec(id_token* id){
 
     //printf("================= %s\n", id->id);
 
-    if (strcmp(id->id, "\"%d\\n\"") == 0)
+    if (strcmp(id->id, "\"%d\"") == 0)
         olp = 0;
 
-    if (strcmp(id->id, "\"%.08f\\n\"") == 0)
+    if (strcmp(id->id, "\"%.08f\"") == 0)
        olp = 0;
     
     int i = 0;
@@ -293,11 +297,11 @@ int string_size(char* s){
     int size = 1;
     bool olp = 0;
 
-    if (strcmp(s, "\"%d\\n\"") == 0) {
+    if (strcmp(s, "\"%d\"") == 0) {
         olp = 1;
     }
 
-    if (strcmp(s, "\"%.08f\\n\"") == 0) {
+    if (strcmp(s, "\"%.08f\"") == 0) {
         olp = 1;
     }
 
@@ -616,12 +620,12 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
             
             switch (ips->print.iel->expression_type){
                 case d_integer:
-                    type = "\"%d\\n\"";
+                    type = "\"%d\"";
                     nvar_now = llvm_print(type, token, nvar_now, ips->print.iel->expression_type);
                     break;
 
                 case d_float32:
-                    type = "\"%.08f\\n\"";
+                    type = "\"%.08f\"";
                     nvar_now = llvm_print(type, token, nvar_now, ips->print.iel->expression_type);
                     break;
 
@@ -718,10 +722,31 @@ int llvm_print(char* string, char* params, int nvar_now, parameter_type type){
 
     }else{
         table_element *str = search_symbol(program->strings_table, string);
-        if(str == NULL) return params[0]=='%'? atoi(params+1)+1:nvar_now;
+        int num, size;
+        if(str == NULL) {
+            str = search_symbol(program->strings_table, "\"\\n\"");
 
-        int num = llvm_get_string_num(str->id->id);
-        int size = string_size(str->id->id);
+            num = llvm_get_string_num(str->id->id);
+            size = string_size(str->id->id);
+
+            params[0]=='%'? printf("\t%%%d", atoi(params+1)+1) : printf("\t%%%d", nvar_now);
+            printf(" = call i32(i8*, ...) "); 
+            printf("@printf (i8* getelementptr inbounds");
+            printf("([%d x i8], [%d x i8]* ", size, size);
+
+            if (num == 0)
+                printf(" @.str, ");
+            else
+                printf(" @.str.%d, ", num);
+
+            printf("i32 0, i32 0)");
+
+            printf(")\n");
+            return params[0]=='%'? atoi(params+1)+2:nvar_now+1;
+        }
+
+        num = llvm_get_string_num(str->id->id);
+        size = string_size(str->id->id);
 
         params[0]=='%'? printf("\t%%%d", atoi(params+1)+1) : printf("\t%%%d", nvar_now);
         printf(" = call i32(i8*, ...) "); 
@@ -744,7 +769,26 @@ int llvm_print(char* string, char* params, int nvar_now, parameter_type type){
 
         printf(")\n");
 
-        return params[0]=='%'? atoi(params+1)+2: nvar_now + 1;
+        str = search_symbol(program->strings_table, "\"\\n\"");
+
+        num = llvm_get_string_num(str->id->id);
+        size = string_size(str->id->id);
+
+        params[0]=='%'? printf("\t%%%d", atoi(params+1)+2) : printf("\t%%%d", nvar_now+1);
+        printf(" = call i32(i8*, ...) "); 
+        printf("@printf (i8* getelementptr inbounds");
+        printf("([%d x i8], [%d x i8]* ", size, size);
+
+        if (num == 0)
+            printf(" @.str, ");
+        else
+            printf(" @.str.%d, ", num);
+
+        printf("i32 0, i32 0)");
+
+        printf(")\n");
+
+        return params[0]=='%'? atoi(params+1)+3: nvar_now + 2;
 
     }
 }  
