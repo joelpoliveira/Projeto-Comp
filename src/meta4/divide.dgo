@@ -1,0 +1,14 @@
+package main;
+
+func main(){
+	var a, b int;
+	a = 4;
+	b = 2;
+
+	var c, d float32;
+	c = 20.6;
+	d = .47e3;
+
+	fmt.Println(a / b);
+	fmt.Println(c / d);
+}
