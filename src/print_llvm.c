@@ -8,6 +8,18 @@
 #include <math.h>
 #include <stdbool.h>
 
+/*
+    Submissão no Mooshak:
+        ====Meta 4====
+        A -> 137/250    :: All 
+        B -> 24/41      :: Printing, variable declaration, assignment
+        C -> 18/59      :: Expressions
+        D -> 6/54       :: Statements if and for 
+        E -> 55/55      :: Functions, Calls, return, expressions 
+        F -> 34/41      :: bigmod, circle, fibonacci, gcd, divide, factorial
+
+*/
+
 
 extern is_program* program;
 int global_counter = 0;
@@ -334,7 +346,10 @@ void llvm_func_declaration(is_func_dec* ifd){
     label_counter = 1;
 
     printf("define ");
-    llvm_print_type(ifd->type);
+    if (strcmp(ifd->id->id, "main") == 0)
+        printf("i32");
+    else
+        llvm_print_type(ifd->type);
     printf(" @%s(", ifd->id->id);
 
     //parametros
@@ -353,8 +368,12 @@ void llvm_func_declaration(is_func_dec* ifd){
 
     table_element* tmp = search_symbol(ifd->symtab, "return");
     //printf("=========== %d\n", tmp->type);
+
     if (tmp->type == d_none){
-        printf("\tret void\n");
+        if (strcmp(ifd->id->id, "main") == 0)
+            printf("\tret i32 0\n");
+        else
+            printf("\tret void\n");
     }
 
     printf("}\n\n");
