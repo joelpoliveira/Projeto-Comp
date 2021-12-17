@@ -201,7 +201,7 @@ void llvm_program(is_program* ip){
     insert_symbol(&program->strings_table, string);
 
     string = (table_element*) malloc (sizeof(table_element));
-    aux = create_token("\"%f\\n\"", 0, 0);
+    aux = create_token("\"%.08f\\n\"", 0, 0);
     string->id = aux;
     insert_symbol(&program->strings_table, string);
 
@@ -239,7 +239,7 @@ void llvm_string_dec(id_token* id){
     if (strcmp(id->id, "\"%d\\n\"") == 0)
         olp = 0;
 
-    if (strcmp(id->id, "\"%f\\n\"") == 0)
+    if (strcmp(id->id, "\"%.08f\\n\"") == 0)
        olp = 0;
     
     int i = 0;
@@ -285,7 +285,7 @@ int string_size(char* s){
         olp = 1;
     }
 
-    if (strcmp(s, "\"%f\\n\"") == 0) {
+    if (strcmp(s, "\"%.08f\\n\"") == 0) {
         olp = 1;
     }
 
@@ -294,19 +294,19 @@ int string_size(char* s){
             size++;
             i++;
         } else if (s[i] == '\\' && s[i+1] == 't'){
-            size++;
+            size+=2;
             i++;
         } else if (s[i] == '\\' && s[i+1] == 'f'){
-            size++;
+            size+=2;
             i++;
         } else if (s[i] == '\\' && s[i+1] == '\\'){
             size++;
             i++;
         } else if (s[i] == '\\' && s[i+1] == '\"'){
-            size++;
+            size+=2;
             i++;
         } else if (s[i] == '\\' && s[i+1] == 'r'){
-            size++;
+            size+=2;
             i++;
         }else if (s[i] == '%'){
             size += 2;
@@ -435,11 +435,20 @@ void llvm_var_spec(table_element ** symtab, is_var_spec* ivs){
     table_element * temp;
     for (is_id_list* current = ivs->iil; current; current = current->next){
         printf("\t%%%s = alloca ", current->val->id);
+        llvm_print_type(current->val->type);
         
+        printf("\n\tstore ");
+        llvm_print_type(current->val->type);
+        printf(" 0");
+        if (current->val->type == d_float32)
+            printf(".0");
+        printf(", ");
+        llvm_print_type(current->val->type);
+        printf("* %%%s", current->val->id);
+
         temp = search_var(*symtab, current->val->id);
         temp->is_declared = 1;
 
-        llvm_print_type(current->val->type);
         printf("\n");
     }
 }
@@ -584,7 +593,7 @@ int llvm_print_statement(is_print_statement* ips, table_element**symtab, int nva
                     break;
 
                 case d_float32:
-                    type = "\"%f\\n\"";
+                    type = "\"%.08f\\n\"";
                     nvar_now = llvm_print(type, token, nvar_now, ips->print.iel->expression_type);
                     break;
 
