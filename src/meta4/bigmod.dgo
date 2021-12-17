@@ -1,0 +1,33 @@
+package main;
+
+func main(){
+	var base, power, mod, result int;
+    base = 9;
+    power = 101154;
+    mod = 11;
+    result = BigMod(base, power, mod);
+    fmt.Println(result);
+}
+
+
+func BigMod(base int, power int, mod int) int {
+	var m1, m2 int;
+
+    if (power == 0){
+		return 1;
+	}
+
+    if (power % 2 == 0){
+        m1 = BigMod(base, power / 2, mod) % mod;
+        m2 = m1;
+
+        return (m1 * m2 % mod);
+    }
+
+    if (power % 2 == 1){
+        m1 = BigMod(base, power-1, mod) % mod;
+        m2 = base % mod;
+
+        return (m1*m2)%mod;
+    }
+}

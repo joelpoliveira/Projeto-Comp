@@ -8,6 +8,10 @@
 #include <math.h>
 #include <stdbool.h>
 
+
+// TODO erro no bigmod, label do if
+// TODO erro no gcd por causa do not
+
 /*
     Submissão no Mooshak:
         ====Meta 4====

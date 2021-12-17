@@ -1,0 +1,31 @@
+package main;
+
+func gcd(n1 int, n2 int) int {
+	var gcd int;
+	var i int;
+
+	if n1 < 0{
+		n1 = -n1
+	}
+
+	if n2 < 0{
+		n2 = -n2
+	} 
+
+	i = 1;
+	for i <= n1 && i <= n2 {
+		if(n1 % i == 0 && n2 % i == 0){
+			gcd = i;
+		}
+		i = i +1;
+	}
+
+	return gcd;
+}
+
+func main(){
+	fmt.Println(gcd(10, 20));
+	fmt.Println(gcd(-10, -20));
+	fmt.Println(gcd(10, -20));
+	fmt.Println(gcd(-10, 20));
+}
