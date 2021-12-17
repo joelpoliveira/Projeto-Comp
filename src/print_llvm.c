@@ -289,8 +289,8 @@ int string_size(char* s){
         olp = 1;
     }
 
-    for(int i = 1; s[i] != '\0'; i++){        
-        if (s[i] == '\\'){
+    for(int i = 1; s[i] != '\0'; i++){
+        if (s[i] == '\\' && s[i+1] == 'n'){
             size++;
             i++;
         } else if (s[i] == '\\' && s[i+1] == 't'){
@@ -316,7 +316,7 @@ int string_size(char* s){
             size++;
     }
     //printf("\nstring_size (%s) = %d\n", s, size);
-    return size;
+    return size-1;
 }
 
 
