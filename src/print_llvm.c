@@ -1232,7 +1232,7 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
             token = (char * ) malloc(33);
             if (is_exponent(ife->expr.u_reallit->reallit->id)){
                 double real = strtof(ife->expr.u_reallit->reallit->id, NULL);
-                sprintf(token, "%f", real);
+                sprintf(token, "%.08f", real);
                 
             }else{
                 if (has_point(ife->expr.u_reallit->reallit->id)){
