@@ -292,6 +292,15 @@ int string_size(char* s){
         if (s[i] == '\\'){
             size++;
             i+=1;
+        } else if (s[i] == '\\' && s[i+1] == 't'){
+            size++;
+            i+=1;
+        } else if (s[i] == '\\' && s[i+1] == 'f'){
+            size++;
+            i+=1;
+        } else if (s[i] == '\\' && s[i+1] == '\\'){
+            size++;
+            i+=1;
         } else if (s[i] == '%'){
             size += 2;
             if (olp)
