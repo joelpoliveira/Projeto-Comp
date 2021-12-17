@@ -276,10 +276,11 @@ void check_if_statement(table_element** symtab, is_if_statement* ifs){
     if (ifs == NULL) return;
 
     id_token * ltoken = check_expression_or_list(symtab, ifs->iel);
-    bool error_ocurred = check_or_err(symtab, ifs->iel);
+    //bool error_ocurred = check_or_err(symtab, ifs->iel);
+    check_or_err(symtab, ifs->iel);
 
     if (ifs->iel != NULL) {
-        if(ifs->iel->expression_type != d_bool && !error_ocurred){
+        if(ifs->iel->expression_type != d_bool && ifs->iel->expression_type!=d_undef){
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col+1);
             symbol_print_type(ifs->iel->expression_type);
             printf(" in if statement\n");
@@ -301,10 +302,11 @@ void check_else_statement(table_element** symtab, is_else_statement* ies){
 void check_for_statement(table_element** symtab, is_for_statement* ifs){
    
     id_token * ltoken = check_expression_or_list(symtab, ifs->iel);
-    bool error_ocurred = check_or_err(symtab, ifs->iel);
+    //bool error_ocurred = check_or_err(symtab, ifs->iel);
+    check_or_err(symtab, ifs->iel);
 
     if (ifs->iel != NULL) {
-        if (ifs->iel->expression_type != d_bool && !error_ocurred){
+        if (ifs->iel->expression_type != d_bool && ifs->iel->expression_type!=d_undef){
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col + 1);
             symbol_print_type(ifs->iel->expression_type);
             printf(" in for statement\n");
@@ -320,12 +322,11 @@ void check_return_statement(table_element** symtab, is_return_statement* irs){
     //TODO linha e coluna na mensagem de erro
     
     id_token * ltoken = check_expression_or_list(symtab, irs->iel);
-    bool error_ocurred = check_or_err(symtab, irs->iel);
+    //bool error_ocurred = check_or_err(symtab, irs->iel);
+    check_or_err(symtab, irs->iel);
     if (temp != NULL && irs->iel != NULL){
-        if ( ( 
-                (irs->iel->expression_type != temp->type) 
-                || (irs->iel->expression_type == d_undef) 
-            ) && !error_ocurred){
+        if ( (irs->iel->expression_type != temp->type) || (irs->iel->expression_type == d_undef) 
+            ){
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col+1);
             symbol_print_type(irs->iel->expression_type);
             printf(" in return statement\n");
@@ -996,10 +997,13 @@ bool check_params(table_element ** symtab, table_element* symbol, is_function_in
             }else{
                 ifi->id->type = d_undef;
                 assign_type = 0;
-                error_ocurred = 1;
+                error_ocurred = 0;
             }
         }
-        if (assign_type){
+        if (param_elem!=NULL){
+            ifi->id->type = d_undef;
+            error_ocurred = 0;
+        }else if(assign_type){
             ifi->id->type = symbol->type;
             error_ocurred = 0;
         }
