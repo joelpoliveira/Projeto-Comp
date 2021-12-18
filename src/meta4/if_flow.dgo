@@ -1,0 +1,40 @@
+package main
+
+func flow(a int, b int, c int) {
+
+    if (a > 0){
+        if (b > 0){
+            if (c > 0){
+                fmt.Println("all p");
+            }else{
+                fmt.Println("c not")
+            }
+        }else{
+            if (c > 0){
+                fmt.Println("b not")
+            }else{
+                fmt.Println("b and c not")
+            }
+        }
+    }else{
+        if (b>0){
+            if (c > 0){
+                fmt.Println("a not")
+            }else{
+                fmt.Println("a and c not");
+            }
+        }else{
+            if(c>0){
+                fmt.Println("a and b not")
+            }else{
+                fmt.Println("all not")
+            }
+        }
+    }
+}
+
+
+func main() {
+    flow(-1,-1,-1);
+	return;
+}

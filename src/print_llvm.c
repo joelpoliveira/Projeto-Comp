@@ -37,23 +37,10 @@ bool return_in_statement = 0;
 bool is_unreachable = 0;
 bool main_declared = 0;
 bool last_was_label = 0;
+bool already_printed=0;
 
 bool is_digit(char c){
     return (c>='0' && c<='9') || c=='%';
-}
-
-bool is_exponent(char * n){
-    for (int i = 0; n[i]!='\0'; i++)
-        if (n[i]=='e' || n[i]=='E')
-            return 1;
-    return 0;
-}
-
-bool has_point(char * n){
-    for ( int i = 0; n[i]!='\0'; i++)
-        if (n[i]=='.')
-            return 1;
-    return 0;
 }
 
 size_t ndigits(int number){
@@ -373,7 +360,9 @@ void llvm_declarations_list(is_declarations_list* idl){
 void llvm_func_declaration(is_func_dec* ifd){
     func_counter = 0;
     label_counter = 1;
-
+    already_printed = 0;
+    last_was_label = 0;
+    
     printf("define ");
     if (strcmp(ifd->id->id, "main") == 0){
         printf("i32");
@@ -403,14 +392,17 @@ void llvm_func_declaration(is_func_dec* ifd){
     if (last_was_label && strcmp(ifd->id->id, "main")){
         printf("\tret ");
         llvm_print_type(ifd->type);
-        printf(" 0");
+        if (ifd->type!=d_none)
+            printf(" 0");
         ifd->type==d_float32?printf(".0\n"):printf("\n");
+
+        already_printed = 1;
     }
 
     table_element* tmp = search_symbol(ifd->symtab, "return");
     //printf("=========== %d\n", tmp->type);
 
-    if (tmp->type == d_none){
+    if (tmp->type == d_none && !already_printed){
         if (strcmp(ifd->id->id, "main") == 0)
             printf("\tret i32 0\n");
         else
@@ -495,7 +487,7 @@ void llvm_vars_and_statements_list(is_vars_and_statements_list* ivsl, table_elem
                 break;
             case d_statement:
                 
-                nvar_now = llvm_statement(current->val->body.is, symtab, nvar_now, label_counter);
+                nvar_now = llvm_statement(current->val->body.is, symtab, nvar_now);
                 break;
         default:
             printf("Erro llvm_vars_and_statements_list");
@@ -534,7 +526,7 @@ void llvm_var_spec(table_element ** symtab, is_var_spec* ivs){
 }
 
 
-int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int counter){
+int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now){
     //{d_if, d_for, d_return, d_print, d_assign, d_statement_list, d_final_statement
     int next = nvar_now;
 
@@ -543,10 +535,10 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
     if (!is_unreachable){
         switch (is->type_state){
             case d_if:
-                next = llvm_if_statement(is->statement.u_if_state, symtab, nvar_now, counter);
+                next = llvm_if_statement(is->statement.u_if_state, symtab, nvar_now);
                 break;
             case d_for:
-                next = llvm_for_statement(is->statement.u_for_state, symtab, nvar_now, counter);
+                next = llvm_for_statement(is->statement.u_for_state, symtab, nvar_now);
                 last_was_label = 0;
                 break;
             case d_return:
@@ -563,7 +555,7 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
                 last_was_label = 0;
                 break;
             case d_statement_list:
-                next = llvm_statements_list(is->statement.isl, symtab, nvar_now, counter);
+                next = llvm_statements_list(is->statement.isl, symtab, nvar_now);
                 break;
             case d_final_statement:
                 next = llvm_final_statement(is->statement.u_state, symtab, nvar_now);
@@ -581,9 +573,11 @@ int llvm_statement( is_statement* is, table_element ** symtab, int nvar_now, int
 }
 
 
-int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now, int counter){    
+int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now){    
     char* token;
     
+    int counter = label_counter;
+
     bool _bef_if = 0, _if = 0, _else = 0;
     token = llvm_expression_or_list(ifs->iel, NULL, nvar_now, symtab);
 
@@ -594,7 +588,9 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
 
     return_in_statement = 0;
     printf("then%d:\n", counter);
-    nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now, counter + 1);
+
+    label_counter+=1;
+    nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now);
     is_unreachable = 0;
 
     if ( (_if = !return_in_statement) )
@@ -604,7 +600,7 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
     if (ifs->ies != NULL){
         return_in_statement = 0;
         printf("else%d:\n", counter);
-        nvar_now = llvm_else_statement(ifs->ies, symtab, nvar_now, counter + 1);
+        nvar_now = llvm_else_statement(ifs->ies, symtab, nvar_now);
         is_unreachable = 0;
         if ((_else = !return_in_statement) )
             printf("\tbr label %%ifcont%d\n", counter);
@@ -616,23 +612,26 @@ int llvm_if_statement(is_if_statement* ifs, table_element**symtab, int nvar_now,
         printf("ifcont%d:\n", counter);
         last_was_label = 1;
     }else{
+        is_unreachable = 1;
         last_was_label = 0;
     }
     
-    label_counter += counter;
+    //label_counter += counter;
 
     return nvar_now;
 }
 
 
-int llvm_else_statement(is_else_statement* ies,table_element**symtab, int nvar_now, int counter){
-    nvar_now = llvm_statements_list(ies->isl, symtab, nvar_now, counter);
+int llvm_else_statement(is_else_statement* ies,table_element**symtab, int nvar_now){
+    nvar_now = llvm_statements_list(ies->isl, symtab, nvar_now);
 
     return nvar_now;
 }
 
 
-int llvm_for_statement(is_for_statement* ifs, table_element**symtab, int nvar_now, int counter){
+int llvm_for_statement(is_for_statement* ifs, table_element**symtab, int nvar_now){
+    int counter = label_counter;
+
     printf("\tbr label %%startloop%d\n", counter);
     printf("startloop%d:\n", counter);    
 
@@ -641,12 +640,13 @@ int llvm_for_statement(is_for_statement* ifs, table_element**symtab, int nvar_no
 
     printf("loop%d:\n", counter);
 
-    nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now, counter+1);
+    label_counter+=1;
+    nvar_now = llvm_statements_list(ifs->isl, symtab, token[0] == '%' ? atoi(token+1)+1 : nvar_now);
     printf("\tbr label %%startloop%d\n", counter);
 
     printf("endloop%d:\n", counter);
 
-    label_counter += counter;
+    //label_counter += counter;
 
     return nvar_now;
 }
@@ -661,7 +661,8 @@ int llvm_return_statement(is_return_statement* irs, table_element**symtab, int n
     char * token = llvm_expression_or_list(irs->iel, NULL, nvar_now, symtab);
     printf("\tret ");
     llvm_print_type(irs->iel->expression_type);
-    printf(" %s\n", token);
+    if(irs->iel->expression_type!=d_none)
+        printf(" %s\n", token);
 
     return_in_statement = 1;
     return token[0] == '%'? atoi(token+1)+1 : nvar_now;
@@ -871,11 +872,11 @@ int llvm_assign_statement(is_assign_statement* ias, table_element**symtab, int n
 }
 
 
-int llvm_statements_list(is_statements_list* isl, table_element**symtab, int nvar_now, int counter){
+int llvm_statements_list(is_statements_list* isl, table_element**symtab, int nvar_now){
     if (isl == NULL) return nvar_now;
     
     for (is_statements_list * current = isl; current; current = current->next){
-        nvar_now = llvm_statement(current->val, symtab, nvar_now, counter);
+        nvar_now = llvm_statement(current->val, symtab, nvar_now);
     }
 
     return nvar_now;
@@ -1230,19 +1231,7 @@ char * llvm_final_expression(is_final_expression * ife, id_token* aux, int nvar_
 
         case d_reallit:
             token = (char * ) malloc(33);
-            if (is_exponent(ife->expr.u_reallit->reallit->id)){
-                double real = strtof(ife->expr.u_reallit->reallit->id, NULL);
-                sprintf(token, "%.08f", real);
-                
-            }else{
-                if (has_point(ife->expr.u_reallit->reallit->id)){
-                    if (ife->expr.u_reallit->reallit->id[0]!='.')
-                        sprintf(token, "%s", ife->expr.u_reallit->reallit->id);
-                    else
-                        sprintf(token, "0%s", ife->expr.u_reallit->reallit->id);
-                }else
-                    sprintf(token, "%s.0", ife->expr.u_reallit->reallit->id);
-            }
+            sprintf(token, "%.08f", atof(ife->expr.u_reallit->reallit->id));
             return token;
 
         case d_id:
