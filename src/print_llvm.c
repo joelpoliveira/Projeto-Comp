@@ -8,19 +8,15 @@
 #include <math.h>
 #include <stdbool.h>
 
-
-// TODO erro no bigmod, label do if
-// TODO erro no gcd por causa do not
-
 /*
     Submissão no Mooshak:
         ====Meta 4====
-        A -> 146/250    :: All 
+        A -> 236/250    :: All 
         B -> 33/41      :: Printing, variable declaration, assignment
-        C -> 18/59      :: Expressions
-        D -> 6/54       :: Statements if and for 
+        C -> 53/59      :: Expressions
+        D -> 54/54       :: Statements if and for 
         E -> 55/55      :: Functions, Calls, return, expressions 
-        F -> 34/41      :: bigmod, circle, fibonacci, gcd, divide, factorial
+        F -> 41/41      :: bigmod, circle, fibonacci, gcd, divide, factorial
 
 */
 
@@ -351,7 +347,7 @@ void llvm_declarations_list(is_declarations_list* idl){
     }
     if (!main_declared){
         printf("define i32 @main(i32 %%argc, i8** %%argv){\n");
-        printf("\treturn i32 0\n");
+        printf("\tret i32 0\n");
         printf("}\n");
     }
 }
@@ -403,10 +399,14 @@ void llvm_func_declaration(is_func_dec* ifd){
     //printf("=========== %d\n", tmp->type);
 
     if (tmp->type == d_none && !already_printed){
-        if (strcmp(ifd->id->id, "main") == 0)
+        if (strcmp(ifd->id->id, "main") == 0){
             printf("\tret i32 0\n");
-        else
+        } else
             printf("\tret void\n");
+    }
+
+    if (!return_in_statement && strcmp(ifd->id->id, "main") == 0){
+        printf("\tret i32 0\n");
     }
 
     printf("}\n\n");
@@ -887,6 +887,7 @@ int llvm_final_statement(is_final_statement* ifs, table_element**symtab, int nva
     if (ifs == NULL) return nvar_now;
     char* token;
     int next;
+    table_element* tmp;
 
     switch (ifs->type_state){
         case d_function_invoc:
@@ -896,12 +897,19 @@ int llvm_final_statement(is_final_statement* ifs, table_element**symtab, int nva
         case d_arguments:
             // token -> valor em os.Args[token]
             declare_atoi = 1;
+
             token = llvm_expression_or_list(ifs->statement.ipa->iel, NULL, nvar_now, symtab);
             next = (token[0]=='%') ? atoi(token+1)+1 : nvar_now;
+            tmp = search_symbol(program->symtab, ifs->statement.ipa->id->id);
             printf("\t%%%d = getelementptr i8*, i8** %%argv, i32 %s\n", next, token);
             printf("\t%%%d = load i8*, i8** %%%d\n", next+1, next);
             printf("\t%%%d = call i32 (i8*, ...) bitcast (i32 (...)* @atoi to i32 (i8*, ...)*)(i8* %%%d)\n", next+2, next+1);
-            printf("\tstore i32 %%%d, i32* %%%s\n", next+2, ifs->statement.ipa->id->id);
+            printf("\tstore i32 %%%d, i32* ", next+2);
+            if (tmp == NULL){
+                printf("%%%s\n", ifs->statement.ipa->id->id);
+            } else {
+                printf("@%s\n", ifs->statement.ipa->id->id);
+            }
             nvar_now = next + 3;
             break;
         
