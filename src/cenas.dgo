@@ -1,11 +1,14 @@
 package main
 
-func teste(a int, b int) int {
 
-    return 0
+
+func teste() float32 {
+    return .1E10
 }
 
 func main() {
-    fmt.Println("Print123%d%f%.08fTesting%s");
-    fmt.Println("cena do printf %s %d %l %x");
+    //fmt.Println("cenas \\ deste \r genero \t dao \f problemas \" sim \n");
+    //fmt.Println("estas tambem %a %b %c %d %e %f %g %h %i %j %k %l %m %n %o %p");
+    //fmt.Println("Hello ?")
+    fmt.Println("\\5C");
 }

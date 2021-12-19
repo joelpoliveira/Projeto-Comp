@@ -14,7 +14,7 @@
         A -> 236/250    :: All 
         B -> 33/41      :: Printing, variable declaration, assignment
         C -> 53/59      :: Expressions
-        D -> 54/54       :: Statements if and for 
+        D -> 54/54      :: Statements if and for 
         E -> 55/55      :: Functions, Calls, return, expressions 
         F -> 41/41      :: bigmod, circle, fibonacci, gcd, divide, factorial
 

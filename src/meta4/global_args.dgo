@@ -1,0 +1,14 @@
+// output generated with call argument 10
+package main
+
+var argument int;
+
+func main() int {
+    argument,_ = strconv.Atoi(os.Args[1]);
+
+    print_arg()
+}
+
+func print_arg(){
+    fmt.Println(argument);
+}

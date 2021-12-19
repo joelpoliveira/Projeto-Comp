@@ -1,0 +1,19 @@
+package main;
+
+func main() {
+	var n, sz, id, x int;
+	n = 0;
+	sz = 5
+	id = 30;
+	x = 10
+
+    if( n==0 || -sz < 10 && !( id == 30 ) ) {
+        if( (x <= 100) == (90 >= -3) ){
+            return;
+        }
+        {
+            n = 10;
+            n = 3 + 4 - 6 + 7;
+        }
+    }
+}
