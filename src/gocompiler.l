@@ -217,7 +217,7 @@ int main(int argc, char *argv[]){
                 free_ast(program);
             }
 
-            if(!flag_1 && !flag_2 && !flag_3)
+            if(!flag_1 && !flag_2 && !flag_3 && !error_flag)
                 llvm_program(program);
         }
 

@@ -11,14 +11,17 @@
 
 //extern table_element* symtab;
 extern is_program * program;
+extern bool error_flag;
 
 
 void print_already_defined(char* id, int line, int col){
+    error_flag = 1;
     printf("Line %d, column %d: Symbol %s already defined\n", line, col+1, id);
 }
 
 
 void print_cannot_find(char* id, int line, int col){
+    error_flag = 1;
     printf("Line %d col %d: Cannot find symbol %s\n", line, col+1, id);
 }
 
@@ -50,6 +53,7 @@ void print_parameter_type_(parameter_type type){
 }
 
 void print_cannot_find_function_(table_element ** symtab, is_function_invocation * ifi){
+    error_flag = 1;
     printf("Line %d, column %d: Cannot find symbol %s(", ifi->id->line, ifi->id->col+1, ifi->id->id);
 //    id_token * token;
     is_func_inv_expr_list * ieoll;
@@ -63,6 +67,7 @@ void print_cannot_find_function_(table_element ** symtab, is_function_invocation
 }
 
 void print_cannot_find_function_diff_params(table_element ** symtab, is_id_type_list * iitl, int index, is_function_invocation * ifi){
+    error_flag = 1;
     printf("Line %d, column %d: Cannot find symbol %s(", ifi->id->line, ifi->id->col+1, ifi->id->id);
     //id_token * token;
     is_func_inv_expr_list * ieoll;
@@ -139,6 +144,7 @@ char * self_str(self_operation_type type){
 }
 
 void print_oper_cannot_apply(next_oper * op, char * oper, parameter_type ltype, parameter_type rtype){
+    error_flag = 1;
     printf("Line %d, column %d: Operator %s cannot be applied to types ", op->line, op->col+1, oper);
     print_parameter_type_(ltype);
     printf(", ");
@@ -148,6 +154,7 @@ void print_oper_cannot_apply(next_oper * op, char * oper, parameter_type ltype, 
 }
 
 void print_oper_cannot_apply_self(next_oper * op, char * oper, parameter_type type){
+    error_flag = 1;
     printf("Line %d, column %d: Operator %s cannot be applied to type ", op->line, op->col+1, oper);
     print_parameter_type_(type);
     printf("\n");
@@ -193,8 +200,10 @@ void check_declarations_list(table_element** symtab, is_declarations_list* idl){
 void check_func_declaration(table_element** symtab, is_func_dec* ifd){
     if (search_func(program->symtab, ifd->id->id)==NULL)
         ifd->symtab = insert_func(symtab, ifd->id, ifd->ipl, ifd->type, ifd);
-    else
+    else{
+        error_flag = 1;
         printf("Line %d, column %d: Symbol %s already defined\n", ifd->id->line, ifd->id->col+1, ifd->id->id);
+    }
 }
 
 
@@ -281,6 +290,7 @@ void check_if_statement(table_element** symtab, is_if_statement* ifs){
 
     if (ifs->iel != NULL) {
         if(ifs->iel->expression_type != d_bool && ifs->iel->expression_type!=d_undef){
+            error_flag = 1;
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col+1);
             symbol_print_type(ifs->iel->expression_type);
             printf(" in if statement\n");
@@ -307,6 +317,7 @@ void check_for_statement(table_element** symtab, is_for_statement* ifs){
 
     if (ifs->iel != NULL) {
         if (ifs->iel->expression_type != d_bool && ifs->iel->expression_type!=d_undef){
+            error_flag = 1;
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col + 1);
             symbol_print_type(ifs->iel->expression_type);
             printf(" in for statement\n");
@@ -327,6 +338,7 @@ void check_return_statement(table_element** symtab, is_return_statement* irs){
     if (temp != NULL && irs->iel != NULL){
         if ( (irs->iel->expression_type != temp->type) || (irs->iel->expression_type == d_undef) 
             ){
+            error_flag = 1;
             printf("Line %d, column %d: Incompatible type ", ltoken->line, ltoken->col+1);
             symbol_print_type(irs->iel->expression_type);
             printf(" in return statement\n");
@@ -351,6 +363,7 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
             token = check_expression_or_list(symtab, ips->print.iel);
             check_or_err(symtab, ips->print.iel);
             if (ips->print.iel->expression_type==d_undef){
+                error_flag = 1;
                 printf("Line %d, column %d: Incompatible type ", token->line, token->col+1);
                 print_parameter_type_(ips->print.iel->expression_type);
                 printf(" in fmt.Println statement\n");
@@ -375,8 +388,10 @@ void check_print_statement(table_element** symtab, is_print_statement* ips){
 
 void check_assign_statement(table_element** symtab, is_assign_statement* ias){
 
-    if (!search_in_tables(symtab, ias->id))
+    if (!search_in_tables(symtab, ias->id)){
+        error_flag = 1;
         printf("Line %d, column %d: Cannot find symbol %s\n", ias->id->line, ias->id->col+1, ias->id->id);
+    }
 
     // Se a variável estiver declarada antes com um tipo
     // não pode ser atribuido outro tipo
@@ -388,6 +403,7 @@ void check_assign_statement(table_element** symtab, is_assign_statement* ias){
         if ( (ias->iel->expression_type != ias->id->type
         || ias->iel->expression_type == d_undef 
         || ias->id->type == d_undef) ){
+            error_flag = 1;
             printf("Line %d, column %d: Operator = cannot be applied to types ", ias->loc->line, ias->loc->col + 1);
             symbol_print_type(ias->id->type);
             printf(", ");
@@ -433,6 +449,7 @@ void check_final_statement(table_element** symtab, is_final_statement* ifs){
             check_or_err(symtab, ifs->statement.ipa->iel);
 
             if (ifs->statement.ipa->id->type!=d_integer || ifs->statement.ipa->iel->expression_type!=d_integer){
+                error_flag = 1;
                 printf("Line %d, column %d: Operator strconv.Atoi cannot be applied to types ", ifs->statement.ipa->loc->line, ifs->statement.ipa->loc->col + 1);
                 symbol_print_type(ifs->statement.ipa->id->type);
                 printf(", ");
@@ -786,6 +803,7 @@ bool check_final_err(table_element ** symtab, is_final_expression * ife){
         break;
     case d_id:
         if (ife->expression_type == d_undef){
+            error_flag = 1;
             printf("Line %d, column %d: Cannot find symbol %s\n", ife->expr.u_id->id->line, ife->expr.u_id->id->col+1, ife->expr.u_id->id->id);
             error_ocurred = 1;
         }
@@ -902,8 +920,10 @@ parameter_type get_var_id_type(table_element** symtab, id_token * id){
 
 
 void check_id(table_element** symtab, id_token* id){
-    if (!search_in_tables(symtab, id))
+    if (!search_in_tables(symtab, id)){
+        error_flag = 1;
         printf("Line %d, column %d: Cannot find symbol %s\n", id->line, id->col+1, id->id);
+    }
 }
 
 
@@ -1015,6 +1035,7 @@ bool check_params(table_element ** symtab, table_element* symbol, is_function_in
 
 
 void check_func_inv_err(table_element ** symtab, is_function_invocation * ifi){
+    error_flag = 1;
     printf("Line %d, column %d: Cannot find symbol %s(", ifi->id->line, ifi->id->col+1, ifi->id->id);
     for (is_func_inv_expr_list * temp = ifi->iel; temp; temp = temp->next){
         print_parameter_type_(temp->val->expression_type);
