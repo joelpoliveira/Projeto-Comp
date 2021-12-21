@@ -18,6 +18,7 @@ make && ./gocompiler [-l | -t | -s] < {nome_ficheiro}.dgo | diff {nome_ficheiro}
  - -l -> 1ª meta
  - -t -> 2ª meta
  - -s -> 3ª meta
+ - (sem flag) -> 4ª meta
 
 ### TODO
 
@@ -39,8 +40,8 @@ make && ./gocompiler [-l | -t | -s] < {nome_ficheiro}.dgo | diff {nome_ficheiro}
     - [x] Tabela de símbolos
         - [x] Global
         - [x] Funções
-    - [ ] Anotações na AST
-    - [ ] Erros Semânticos
+    - [x] Anotações na AST
+    - [x] Erros Semânticos
 
-- [ ] Meta 4 - Code Generation
+- [x] Meta 4 - Code Generation
 
